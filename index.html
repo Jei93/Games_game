@@ -3,313 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Industry Evolution Simulator - Game Dev Tycoon</title>
+    <title>Industry Evolution Simulator - Game Dev Tycoon Clone</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
         }
 
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #1a1a2e;
-            --bg-card: #16213e;
-            --bg-card-hover: #1e2a4a;
-            --neon-blue: #00ffff;
-            --neon-purple: #9d4edd;
-            --neon-pink: #ff00ff;
-            --neon-green: #00ff00;
-            --neon-yellow: #ffff00;
-            --neon-red: #ff3131;
+            --bg-dark: #1a1a1a;
+            --bg-panel: #2a2a2a;
+            --bg-card: #3a3a3a;
+            --bg-card-hover: #4a4a4a;
+            --pixel-green: #00ff00;
+            --pixel-blue: #0088ff;
+            --pixel-yellow: #ffff00;
+            --pixel-red: #ff0000;
+            --pixel-purple: #ff00ff;
+            --pixel-orange: #ff8800;
+            --pixel-pink: #ff0088;
             --text-primary: #ffffff;
-            --text-secondary: #b8b8b8;
-            --border: #2d2d44;
-            --shadow: 0 0 20px rgba(157, 78, 221, 0.3);
+            --text-secondary: #aaaaaa;
+            --border: #555555;
         }
 
         body {
-            font-family: 'Exo 2', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a0033 100%);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            background: var(--bg-dark);
             color: var(--text-primary);
             overflow: hidden;
             height: 100vh;
+            line-height: 1.5;
         }
 
-        /* ANIMACIONES */
-        @keyframes glow {
-            0%, 100% { text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue); }
-            50% { text-shadow: 0 0 20px var(--neon-purple), 0 0 30px var(--neon-purple); }
+        /* 🎮 PIXEL ART EFFECTS */
+        .pixel-border {
+            border: 3px solid var(--border);
+            box-shadow: 
+                inset -3px -3px 0 0 #1a1a1a,
+                inset 3px 3px 0 0 #5a5a5a;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        .pixel-button {
+            background: var(--border);
+            border: none;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.1s;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 9px;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .pixel-button:hover {
+            background: var(--pixel-blue);
+            color: var(--bg-dark);
         }
 
-        @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .pixel-button:active {
+            transform: scale(0.95);
         }
 
+        .pixel-bar {
+            height: 16px;
+            background: var(--bg-panel);
+            border: 2px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pixel-fill {
+            height: 100%;
+            background: var(--pixel-green);
+            transition: width 0.5s;
+            image-rendering: pixelated;
+        }
+
+        /* 📺 GAME LAYOUT */
         .game-container {
             display: grid;
-            grid-template-columns: 280px 1fr 320px;
+            grid-template-columns: 260px 1fr 300px;
+            grid-template-rows: 100%;
             height: 100vh;
-            gap: 15px;
-            padding: 15px;
+            gap: 10px;
+            padding: 10px;
         }
 
-        /* SIDEBAR */
-        .sidebar {
-            background: var(--bg-secondary);
-            border-radius: 15px;
-            padding: 20px;
+        .sidebar, .main-area, .event-panel {
+            background: var(--bg-panel);
+            border: 3px solid var(--border);
             overflow-y: auto;
-            border: 2px solid var(--border);
-            box-shadow: var(--shadow);
-            animation: slideIn 0.5s ease-out;
+            position: relative;
         }
 
-        .studio-header {
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .main-area {
+            padding: 15px;
+        }
+
+        .event-panel {
+            padding: 10px;
+        }
+
+        /* 🏢 STUDIO INFO */
+        .studio-banner {
+            background: var(--pixel-purple);
+            color: var(--bg-dark);
+            padding: 10px;
             text-align: center;
-            margin-bottom: 25px;
-            padding: 15px;
-            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
-            border-radius: 10px;
-            animation: glow 3s infinite;
+            margin-bottom: 10px;
+            font-size: 11px;
         }
 
-        .studio-name {
-            font-size: 1.4rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-        }
-
-        .resource-card {
-            background: var(--bg-card);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-
-        .resource-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.4);
-        }
-
-        .resource-label {
+        .resource-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-secondary);
+        }
+
+        .resource-label {
+            color: var(--pixel-yellow);
         }
 
         .resource-value {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--neon-blue);
+            color: var(--pixel-green);
         }
 
-        .resource-bar {
-            width: 100%;
-            height: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-            overflow: hidden;
+        /* 📊 STATS BOXES */
+        .stat-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            padding: 8px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .stat-box:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 8px;
+        }
+
+        .stat-value {
+            color: var(--pixel-green);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        /* 🎮 GAME CARDS */
+        .game-card {
+            background: var(--bg-card);
+            border: 3px solid var(--border);
+            padding: 12px;
+            margin-bottom: 12px;
             position: relative;
         }
 
-        .resource-fill {
-            height: 100%;
-            border-radius: 5px;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 10px currentColor;
-        }
-
-        .cash-fill { background: linear-gradient(90deg, var(--neon-green), #00cc00); }
-        .team-fill { background: linear-gradient(90deg, var(--neon-blue), #0099ff); }
-        .reputation-fill { background: linear-gradient(90deg, var(--neon-yellow), #cccc00); }
-        .hype-fill { background: linear-gradient(90deg, var(--neon-purple), #cc00cc); }
-
-        .action-button {
-            width: 100%;
-            padding: 12px;
+        .game-card-title {
+            color: var(--pixel-blue);
+            font-size: 11px;
             margin-bottom: 10px;
-            background: var(--bg-card-hover);
-            border: 2px solid var(--neon-blue);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
             display: flex;
-            flex-direction: column;
             align-items: center;
             gap: 5px;
         }
 
-        .action-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px var(--neon-blue);
-        }
-
-        .action-title {
-            font-size: 0.9rem;
-        }
-
-        .action-cost {
-            font-size: 0.7rem;
-            color: var(--neon-red);
-        }
-
-        /* MAIN AREA */
-        .main-area {
-            background: var(--bg-secondary);
-            border-radius: 15px;
-            padding: 20px;
-            border: 2px solid var(--border);
-            box-shadow: var(--shadow);
-            overflow-y: auto;
-        }
-
-        .main-header {
-            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            animation: slideDown 0.5s ease-out;
-        }
-
-        .year-counter {
-            font-size: 3rem;
-            font-weight: 900;
-            color: var(--neon-blue);
-            animation: glow 2s infinite;
-        }
-
-        .phase-text {
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            margin-top: 5px;
-        }
-
-        .problem-alert {
-            background: var(--bg-card);
-            border-left: 4px solid var(--neon-red);
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-style: italic;
-            color: var(--text-secondary);
-        }
-
-        .card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-
-        .card:hover {
-            border-color: var(--neon-purple);
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            color: var(--neon-blue);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         .option-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-top: 15px;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 8px;
         }
 
         .option-button {
-            background: var(--bg-card-hover);
+            background: var(--bg-panel);
             border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
             color: var(--text-primary);
+            padding: 8px;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
+            text-align: center;
+            font-size: 8px;
+            transition: all 0.1s;
         }
 
         .option-button:hover {
-            border-color: var(--neon-purple);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3);
+            border-color: var(--pixel-blue);
+            background: var(--pixel-blue);
+            color: var(--bg-dark);
         }
 
         .option-button.selected {
-            border-color: var(--neon-green);
-            background: rgba(0, 255, 0, 0.1);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+            border-color: var(--pixel-green);
+            background: var(--pixel-green);
+            color: var(--bg-dark);
         }
 
-        /* EVENT PANEL */
-        .event-panel {
-            background: var(--bg-secondary);
-            border-radius: 15px;
-            padding: 20px;
-            border: 2px solid var(--border);
-            box-shadow: var(--shadow);
-            overflow-y: auto;
-            animation: slideIn 0.5s ease-out reverse;
-        }
-
-        .event-log {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
+        /* 📜 EVENT LOG */
         .event-item {
             background: var(--bg-card);
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid var(--neon-blue);
-            font-size: 0.85rem;
-            animation: fadeIn 0.3s ease-out;
+            border: 2px solid var(--border);
+            padding: 6px;
+            margin-bottom: 6px;
+            font-size: 8px;
+            line-height: 1.4;
         }
 
-        .event-item.danger { border-left-color: var(--neon-red); }
-        .event-item.success { border-left-color: var(--neon-green); }
-        .event-item.warning { border-left-color: var(--neon-yellow); }
+        .event-item.danger { border-color: var(--pixel-red); }
+        .event-item.success { border-color: var(--pixel-green); }
+        .event-item.warning { border-color: var(--pixel-yellow); }
 
-        .event-time {
-            font-size: 0.7rem;
+        .event-header {
             color: var(--text-secondary);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
-        /* MODAL */
+        /* 🎯 MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -318,7 +244,6 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(5px);
             z-index: 1000;
             place-items: center;
         }
@@ -328,827 +253,861 @@
         }
 
         .modal-content {
-            background: var(--bg-secondary);
-            border: 2px solid var(--neon-purple);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 800px;
-            width: 90%;
+            background: var(--bg-panel);
+            border: 4px solid var(--pixel-blue);
+            padding: 20px;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 0 40px var(--shadow);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
         }
 
         .modal-title {
-            font-size: 1.8rem;
-            color: var(--neon-blue);
+            color: var(--pixel-blue);
+            font-size: 11px;
         }
 
-        .close-btn {
-            font-size: 2rem;
-            color: var(--neon-red);
+        .close-button {
+            color: var(--pixel-red);
             cursor: pointer;
-            transition: transform 0.2s;
+            font-size: 11px;
         }
 
-        .close-btn:hover {
-            transform: rotate(90deg);
+        .modal-section {
+            margin-bottom: 15px;
         }
 
-        /* STATS */
-        .stats-grid {
+        .modal-section h4 {
+            color: var(--pixel-yellow);
+            margin-bottom: 8px;
+            font-size: 9px;
+        }
+
+        .genre-grid, .theme-grid, .platform-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
+            gap: 5px;
         }
 
-        .stat-box {
-            background: var(--bg-card);
-            padding: 15px;
-            border-radius: 8px;
+        /* 📈 REVIEW SCREEN */
+        .review-modal {
             text-align: center;
-            border: 1px solid var(--border);
         }
 
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--neon-blue);
+        .review-score {
+            font-size: 48px;
+            color: var(--pixel-green);
+            margin: 20px 0;
+            text-shadow: 3px 3px 0 var(--bg-dark);
         }
 
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
+        .review-stars {
+            font-size: 24px;
+            color: var(--pixel-yellow);
+            margin-bottom: 20px;
         }
 
-        /* NOTIFICATION */
-        .notification {
+        .review-comments {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        /* 💾 SAVE/LOAD */
+        .save-indicator {
             position: fixed;
-            top: 20px;
-            right: -400px;
-            background: var(--bg-secondary);
-            border: 2px solid var(--neon-green);
-            border-radius: 12px;
-            padding: 20px;
-            max-width: 350px;
-            box-shadow: var(--shadow);
-            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 2000;
+            bottom: 10px;
+            right: 10px;
+            background: var(--pixel-green);
+            color: var(--bg-dark);
+            padding: 5px 10px;
+            font-size: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        .notification.show {
-            right: 20px;
+        .save-indicator.show {
+            opacity: 1;
         }
 
-        .notification-title {
-            color: var(--neon-green);
-            font-weight: 800;
-            margin-bottom: 5px;
-        }
-
-        .notification-text {
-            font-size: 0.9rem;
-            color: var(--text-primary);
-        }
-
-        /* ACHIEVEMENT */
+        /* 🎉 ACHIEVEMENT */
         .achievement-popup {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
-            padding: 30px 50px;
-            border-radius: 20px;
-            box-shadow: 0 0 60px var(--neon-purple);
-            z-index: 3000;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--pixel-purple);
+            color: var(--text-primary);
+            border: 4px solid var(--pixel-yellow);
+            padding: 20px 40px;
+            z-index: 2000;
+            transition: transform 0.3s;
+            text-align: center;
         }
 
         .achievement-popup.active {
             transform: translate(-50%, -50%) scale(1);
         }
 
-        .achievement-text {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: white;
+        .achievement-title {
+            font-size: 11px;
+            margin-bottom: 5px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 1024px) {
-            .game-container {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr auto;
-                height: auto;
-            }
-            
-            .sidebar, .event-panel {
-                max-height: 250px;
-            }
+        .achievement-desc {
+            font-size: 8px;
+            color: var(--text-secondary);
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <!-- SIDEBAR - RECURSOS -->
+        <!-- 🎮 SIDEBAR - RESOURCES -->
         <aside class="sidebar">
-            <div class="studio-header">
-                <div class="studio-name" id="studioName">🔥 GARAGE STUDIOS</div>
-                <div style="font-size: 0.8rem; color: var(--text-secondary);">NIVEL 1</div>
+            <div class="studio-banner">
+                🎮 GARAGE STUDIOS 🎮
+                <div style="font-size: 8px; margin-top: 5px;">LEVEL 1 - GARAGE</div>
             </div>
 
-            <div class="resource-card">
-                <div class="resource-label">
-                    <span>💰 CAJA</span>
-                    <span class="resource-value" id="cashDisplay">$500,000</span>
-                </div>
-                <div class="resource-bar">
-                    <div class="resource-fill cash-fill" id="cashBar" style="width: 50%"></div>
-                </div>
-            </div>
-
-            <div class="resource-card">
-                <div class="resource-label">
-                    <span>👥 EQUIPO</span>
-                    <span class="resource-value" id="teamDisplay">15 / 50</span>
-                </div>
-                <div class="resource-bar">
-                    <div class="resource-fill team-fill" id="teamBar" style="width: 30%"></div>
+            <div class="stat-box">
+                <div class="stat-title">💰 CASH</div>
+                <div class="stat-value" id="cash">$500K</div>
+                <div class="pixel-bar">
+                    <div class="pixel-fill cash-fill" style="width: 50%"></div>
                 </div>
             </div>
 
-            <div class="resource-card">
-                <div class="resource-label">
-                    <span>⭐ REPUTACIÓN</span>
-                    <span class="resource-value" id="repDisplay">65%</span>
-                </div>
-                <div class="resource-bar">
-                    <div class="resource-fill reputation-fill" id="repBar" style="width: 65%"></div>
+            <div class="stat-box">
+                <div class="stat-title">👥 TEAM</div>
+                <div class="stat-value" id="team">15 / 50</div>
+                <div class="pixel-bar">
+                    <div class="pixel-fill team-fill" style="width: 30%"></div>
                 </div>
             </div>
 
-            <div class="resource-card">
-                <div class="resource-label">
-                    <span>🔥 HYPE</span>
-                    <span class="resource-value" id="hypeDisplay">30%</span>
-                </div>
-                <div class="resource-bar">
-                    <div class="resource-fill hype-fill" id="hypeBar" style="width: 30%"></div>
+            <div class="stat-box">
+                <div class="stat-title">⭐ REPUTATION</div>
+                <div class="stat-value" id="reputation">65%</div>
+                <div class="pixel-bar">
+                    <div class="pixel-fill rep-fill" style="width: 65%"></div>
                 </div>
             </div>
 
-            <button class="action-button" onclick="contratarPersonal()">
-                <span class="action-title">💼 CONTRATAR</span>
-                <span class="action-cost">-$50,000</span>
-            </button>
-            <button class="action-button" onclick="invertirMarketing()">
-                <span class="action-title">📢 MARKETING</span>
-                <span class="action-cost">-$30,000</span>
-            </button>
-            <button class="action-button" onclick="investigarTecnologia()">
-                <span class="action-title">🔬 I+D</span>
-                <span class="action-cost">-$75,000</span>
-            </button>
-            <button class="action-button" onclick="mudarOficina()">
-                <span class="action-title">🏢 MUDANZA</span>
-                <span class="action-cost">-$150,000</span>
-            </button>
+            <div class="stat-box">
+                <div class="stat-title">🔥 HYPE</div>
+                <div class="stat-value" id="hype">30%</div>
+                <div class="pixel-bar">
+                    <div class="pixel-fill hype-fill" style="width: 30%"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="pixel-button" style="width: 100%; margin-bottom: 5px;" onclick="hireStaff()">
+                    💼 HIRE STAFF
+                </button>
+                <button class="pixel-button" style="width: 100%; margin-bottom: 5px;" onclick="investMarketing()">
+                    📢 MARKETING
+                </button>
+                <button class="pixel-button" style="width: 100%; margin-bottom: 5px;" onclick="researchTech()">
+                    🔬 R&D
+                </button>
+                <button class="pixel-button" style="width: 100%;" onclick="moveOffice()">
+                    🏢 MOVE OFFICE
+                </button>
+            </div>
+
+            <div class="stat-box" style="margin-top: 20px;">
+                <div class="stat-title">GAMES RELEASED</div>
+                <div class="stat-value" id="gamesReleased">0</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-title">AVG SCORE</div>
+                <div class="stat-value" id="avgScore">—</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-title">TOTAL REVENUE</div>
+                <div class="stat-value" id="totalRevenue">$0</div>
+            </div>
         </aside>
 
-        <!-- MAIN GAME AREA -->
+        <!-- 🎯 MAIN GAME AREA -->
         <main class="main-area">
-            <div class="main-header">
-                <div style="font-size: 1rem; color: var(--text-secondary);">📊 INDUSTRY EVOLUTION SIMULATOR</div>
-                <div class="year-counter" id="yearDisplay">2000</div>
-                <div class="phase-text" id="phaseText">ERA RETAIL (2000-2004)</div>
+            <div class="game-card" style="background: var(--pixel-purple); color: var(--bg-dark);">
+                <div class="game-card-title" style="color: var(--bg-dark); justify-content: center;">
+                    📅 YEAR <span id="year">2000</span> - <span id="phase">RETAIL ERA</span>
+                </div>
+                <div style="font-size: 8px; text-align: center; margin-top: 5px;">
+                    <span id="currentProblem">Retail model, early DRM. Indies are invisible.</span>
+                </div>
             </div>
 
-            <div class="problem-alert" id="problemAlert">
-                Modelo retail, primeros DRM; industria AAA en expansión controlada. Los indies son invisibles.
-            </div>
-
-            <div class="card">
-                <h3 class="card-title">🎯 DESARROLLAR JUEGO</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 15px;">Crea tu próximo proyecto. El mercado espera innovación.</p>
+            <div class="game-card">
+                <div class="game-card-title">🎮 DEVELOP NEW GAME</div>
+                <div id="activeProject" style="display: none;">
+                    <div style="background: var(--bg-card-hover); padding: 8px; margin: 10px 0; border: 2px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; font-size: 8px;">
+                            <span><strong id="projectName">NO PROJECT</strong></span>
+                            <span>PROGRESS: <span id="projectProgress">0%</span></span>
+                        </div>
+                        <div class="pixel-bar" style="margin-top: 5px;">
+                            <div class="pixel-fill progress-fill" id="progressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
                 <div class="option-grid">
-                    <button class="option-button" onclick="abrirModalProyecto()">
-                        <span style="font-size: 2rem;">🎮</span>
-                        <strong>NUEVO PROYECTO</strong>
-                        <span style="font-size: 0.8rem; color: var(--text-secondary);">Género, Tema, Plataforma</span>
+                    <button class="pixel-button" id="newGameBtn" onclick="openNewGameModal()">
+                        NEW GAME
                     </button>
-                    <button class="option-button" id="btnContinuar" style="display: none;" onclick="continuarProyecto()">
-                        <span style="font-size: 2rem;">⚙️</span>
-                        <strong id="proyectoActivoNombre">CONTINUAR</strong>
-                        <span style="font-size: 0.8rem; color: var(--text-secondary);" id="proyectoActivoProgreso">0%</span>
+                    <button class="pixel-button" id="continueBtn" style="display: none;" onclick="continueDevelopment()">
+                        CONTINUE
+                    </button>
+                    <button class="pixel-button" onclick="toggleCrunch()">
+                        CRUNCH: <span id="crunchStatus">OFF</span>
+                    </button>
+                    <button class="pixel-button" onclick="takeContract()">
+                        CONTRACT
                     </button>
                 </div>
             </div>
 
-            <div class="card">
-                <h3 class="card-title">⚡ DECISIONES RÁPIDAS</h3>
+            <div class="game-card">
+                <div class="game-card-title">📊 COMPANY ACTIONS</div>
                 <div class="option-grid">
-                    <button class="option-button" onclick="activarCrunch()">
-                        <span style="font-size: 2rem;">🔥</span>
-                        <strong>CRUNCH MODE</strong>
-                        <span style="font-size: 0.8rem; color: var(--text-secondary);">+Velocidad, -Moral</span>
+                    <button class="pixel-button" onclick="investMarketing()">
+                        MARKETING
                     </button>
-                    <button class="option-button" onclick="retiroEquipo()">
-                        <span style="font-size: 2rem;">🏖️</span>
-                        <strong>RETIRO EQUIPO</strong>
-                        <span style="font-size: 0.8rem; color: var(--text-secondary);">+Moral, -$20K</span>
+                    <button class="pixel-button" onclick="teamBuilding()">
+                        TEAM BUILD
                     </button>
-                    <button class="option-button" onclick="trabajoContrato()">
-                        <span style="font-size: 2rem;">📋</span>
-                        <strong>CONTRATO</strong>
-                        <span style="font-size: 0.8rem; color: var(--text-secondary);">+$40K Seguro</span>
+                    <button class="pixel-button" onclick="researchAI()">
+                        AI RESEARCH
                     </button>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-number" id="totalJuegos">0</div>
-                    <div class="stat-label">JUEGOS LANZADOS</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number" id="notaMedia">—</div>
-                    <div class="stat-label">NOTA MEDIA</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number" id="ingresosTotales">$0</div>
-                    <div class="stat-label">INGRESOS TOTALES</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number" id="marketShare">0%</div>
-                    <div class="stat-label">MARKET SHARE</div>
+                    <button class="pixel-button" onclick="patentTech()">
+                        PATENT TECH
+                    </button>
                 </div>
             </div>
         </main>
 
-        <!-- EVENT PANEL -->
+        <!-- 📰 EVENT PANEL -->
         <aside class="event-panel">
-            <h2 style="color: var(--neon-blue); margin-bottom: 15px;">
-                📰 NOTICIAS DE LA INDUSTRIA
-            </h2>
-            <div class="event-log" id="eventLog">
+            <div class="game-card-title">📰 INDUSTRY NEWS</div>
+            <div id="eventLog" style="margin-top: 10px;">
                 <div class="event-item">
-                    <div class="event-time">Año 2000 - Mes 1</div>
-                    <div class="event-text">🎮 Tu estudio se funda en un garage. La aventura comienza.</div>
+                    <div class="event-header">2000-01: STUDIO FOUNDED</div>
+                    Your journey begins in a small garage...
                 </div>
             </div>
         </aside>
     </div>
 
-    <!-- MODAL CREAR PROYECTO -->
-    <div class="modal" id="modalProyecto">
+    <!-- 🎮 NEW GAME MODAL -->
+    <div class="modal" id="newGameModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">🎮 CREAR NUEVO JUEGO</h2>
-                <span class="close-btn" onclick="cerrarModalProyecto()">&times;</span>
+                <div class="modal-title">🎮 CREATE NEW GAME</div>
+                <div class="close-button" onclick="closeNewGameModal()">X</div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                <!-- GÉNEROS -->
-                <div>
-                    <h4 style="color: var(--neon-pink); margin-bottom: 10px;">🎲 GÉNEROS</h4>
-                    <button class="option-button" data-tipo="genero" data-valor="accion" onclick="seleccionarOpcion(this)">
-                        <span>🎮</span> ACCIÓN
+            <!-- GENRE SELECTION -->
+            <div class="modal-section">
+                <h4>🎲 SELECT GENRE</h4>
+                <div class="genre-grid">
+                    <button class="option-button" data-type="genre" data-value="action" onclick="selectOption(this)">
+                        🎮 ACTION
                     </button>
-                    <button class="option-button" data-tipo="genero" data-valor="rpg" onclick="seleccionarOpcion(this)">
-                        <span>⚔️</span> RPG
+                    <button class="option-button" data-type="genre" data-value="rpg" onclick="selectOption(this)">
+                        ⚔️ RPG
                     </button>
-                    <button class="option-button" data-tipo="genero" data-valor="estrategia" onclick="seleccionarOpcion(this)">
-                        <span>🗺️</span> ESTRATEGIA
+                    <button class="option-button" data-type="genre" data-value="strategy" onclick="selectOption(this)">
+                        🗺️ STRATEGY
                     </button>
-                    <button class="option-button" data-tipo="genero" data-valor="puzzle" onclick="seleccionarOpcion(this)">
-                        <span>🧩</span> PUZZLE
+                    <button class="option-button" data-type="genre" data-value="puzzle" onclick="selectOption(this)">
+                        🧩 PUZZLE
                     </button>
-                    <button class="option-button" data-tipo="genero" data-valor="terror" onclick="seleccionarOpcion(this)">
-                        <span>👻</span> TERROR
+                    <button class="option-button" data-type="genre" data-value="horror" onclick="selectOption(this)">
+                        👻 HORROR
                     </button>
-                    <button class="option-button" data-tipo="genero" data-valor="simulacion" onclick="seleccionarOpcion(this)">
-                        <span>🏭</span> SIMULACIÓN
-                    </button>
-                </div>
-
-                <!-- TEMAS -->
-                <div>
-                    <h4 style="color: var(--neon-pink); margin-bottom: 10px;">🎨 TEMAS</h4>
-                    <button class="option-button" data-tipo="tema" data-valor="espacial" onclick="seleccionarOpcion(this)">
-                        <span>🚀</span> ESPACIAL
-                    </button>
-                    <button class="option-button" data-tipo="tema" data-valor="medieval" onclick="seleccionarOpcion(this)">
-                        <span>🏰</span> MEDIEVAL
-                    </button>
-                    <button class="option-button" data-tipo="tema" data-valor="cyberpunk" onclick="seleccionarOpcion(this)">
-                        <span>🌆</span> CYBERPUNK
-                    </button>
-                    <button class="option-button" data-tipo="tema" data-valor="fantasia" onclick="seleccionarOpcion(this)">
-                        <span>🦄</span> FANTASÍA
-                    </button>
-                    <button class="option-button" data-tipo="tema" data-valor="zombies" onclick="seleccionarOpcion(this)">
-                        <span>🧟</span> ZOMBIES
-                    </button>
-                    <button class="option-button" data-tipo="tema" data-valor="deportes" onclick="seleccionarOpcion(this)">
-                        <span>⚽</span> DEPORTES
-                    </button>
-                </div>
-
-                <!-- PLATAFORMAS -->
-                <div>
-                    <h4 style="color: var(--neon-pink); margin-bottom: 10px;">📺 PLATAFORMAS</h4>
-                    <button class="option-button" data-tipo="plataforma" data-valor="pc" onclick="seleccionarOpcion(this)">
-                        <span>💻</span> PC
-                    </button>
-                    <button class="option-button" data-tipo="plataforma" data-valor="consola" onclick="seleccionarOpcion(this)">
-                        <span>🎮</span> CONSOLA
-                    </button>
-                    <button class="option-button" data-tipo="plataforma" data-valor="movil" onclick="seleccionarOpcion(this)">
-                        <span>📱</span> MÓVIL
-                    </button>
-                    <button class="option-button" data-tipo="plataforma" data-valor="vr" onclick="seleccionarOpcion(this)">
-                        <span>🥽</span> VR
+                    <button class="option-button" data-type="genre" data-value="simulation" onclick="selectOption(this)">
+                        🏭 SIMULATION
                     </button>
                 </div>
             </div>
 
-            <div style="margin-top: 25px;">
-                <h4 style="color: var(--neon-yellow); margin-bottom: 10px;">💰 PRESUPUESTO DE DESARROLLO</h4>
+            <!-- THEME SELECTION -->
+            <div class="modal-section">
+                <h4>🎨 SELECT THEME</h4>
+                <div class="theme-grid">
+                    <button class="option-button" data-type="theme" data-value="space" onclick="selectOption(this)">
+                        🚀 SPACE
+                    </button>
+                    <button class="option-button" data-type="theme" data-value="medieval" onclick="selectOption(this)">
+                        🏰 MEDIEVAL
+                    </button>
+                    <button class="option-button" data-type="theme" data-value="cyberpunk" onclick="selectOption(this)">
+                        🌆 CYBERPUNK
+                    </button>
+                    <button class="option-button" data-type="theme" data-value="fantasy" onclick="selectOption(this)">
+                        🦄 FANTASY
+                    </button>
+                    <button class="option-button" data-type="theme" data-value="zombies" onclick="selectOption(this)">
+                        🧟 ZOMBIES
+                    </button>
+                    <button class="option-button" data-type="theme" data-value="sports" onclick="selectOption(this)">
+                        ⚽ SPORTS
+                    </button>
+                </div>
+            </div>
+
+            <!-- PLATFORM SELECTION -->
+            <div class="modal-section">
+                <h4>📺 SELECT PLATFORM</h4>
+                <div class="platform-grid">
+                    <button class="option-button" data-type="platform" data-value="pc" onclick="selectOption(this)">
+                        💻 PC
+                    </button>
+                    <button class="option-button" data-type="platform" data-value="console" onclick="selectOption(this)">
+                        🎮 CONSOLE
+                    </button>
+                    <button class="option-button" data-type="platform" data-value="mobile" onclick="selectOption(this)">
+                        📱 MOBILE
+                    </button>
+                    <button class="option-button" data-type="platform" data-value="vr" onclick="selectOption(this)">
+                        🥽 VR
+                    </button>
+                </div>
+            </div>
+
+            <!-- BUDGET -->
+            <div class="modal-section">
+                <h4>💰 DEVELOPMENT BUDGET</h4>
                 <input type="range" id="budgetSlider" min="50000" max="500000" value="150000" 
-                       style="width: 100%; height: 8px; background: var(--border); border-radius: 5px; outline: none; cursor: pointer;">
-                <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.9rem;">
+                       style="width: 100%; height: 10px; background: var(--bg-card); cursor: pointer;"
+                       oninput="updateBudget(this.value)">
+                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 8px;">
                     <span>MIN: $50K</span>
-                    <span style="color: var(--neon-blue); font-weight: 800;" id="budgetValue">$150K</span>
+                    <span id="budgetDisplay">$150K</span>
                     <span>MAX: $500K</span>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 15px; margin-top: 25px;">
-                <button class="action-button" onclick="cancelarProyecto()" style="flex: 1; border-color: var(--neon-red);">
-                    <span class="action-title">❌ CANCELAR</span>
-                </button>
-                <button class="action-button" onclick="confirmarProyecto()" style="flex: 2; border-color: var(--neon-green);">
-                    <span class="action-title">✅ INICIAR PROYECTO</span>
-                    <span class="action-cost" id="projectCost">COSTO: $150K</span>
-                </button>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="pixel-button" style="flex: 1;" onclick="closeNewGameModal()">CANCEL</button>
+                <button class="pixel-button" style="flex: 2;" onclick="startDevelopment()">START DEV</button>
             </div>
         </div>
     </div>
 
-    <!-- NOTIFICACIÓN -->
-    <div class="notification" id="notificacion">
-        <div class="notification-title" id="notificacionTitulo">TÍTULO</div>
-        <div class="notification-text" id="notificacionTexto">Mensaje de notificación</div>
+    <!-- 🎉 REVIEW MODAL -->
+    <div class="modal" id="reviewModal">
+        <div class="modal-content review-modal">
+            <div class="modal-title">📊 GAME REVIEWS</div>
+            <div class="review-score" id="reviewScore">85</div>
+            <div class="review-stars" id="reviewStars">★★★★☆</div>
+            <div class="review-comments" id="reviewComments">
+                "Innovative gameplay and solid execution. A promising start for this studio."
+            </div>
+            <div style="margin-top: 20px;">
+                <div class="stat-box" style="display: inline-block; margin: 5px;">
+                    <div class="stat-title">SALES</div>
+                    <div class="stat-value" id="salesFigure">$450K</div>
+                </div>
+                <div class="stat-box" style="display: inline-block; margin: 5px;">
+                    <div class="stat-title">UNITS</div>
+                    <div class="stat-value" id="unitsSold">50K</div>
+                </div>
+            </div>
+            <button class="pixel-button" style="margin-top: 20px;" onclick="closeReviewModal()">CONTINUE</button>
+        </div>
     </div>
 
-    <!-- LOGRO -->
-    <div class="achievement-popup" id="logroPopup">
-        <div class="achievement-text" id="logroTexto">🎖️ ¡LOGRO DESBLOQUEADO!</div>
+    <!-- 🏆 ACHIEVEMENT POPUP -->
+    <div class="achievement-popup" id="achievementPopup">
+        <div class="achievement-title" id="achievementTitle">UNLOCKED!</div>
+        <div class="achievement-desc" id="achievementDesc">New Achievement</div>
     </div>
+
+    <!-- 💾 SAVE INDICATOR -->
+    <div class="save-indicator" id="saveIndicator">💾 SAVING...</div>
 
     <script>
-        // 🎮 ESTADO DEL JUEGO
-        const estadoJuego = {
-            año: 2000,
-            mes: 1,
-            caja: 500000,
-            equipo: 15,
-            maxEquipo: 50,
-            reputacion: 65,
+        // 🎮 GAME STATE
+        const gameState = {
+            year: 2000,
+            month: 1,
+            cash: 500000,
+            team: 15,
+            maxTeam: 50,
+            reputation: 65,
             hype: 30,
-            moral: 75,
-            juegosCompletados: [],
-            proyectoActivo: null,
-            ingresosTotales: 0,
-            nivelEstudio: 1,
-            motoresDesbloqueados: ['2D Básico'],
-            marketShare: 0,
-            crunchMode: false,
-            descuentoContratacion: false
+            morale: 75,
+            games: [],
+            activeProject: null,
+            totalRevenue: 0,
+            officeLevel: 1,
+            researchLevel: 1,
+            crunchMode: false
         };
 
-        // 📊 DATOS HISTÓRICOS DEL EXCEL
-        const datosHistoria = {
-            años: [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
-            fases: [0,0,0,0,1,1,1,1,1,2,2,2,3,3,3,3,3,4,4,4,5,5,6,6,6,6],
-            problemas: [
-                "Modelo retail, primeros DRM. Los indies son invisibles.",
-                "Modelo retail, primeros DRM",
-                "Modelo retail, primeros DRM",
-                "Modelo retail, primeros DRM",
-                "💥 Caso 'EA Spouse' revela crunch masivo",
-                "Altos costes, crisis creativa AAA",
-                "Altos costes, crisis creativa AAA",
-                "Altos costes, crisis creativa AAA",
-                "Altos costes, crisis creativa AAA",
-                "Altos costes. Minecraft alpha aparece",
-                "Altos costes, crisis creativa AAA",
-                "Altos costes, crisis creativa AAA",
-                "📱 Microtransacciones emergentes",
-                "Microtransacciones y DLCs",
-                "Servicios en vivo dominan",
-                "Menos riesgo creativo",
-                "Multijugador competitivo",
-                "🎰 Loot boxes, monetización agresiva",
-                "Crunch masivo, regulación amenaza",
-                "Calidad AA supera expectativas",
-                "🏠 Pandemia, ventas digitales +200%",
-                "Live service, fusiones gigantes",
-                "🔥 Elden Ring vs despidos masivos",
-                "Despidos, indies salvan la industria",
-                "AA e indies dominan críticas",
-                "Futuro incierto, creatividad gana"
-            ]
-        };
-
-        // 🎲 BASE DE DATOS DE COMBOS
-        const baseDatos = {
-            generos: {
-                accion: { nombre: "Acción", base: 70, riesgo: 0.3 },
-                rpg: { nombre: "RPG", base: 80, riesgo: 0.5 },
-                estrategia: { nombre: "Estrategia", base: 75, riesgo: 0.4 },
-                puzzle: { nombre: "Puzzle", base: 65, riesgo: 0.2 },
-                terror: { nombre: "Terror", base: 85, riesgo: 0.6 },
-                simulacion: { nombre: "Simulación", base: 60, riesgo: 0.3 }
+        // 📊 COMBO DATABASE (based on your data trends)
+        const gameDB = {
+            genres: {
+                action: { name: "Action", baseScore: 70, risk: 0.3, trend: [1, 1, 1, 1, 1, 1.2, 1.3, 1.3, 1.2, 1.1] },
+                rpg: { name: "RPG", baseScore: 80, risk: 0.5, trend: [1, 1, 1, 1, 1, 1, 1.1, 1.1, 1.2, 1.4] },
+                strategy: { name: "Strategy", baseScore: 75, risk: 0.4, trend: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+                puzzle: { name: "Puzzle", baseScore: 65, risk: 0.2, trend: [0.8, 0.8, 0.9, 1, 1, 1.1, 1.2, 1.3, 1.4, 1.5] },
+                horror: { name: "Horror", baseScore: 85, risk: 0.6, trend: [1, 1, 1, 1, 1, 1, 1, 1.1, 1.2, 1.3] },
+                simulation: { name: "Simulation", baseScore: 60, risk: 0.3, trend: [1, 1, 1, 1, 1, 1, 1.1, 1.1, 1.2, 1.3] }
             },
-            temas: {
-                espacial: { nombre: "Espacial", multi: { accion: 1.2, simulacion: 1.3, rpg: 1.1 } },
-                medieval: { nombre: "Medieval", multi: { rpg: 1.4, estrategia: 1.3, accion: 1.1 } },
-                cyberpunk: { nombre: "Cyberpunk", multi: { rpg: 1.3, accion: 1.2, terror: 1.1 } },
-                fantasia: { nombre: "Fantasía", multi: { rpg: 1.5, estrategia: 1.1, accion: 1.0 } },
-                zombies: { nombre: "Zombies", multi: { terror: 1.4, accion: 1.2, estrategia: 0.8 } },
-                deportes: { nombre: "Deportes", multi: { simulacion: 1.3, accion: 0.9, puzzle: 0.7 } }
+            themes: {
+                space: { name: "Space", multipliers: { action: 1.2, simulation: 1.3, rpg: 1.1 } },
+                medieval: { name: "Medieval", multipliers: { rpg: 1.4, strategy: 1.3, action: 1.1 } },
+                cyberpunk: { name: "Cyberpunk", multipliers: { rpg: 1.3, action: 1.2, horror: 1.1 } },
+                fantasy: { name: "Fantasy", multipliers: { rpg: 1.5, strategy: 1.1, action: 1 } },
+                zombies: { name: "Zombies", multipliers: { horror: 1.4, action: 1.2, strategy: 0.8 } },
+                sports: { name: "Sports", multipliers: { simulation: 1.3, action: 0.9, puzzle: 0.7 } }
             },
-            plataformas: {
-                pc: { nombre: "PC", alcance: 1.0, costo: 1.0 },
-                consola: { nombre: "Consola", alcance: 1.2, costo: 1.3 },
-                movil: { nombre: "Móvil", alcance: 0.8, costo: 0.6 },
-                vr: { nombre: "VR", alcance: 0.3, costo: 1.8 }
+            platforms: {
+                pc: { name: "PC", reach: 1.0, cost: 1.0 },
+                console: { name: "Console", reach: 1.2, cost: 1.3 },
+                mobile: { name: "Mobile", reach: 0.8, cost: 0.6 },
+                vr: { name: "VR", reach: 0.3, cost: 1.8 }
             }
         };
 
-        // 🎮 INICIALIZACIÓN
+        // 🎲 HISTORICAL EVENTS
+        const historicalEvents = {
+            2004: { type: 'danger', text: '💥 EA Spouse scandal! Crunch culture exposed. Morale penalty: -20%' },
+            2008: { type: 'warning', text: '📉 Financial crisis! Market shrinks -30% for 2 years' },
+            2012: { type: 'success', text: '📱 Mobile boom! Mobile games get +50% bonus' },
+            2017: { type: 'danger', text: '🎰 Loot box controversy! All games risk -15% rep' },
+            2020: { type: 'success', text: '🏠 Pandemic boom! Digital sales +200%' },
+            2023: { type: 'warning', text: '🔥 Mass layoffs! Talent available -50% cost' }
+        };
+
+        // 🏆 ACHIEVEMENTS
+        const achievements = {
+            firstGame: { name: "FIRST GAME", desc: "Release your first game", unlocked: false },
+            hitGame: { name: "HIT GAME", desc: "Score over 85/100", unlocked: false },
+            tenGames: { name: "PROLIFIC", desc: "Release 10 games", unlocked: false },
+            millionaire: { name: "MILLIONAIRE", desc: "Earn $1M total", unlocked: false }
+        };
+
+        // 🎮 INITIALIZE
         document.addEventListener('DOMContentLoaded', () => {
-            actualizarUI();
-            mostrarNotificacion('🎮 ¡Bienvenido!', 'Usa datos históricos para dominar la industria');
+            updateUI();
+            loadGame();
+            setInterval(autoSave, 60000);
         });
 
-        // 📊 ACTUALIZAR UI
-        function actualizarUI() {
-            document.getElementById('yearDisplay').textContent = estadoJuego.año;
-            document.getElementById('cashDisplay').textContent = `$${estadoJuego.caja.toLocaleString()}`;
-            document.getElementById('teamDisplay').textContent = `${estadoJuego.equipo} / ${estadoJuego.maxEquipo}`;
-            document.getElementById('repDisplay').textContent = `${estadoJuego.reputacion}%`;
-            document.getElementById('hypeDisplay').textContent = `${estadoJuego.hype}%`;
+        // 📊 UPDATE UI
+        function updateUI() {
+            document.getElementById('year').textContent = gameState.year;
+            document.getElementById('cash').textContent = `$${(gameState.cash / 1000).toFixed(0)}K`;
+            document.getElementById('team').textContent = `${gameState.team} / ${gameState.maxTeam}`;
+            document.getElementById('reputation').textContent = `${gameState.reputation}%`;
+            document.getElementById('hype').textContent = `${gameState.hype}%`;
+            document.getElementById('gamesReleased').textContent = gameState.games.length;
+            document.getElementById('avgScore').textContent = gameState.games.length ? 
+                (gameState.games.reduce((a, b) => a + b.score, 0) / gameState.games.length).toFixed(1) : '—';
+            document.getElementById('totalRevenue').textContent = `$${(gameState.totalRevenue / 1000).toFixed(0)}K`;
+            
+            // Update phase/problem
+            const phases = ["RETAIL", "CRISIS", "INDIE", "MONETIZATION", "LOOTBOX", "LIVE", "RESTRUCTURE"];
+            const phaseIndex = Math.floor((gameState.year - 2000) / 4);
+            document.getElementById('phase').textContent = `${phases[phaseIndex]} ERA`;
+            document.getElementById('currentProblem').textContent = getCurrentProblem();
 
-            document.getElementById('cashBar').style.width = `${Math.min(100, estadoJuego.caja / 10000)}%`;
-            document.getElementById('teamBar').style.width = `${(estadoJuego.equipo / estadoJuego.maxEquipo) * 100}%`;
-            document.getElementById('repBar').style.width = `${estadoJuego.reputacion}%`;
-            document.getElementById('hypeBar').style.width = `${estadoJuego.hype}%`;
+            // Update active project
+            if (gameState.activeProject) {
+                document.getElementById('activeProject').style.display = 'block';
+                document.getElementById('newGameBtn').style.display = 'none';
+                document.getElementById('continueBtn').style.display = 'block';
+                document.getElementById('projectName').textContent = 
+                    `${gameDB.genres[gameState.activeProject.genre].name} / ${gameDB.themes[gameState.activeProject.theme].name}`;
+                document.getElementById('projectProgress').textContent = `${gameState.activeProject.progress}%`;
+                document.getElementById('progressBar').style.width = `${gameState.activeProject.progress}%`;
+            } else {
+                document.getElementById('activeProject').style.display = 'none';
+                document.getElementById('newGameBtn').style.display = 'block';
+                document.getElementById('continueBtn').style.display = 'none';
+            }
 
-            const fases = ["ERA RETAIL", "CRISIS CREATIVA", "ECLOSION INDIE", "MONETIZACIÓN", "ÉTICA & LOOT", "LIVE SERVICE", "REESTRUCTURACIÓN"];
-            document.getElementById('phaseText').textContent = `${fases[datosHistoria.fases[estadoJuego.año - 2000]]} (${estadoJuego.año})`;
-            document.getElementById('problemAlert').textContent = datosHistoria.problemas[estadoJuego.año - 2000];
-
-            document.getElementById('totalJuegos').textContent = estadoJuego.juegosCompletados.length;
-            document.getElementById('notaMedia').textContent = estadoJuego.juegosCompletados.length > 0 ? 
-                (estadoJuego.juegosCompletados.reduce((a,b) => a + b.nota, 0) / estadoJuego.juegosCompletados.length).toFixed(1) : '—';
-            document.getElementById('ingresosTotales').textContent = `$${estadoJuego.ingresosTotales.toLocaleString()}`;
-            document.getElementById('marketShare').textContent = `${(Math.min(100, estadoJuego.ingresosTotales / 100000)).toFixed(1)}%`;
-
-            actualizarProyectoActivo();
+            // Check for historical events
+            checkHistoricalEvents();
+            checkAchievements();
         }
 
-        // 🎯 MODAL PROYECTO
-        function abrirModalProyecto() {
-            if(estadoJuego.proyectoActivo) {
-                mostrarNotificacion('⚠️ Proyecto activo', 'Termina el juego actual primero');
+        function getCurrentProblem() {
+            const year = gameState.year;
+            if (year <= 2004) return "Retail model, early DRM. Indies are invisible.";
+            if (year <= 2008) return "Rising costs, creative crisis. Crunch begins.";
+            if (year <= 2012) return "Digital distribution rises. Indies emerge.";
+            if (year <= 2017) return "Microtransactions dominate. Creative risk drops.";
+            if (year <= 2020) return "Live service games rule. AAA identity crisis.";
+            return "Mass layoffs. Indies & AA save the industry.";
+        }
+
+        // 🎮 GAME ACTIONS
+        function openNewGameModal() {
+            if (gameState.activeProject) {
+                alert('Finish current project first!');
                 return;
             }
-            document.getElementById('modalProyecto').classList.add('active');
+            document.getElementById('newGameModal').classList.add('active');
         }
 
-        function cerrarModalProyecto() {
-            document.getElementById('modalProyecto').classList.remove('active');
+        function closeNewGameModal() {
+            document.getElementById('newGameModal').classList.remove('active');
             document.querySelectorAll('.option-button').forEach(btn => btn.classList.remove('selected'));
         }
 
-        function seleccionarOpcion(btn) {
-            const tipo = btn.dataset.tipo;
-            document.querySelectorAll(`[data-tipo="${tipo}"]`).forEach(b => b.classList.remove('selected'));
+        function selectOption(btn) {
+            const type = btn.dataset.type;
+            document.querySelectorAll(`[data-type="${type}"]`).forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
         }
 
-        document.getElementById('budgetSlider').addEventListener('input', function() {
-            document.getElementById('budgetValue').textContent = `$${parseInt(this.value).toLocaleString()}`;
-            document.getElementById('projectCost').textContent = `COSTO: $${parseInt(this.value).toLocaleString()}`;
-        });
-
-        function cancelarProyecto() {
-            cerrarModalProyecto();
+        function updateBudget(value) {
+            document.getElementById('budgetDisplay').textContent = `$${(value / 1000).toFixed(0)}K`;
         }
 
-        function confirmarProyecto() {
-            const genero = document.querySelector('[data-tipo="genero"].selected')?.dataset.valor;
-            const tema = document.querySelector('[data-tipo="tema"].selected')?.dataset.valor;
-            const plataforma = document.querySelector('[data-tipo="plataforma"].selected')?.dataset.valor;
-            const presupuesto = parseInt(document.getElementById('budgetSlider').value);
+        function startDevelopment() {
+            const genre = document.querySelector('[data-type="genre"].selected')?.dataset.value;
+            const theme = document.querySelector('[data-type="theme"].selected')?.dataset.value;
+            const platform = document.querySelector('[data-type="platform"].selected')?.dataset.value;
+            const budget = parseInt(document.getElementById('budgetSlider').value);
 
-            if(!genero || !tema || !plataforma) {
-                mostrarNotificacion('❌ Selección incompleta', 'Elige género, tema y plataforma');
-                return;
-            }
-            
-            if(estadoJuego.caja < presupuesto) {
-                mostrarNotificacion('❌ Caja insuficiente', `Necesitas $${presupuesto.toLocaleString()}`);
+            if (!genre || !theme || platform) {
+                alert('Please select genre, theme, and platform!');
                 return;
             }
 
-            estadoJuego.proyectoActivo = {
-                genero, tema, plataforma, presupuesto,
-                progreso: 0, calidad: 0, hype: estadoJuego.hype,
-                inicioAño: estadoJuego.año, inicioMes: estadoJuego.mes,
-                notaEsperada: calcularNotaEsperada(genero, tema, plataforma, presupuesto)
+            if (gameState.cash < budget) {
+                alert('Not enough cash!');
+                return;
+            }
+
+            gameState.cash -= budget;
+            gameState.activeProject = {
+                genre, theme, platform, budget,
+                progress: 0, quality: 0,
+                startYear: gameState.year
             };
 
-            estadoJuego.caja -= presupuesto;
-            mostrarNotificacion('🎮 ¡Proyecto iniciado!', `${baseDatos.generos[genero].nombre} + ${baseDatos.temas[tema].nombre}`);
-            cerrarModalProyecto();
-            actualizarUI();
+            closeNewGameModal();
+            updateUI();
+            addEvent('info', `Started development: ${gameDB.genres[genre].name} / ${gameDB.themes[theme].name}`);
         }
 
-        function calcularNotaEsperada(genero, tema, plataforma, presupuesto) {
-            const base = baseDatos.generos[genero].base;
-            const multTema = baseDatos.temas[tema].multi[genero] || 1.0;
-            const multPresupuesto = Math.min(1.5, presupuesto / 100000);
-            const multRep = estadoJuego.reputacion / 100;
-            const multHype = estadoJuego.hype / 100;
-            return base * multTema * multPresupuesto * multRep * multHype;
-        }
+        function continueDevelopment() {
+            if (!gameState.activeProject) return;
 
-        function actualizarProyectoActivo() {
-            const btn = document.getElementById('btnContinuar');
-            if(estadoJuego.proyectoActivo) {
-                btn.style.display = 'block';
-                document.getElementById('proyectoActivoNombre').textContent = `${baseDatos.generos[estadoJuego.proyectoActivo.genero].nombre}`;
-                document.getElementById('proyectoActivoProgreso').textContent = `${estadoJuego.proyectoActivo.progreso}%`;
-            } else {
-                btn.style.display = 'none';
+            const project = gameState.activeProject;
+            const devSpeed = gameState.crunchMode ? 25 : 15;
+            const moralePenalty = gameState.crunchMode ? 3 : 0;
+
+            project.progress += devSpeed;
+            gameState.morale = Math.max(0, gameState.morale - moralePenalty);
+
+            // Random development events
+            if (Math.random() < 0.1) triggerDevEvent();
+
+            if (project.progress >= 100) {
+                releaseGame();
             }
+
+            updateUI();
         }
 
-        function continuarProyecto() {
-            if(!estadoJuego.proyectoActivo) return;
-
-            const velocidad = estadoJuego.crunchMode ? 25 : 15;
-            const penalidad = estadoJuego.crunchMode ? 5 : 0;
-
-            estadoJuego.proyectoActivo.progreso += velocidad;
-            estadoJuego.moral = Math.max(0, estadoJuego.moral - penalidad);
-            estadoJuego.mes++;
-
-            if(Math.random() < 0.1) eventoDesarrollo();
-
-            if(estadoJuego.proyectoActivo.progreso >= 100) lanzarJuego();
-
-            actualizarUI();
-        }
-
-        function eventoDesarrollo() {
-            const eventos = [
-                { texto: "🐛 ¡Bug crítico! -10% progreso", efecto: () => { estadoJuego.proyectoActivo.progreso -= 10; } },
-                { texto: "⭐ Programadora estrella se une +15%", efecto: () => { estadoJuego.proyectoActivo.progreso += 15; } },
-                { texto: "💡 Inspiración +5 calidad", efecto: () => { estadoJuego.proyectoActivo.calidad += 5; } }
+        function triggerDevEvent() {
+            const events = [
+                { type: 'warning', text: 'Critical bug found! Progress -10%', effect: () => { gameState.activeProject.progress -= 10; } },
+                { type: 'success', text: 'Star programmer joins! Progress +15%', effect: () => { gameState.activeProject.progress += 15; } },
+                { type: 'info', text: 'Design breakthrough! Quality +5', effect: () => { gameState.activeProject.quality += 5; } }
             ];
-            const ev = eventos[Math.floor(Math.random() * eventos.length)];
-            ev.efecto();
-            agregarEvento('warning', ev.texto);
+            const event = events[Math.floor(Math.random() * events.length)];
+            event.effect();
+            addEvent(event.type, event.text);
         }
 
-        function lanzarJuego() {
-            const proyecto = estadoJuego.proyectoActivo;
-            const nota = calcularNotaFinal(proyecto);
-            const ventas = calcularVentas(proyecto, nota);
+        function releaseGame() {
+            const project = gameState.activeProject;
+            const score = calculateScore(project);
+            const sales = calculateSales(project, score);
 
-            estadoJuego.caja += ventas;
-            estadoJuego.ingresosTotales += ventas;
-            estadoJuego.juegosCompletados.push({...proyecto, nota, ventas, año: estadoJuego.año});
+            // Update state
+            gameState.cash += sales;
+            gameState.totalRevenue += sales;
+            gameState.games.push({
+                ...project,
+                score,
+                sales,
+                releaseYear: gameState.year
+            });
 
-            const cambioRep = nota > 80 ? 8 : nota > 60 ? 3 : -5;
-            estadoJuego.reputacion = Math.max(0, Math.min(100, estadoJuego.reputacion + cambioRep));
-            estadoJuego.hype = Math.max(10, estadoJuego.hype - 30);
-            estadoJuego.moral = Math.min(100, estadoJuego.moral + 15);
+            // Update reputation
+            const repChange = score > 80 ? 8 : score > 60 ? 3 : -5;
+            gameState.reputation = Math.max(0, Math.min(100, gameState.reputation + repChange));
 
-            agregarEvento(nota > 80 ? 'success' : nota > 50 ? 'info' : 'danger',
-                `🎮 ¡${baseDatos.generos[proyecto.genero].nombre} lanzado! Nota: ${nota.toFixed(1)}/100. Ganancias: $${ventas.toLocaleString()}`);
+            // Reset hype
+            gameState.hype = Math.max(10, gameState.hype - 30);
 
-            if(Math.random() < 0.3) eventoPostLanzamiento(proyecto, ventas);
+            // Morale boost for success
+            gameState.morale = Math.min(100, gameState.morale + 10);
 
-            estadoJuego.proyectoActivo = null;
-            actualizarUI();
-        }
+            // Clear project
+            gameState.activeProject = null;
 
-        function calcularNotaFinal(proyecto) {
-            const base = proyecto.notaEsperada;
-            const random = 0.8 + Math.random() * 0.4;
-            const moral = estadoJuego.moral / 100;
-            const equipo = Math.min(1.2, estadoJuego.equipo / 30);
-            return Math.min(100, base * random * moral * equipo);
-        }
+            // Show review
+            showReview(score, sales);
 
-        function calcularVentas(proyecto, nota) {
-            const base = proyecto.presupuesto * 3;
-            const bonusScore = (nota - 50) / 50;
-            const bonusHype = proyecto.hype / 100;
-            const multRep = estadoJuego.reputacion / 100;
-            return Math.floor(base * (1 + bonusScore) * (1 + bonusHype) * multRep);
-        }
-
-        function eventoPostLanzamiento(proyecto, ventas) {
-            if(Math.random() < 0.3) {
-                const dlc = ventas * 0.2;
-                estadoJuego.caja += dlc;
-                estadoJuego.ingresosTotales += dlc;
-                agregarEvento('success', `📦 ¡DLC genera $${dlc.toLocaleString()} extra!`);
+            // Post-launch events
+            if (score > 80 && Math.random() < 0.3) {
+                const dlcRevenue = sales * 0.2;
+                gameState.cash += dlcRevenue;
+                gameState.totalRevenue += dlcRevenue;
+                addEvent('success', `DLC released! +$${(dlcRevenue / 1000).toFixed(0)}K`);
             }
-            if(Math.random() < 0.1) {
-                estadoJuego.caja += 50000;
-                estadoJuego.reputacion = Math.min(100, estadoJuego.reputacion + 10);
-                agregarEvento('success', `🏆 ¡Game of the Year! +$50K, +10 rep`);
-            }
+
+            updateUI();
         }
 
-        function activarCrunch() {
-            estadoJuego.crunchMode = !estadoJuego.crunchMode;
-            const status = estadoJuego.crunchMode ? 'ACTIVADO' : 'DESACTIVADO';
-            agregarEvento('warning', `🔥 CRUNCH ${status} - Velocidad +25%, -5 moral/mes`);
+        function calculateScore(project) {
+            const genre = gameDB.genres[project.genre];
+            const theme = gameDB.themes[project.theme];
+            const platform = gameDB.platforms[project.platform];
+            const yearTrend = genre.trend[Math.min(9, Math.floor((gameState.year - 2000) / 3))];
+
+            let score = genre.baseScore * yearTrend;
+            score *= (theme.multipliers[project.genre] || 1.0);
+            score *= (project.budget / 100000) * 0.5 + 0.5;
+            score *= (gameState.reputation / 100);
+            score *= (gameState.morale / 100) * 0.5 + 0.5;
+            score *= 0.8 + Math.random() * 0.4; // Random factor
+            
+            return Math.min(100, Math.max(0, score));
         }
 
-        function retiroEquipo() {
-            const costo = 20000;
-            if(estadoJuego.caja >= costo) {
-                estadoJuego.caja -= costo;
-                estadoJuego.moral = Math.min(100, estadoJuego.moral + 15);
-                agregarEvento('success', '🏖️ Retiro relaja al equipo. +15 moral');
-                actualizarUI();
+        function calculateSales(project, score) {
+            const base = project.budget * 3;
+            const scoreBonus = (score - 50) / 50;
+            const hypeBonus = gameState.hype / 100;
+            const yearTrend = gameState.year < 2010 ? 0.8 : gameState.year < 2020 ? 1.0 : 1.2;
+            
+            return Math.floor(base * (1 + scoreBonus) * (1 + hypeBonus) * yearTrend);
+        }
+
+        function showReview(score, sales) {
+            document.getElementById('reviewScore').textContent = score.toFixed(0);
+            document.getElementById('reviewStars').textContent = '★'.repeat(Math.floor(score / 20)) + '☆'.repeat(5 - Math.floor(score / 20));
+            document.getElementById('salesFigure').textContent = `$${(sales / 1000).toFixed(0)}K`;
+            document.getElementById('unitsSold').textContent = `${(sales / 10).toFixed(0)}K`;
+            
+            const comments = score >= 90 ? "A masterpiece! Game of the year!" :
+                           score >= 80 ? "Excellent game! Must buy!" :
+                           score >= 70 ? "Good game with some flaws." :
+                           score >= 60 ? "Average experience." :
+                           "Disappointing. Needs improvement.";
+            document.getElementById('reviewComments').textContent = comments;
+            
+            document.getElementById('reviewModal').classList.add('active');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').classList.remove('active');
+        }
+
+        // 💼 COMPANY ACTIONS
+        function hireStaff() {
+            const cost = 50000;
+            if (gameState.cash >= cost && gameState.team < gameState.maxTeam) {
+                gameState.cash -= cost;
+                gameState.team++;
+                gameState.morale = Math.min(100, gameState.morale + 5);
+                addEvent('success', 'New staff hired! +1 team, +5 morale');
+                updateUI();
             } else {
-                mostrarNotificacion('❌ Caja insuficiente', 'Necesitas $20,000');
+                alert(gameState.team >= gameState.maxTeam ? 'Max team size!' : 'Not enough cash!');
             }
         }
 
-        function trabajoContrato() {
-            estadoJuego.caja += 40000;
-            estadoJuego.ingresosTotales += 40000;
-            agregarEvento('info', '📋 Contrato indie completo. +$40,000');
-            actualizarUI();
-        }
-
-        function contratarPersonal() {
-            const costo = estadoJuego.descuentoContratacion ? 25000 : 50000;
-            if(estadoJuego.caja >= costo && estadoJuego.equipo < estadoJuego.maxEquipo) {
-                estadoJuego.caja -= costo;
-                estadoJuego.equipo += 1;
-                estadoJuego.moral = Math.min(100, estadoJuego.moral + 5);
-                agregarEvento('success', '💼 Nuevo miembro en el equipo');
-                actualizarUI();
+        function investMarketing() {
+            const cost = 30000;
+            if (gameState.cash >= cost) {
+                gameState.cash -= cost;
+                gameState.hype = Math.min(100, gameState.hype + 25);
+                addEvent('info', 'Marketing campaign launched! +25 hype');
+                updateUI();
             } else {
-                mostrarNotificacion('❌ No puedes contratar', estadoJuego.equipo >= estadoJuego.maxEquipo ? 'Equipo al máximo' : 'Caja insuficiente');
+                alert('Not enough cash!');
             }
         }
 
-        function invertirMarketing() {
-            const costo = 30000;
-            if(estadoJuego.caja >= costo) {
-                estadoJuego.caja -= costo;
-                estadoJuego.hype = Math.min(100, estadoJuego.hype + 20);
-                agregarEvento('info', '📢 Campaña de marketing. +20 hype');
-                actualizarUI();
+        function researchTech() {
+            const cost = 75000;
+            if (gameState.cash >= cost) {
+                gameState.cash -= cost;
+                gameState.researchLevel++;
+                addEvent('success', `Research completed! Level ${gameState.researchLevel} unlocked`);
+                updateUI();
             } else {
-                mostrarNotificacion('❌ Caja insuficiente', 'Necesitas $30,000');
+                alert('Not enough cash!');
             }
         }
 
-        function investigarTecnologia() {
-            const costo = 75000;
-            if(estadoJuego.caja >= costo) {
-                estadoJuego.caja -= costo;
-                estadoJuego.motoresDesbloqueados.push('3D Avanzado');
-                agregarEvento('success', '🔓 Motor 3D Avanzado desbloqueado');
-                actualizarUI();
+        function moveOffice() {
+            const cost = 150000;
+            const level = gameState.officeLevel;
+            if (gameState.cash >= cost && level < 5) {
+                gameState.cash -= cost;
+                gameState.officeLevel++;
+                gameState.maxTeam += 25;
+                gameState.morale = Math.min(100, gameState.morale + 20);
+                addEvent('success', `Office upgraded! Level ${gameState.officeLevel}, +25 max team`);
+                updateUI();
             } else {
-                mostrarNotificacion('❌ Caja insuficiente', 'Necesitas $75,000');
+                alert(level >= 5 ? 'Max office level!' : 'Not enough cash!');
             }
         }
 
-        function mudarOficina() {
-            const costo = 150000;
-            if(estadoJuego.caja >= costo && estadoJuego.nivelEstudio < 5) {
-                estadoJuego.caja -= costo;
-                estadoJuego.nivelEstudio++;
-                estadoJuego.maxEquipo += 25;
-                estadoJuego.moral = Math.min(100, estadoJuego.moral + 20);
-                agregarEvento('success', `🏢 ¡Oficina nivel ${estadoJuego.nivelEstudio}! +25 equipo máximo`);
-                document.getElementById('studioName').textContent = `⭐ ESTUDIO NIVEL ${estadoJuego.nivelEstudio}`;
-                actualizarUI();
+        function toggleCrunch() {
+            gameState.crunchMode = !gameState.crunchMode;
+            document.getElementById('crunchStatus').textContent = gameState.crunchMode ? 'ON' : 'OFF';
+            addEvent('warning', `Crunch mode ${gameState.crunchMode ? 'enabled' : 'disabled'}`);
+        }
+
+        function takeContract() {
+            const revenue = 40000;
+            gameState.cash += revenue;
+            gameState.totalRevenue += revenue;
+            addEvent('info', `Contract work completed! +$${revenue / 1000}K`);
+            updateUI();
+        }
+
+        function teamBuilding() {
+            const cost = 20000;
+            if (gameState.cash >= cost) {
+                gameState.cash -= cost;
+                gameState.morale = Math.min(100, gameState.morale + 15);
+                addEvent('success', 'Team building event! +15 morale');
+                updateUI();
             } else {
-                mostrarNotificacion('❌ No puedes mudarte', estadoJuego.nivelEstudio >= 5 ? 'Máximo nivel' : 'Caja insuficiente');
+                alert('Not enough cash!');
             }
         }
 
-        function agregarEvento(tipo, texto) {
-            const log = document.getElementById('eventLog');
-            const evento = document.createElement('div');
-            evento.className = `event-item ${tipo}`;
-            evento.innerHTML = `<div class="event-time">AÑO ${estadoJuego.año} - MES ${estadoJuego.mes}</div><div class="event-text">${texto}</div>`;
-            log.insertBefore(evento, log.firstChild);
-            while(log.children.length > 15) log.removeChild(log.lastChild);
+        function researchAI() {
+            alert('Feature coming soon!');
         }
 
-        function mostrarNotificacion(titulo, texto) {
-            document.getElementById('notificacionTitulo').textContent = titulo;
-            document.getElementById('notificacionTexto').textContent = texto;
-            const notif = document.getElementById('notificacion');
-            notif.classList.add('show');
-            setTimeout(() => notif.classList.remove('show'), 4000);
+        function patentTech() {
+            alert('Feature coming soon!');
         }
 
-        // 🎖️ SISTEMA DE LOGROS
-        const logros = {
-            primero: { nombre: "Debutante", descripcion: "Tu primer juego", desbloqueado: false },
-            hit: { nombre: "Golpe de Suerte", descripcion: "Juego >85/100", desbloqueado: false },
-            experto: { nombre: "Veterano", descripcion: "10 juegos lanzados", desbloqueado: false },
-            millonario: { nombre: "Millonario", descripcion: "$1M en ingresos", desbloqueado: false }
-        };
+        // 📜 EVENT LOG
+        function addEvent(type, text) {
+            const eventLog = document.getElementById('eventLog');
+            const event = document.createElement('div');
+            event.className = `event-item ${type}`;
+            event.innerHTML = `
+                <div class="event-header">${gameState.year}-${gameState.month.toString().padStart(2, '0')}</div>
+                ${text}
+            `;
+            eventLog.insertBefore(event, eventLog.firstChild);
+            while (eventLog.children.length > 10) eventLog.removeChild(eventLog.lastChild);
+        }
 
-        function comprobarLogros() {
-            if(estadoJuego.juegosCompletados.length === 1 && !logros.primero.desbloqueado) {
-                desbloquearLogro(logros.primero);
+        // 🏆 ACHIEVEMENTS
+        function checkAchievements() {
+            if (gameState.games.length === 1 && !achievements.firstGame.unlocked) {
+                unlockAchievement(achievements.firstGame);
             }
-            if(estadoJuego.juegosCompletados.length >= 10 && !logros.experto.desbloqueado) {
-                desbloquearLogro(logros.experto);
+            if (gameState.games.length >= 10 && !achievements.tenGames.unlocked) {
+                unlockAchievement(achievements.tenGames);
             }
-            if(estadoJuego.ingresosTotales >= 1000000 && !logros.millonario.desbloqueado) {
-                desbloquearLogro(logros.millonario);
+            if (gameState.totalRevenue >= 1000000 && !achievements.millionaire.unlocked) {
+                unlockAchievement(achievements.millionaire);
             }
-            const hit = estadoJuego.juegosCompletados.find(j => j.nota >= 85);
-            if(hit && !logros.hit.desbloqueado) {
-                desbloquearLogro(logros.hit);
+            const hit = gameState.games.find(g => g.score >= 85);
+            if (hit && !achievements.hitGame.unlocked) {
+                unlockAchievement(achievements.hitGame);
             }
         }
 
-        function desbloquearLogro(logro) {
-            logro.desbloqueado = true;
-            document.getElementById('logroTexto').textContent = `🎖️ ${logro.nombre}: ${logro.descripcion}`;
-            const popup = document.getElementById('logroPopup');
-            popup.classList.add('active');
-            setTimeout(() => popup.classList.remove('active'), 5000);
-            agregarEvento('success', `🏆 ¡Logro: ${logro.nombre}!`);
+        function unlockAchievement(achievement) {
+            achievement.unlocked = true;
+            document.getElementById('achievementTitle').textContent = achievement.name;
+            document.getElementById('achievementDesc').textContent = achievement.desc;
+            document.getElementById('achievementPopup').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('achievementPopup').classList.remove('active');
+            }, 3000);
+            addEvent('success', `🏆 Achievement: ${achievement.name}`);
         }
 
-        // 💾 GUARDADO
-        function guardarJuego() {
-            localStorage.setItem('industrySimPro', JSON.stringify(estadoJuego));
-            mostrarNotificacion('💾 Guardado', 'Partida guardada automáticamente');
-        }
-
-        function cargarJuego() {
-            const guardado = localStorage.getItem('industrySimPro');
-            if(guardado) {
-                Object.assign(estadoJuego, JSON.parse(guardado));
-                actualizarUI();
-                mostrarNotificacion('📂 Cargado', 'Partida recuperada');
+        // 📅 HISTORICAL EVENTS
+        function checkHistoricalEvents() {
+            const event = historicalEvents[gameState.year];
+            if (event && gameState.month === 1) {
+                addEvent(event.type, event.text);
+                
+                // Apply event effects
+                if (gameState.year === 2004) gameState.morale = Math.max(0, gameState.morale - 20);
+                if (gameState.year === 2008) {
+                    // Market shrink for 2 years
+                }
+                if (gameState.year === 2020) {
+                    const bonus = 200000;
+                    gameState.cash += bonus;
+                    gameState.totalRevenue += bonus;
+                }
             }
         }
 
-        // Eventos teclado
+        // 💾 SAVE/LOAD
+        function autoSave() {
+            localStorage.setItem('industrySimSave', JSON.stringify(gameState));
+            showSaveIndicator();
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('industrySimSave');
+            if (saved) {
+                Object.assign(gameState, JSON.parse(saved));
+                updateUI();
+            }
+        }
+
+        function showSaveIndicator() {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 1000);
+        }
+
+        // 🎮 KEYBOARD CONTROLS
         document.addEventListener('keydown', (e) => {
-            if(e.code === 'Space' && estadoJuego.proyectoActivo) {
+            if (e.code === 'Space' && gameState.activeProject) {
                 e.preventDefault();
-                continuarProyecto();
+                continueDevelopment();
             }
         });
-
-        // Auto-guardado
-        setInterval(guardarJuego, 60000);
-
-        // Cargar al inicio
-        cargarJuego();
     </script>
 </body>
+</html>
 </html>
 </body>
 </html>
