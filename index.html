@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Industry Evolution Simulator - Game Dev Tycoon Clone</title>
+    <title>Industry Evolution Simulator - GOTY Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Pixelify+Sans:wght@400;700&display=swap');
         
         * {
             margin: 0;
@@ -17,235 +17,175 @@
         }
 
         :root {
-            --bg-dark: #1a1a1a;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
             --bg-panel: #2a2a2a;
             --bg-card: #3a3a3a;
             --bg-card-hover: #4a4a4a;
-            --pixel-green: #00ff00;
-            --pixel-blue: #0088ff;
-            --pixel-yellow: #ffff00;
-            --pixel-red: #ff0000;
-            --pixel-purple: #ff00ff;
-            --pixel-orange: #ff8800;
-            --pixel-pink: #ff0088;
-            --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
-            --border: #555555;
+            --neon-green: #00ff41;
+            --neon-blue: #00b8ff;
+            --neon-yellow: #ffcc00;
+            --neon-red: #ff0040;
+            --neon-purple: #b967ff;
+            --pixel-border: #555555;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
         }
 
         body {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 10px;
-            background: var(--bg-dark);
+            font-family: 'Pixelify Sans', monospace;
+            background: radial-gradient(ellipse at center, #1a0033 0%, var(--bg-primary) 100%);
             color: var(--text-primary);
             overflow: hidden;
             height: 100vh;
-            line-height: 1.5;
         }
 
-        /* 🎮 PIXEL ART EFFECTS */
-        .pixel-border {
-            border: 3px solid var(--border);
-            box-shadow: 
-                inset -3px -3px 0 0 #1a1a1a,
-                inset 3px 3px 0 0 #5a5a5a;
+        /* 🎮 PIXEL PERFECT RENDERING */
+        canvas {
+            display: block;
+            background: var(--bg-secondary);
+            border: 3px solid var(--pixel-border);
+            box-shadow: 0 0 20px rgba(0, 184, 255, 0.3);
         }
 
+        /* 📊 UI OVERLAY */
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .ui-panel {
+            position: absolute;
+            background: rgba(26, 26, 26, 0.95);
+            border: 3px solid var(--pixel-border);
+            padding: 10px;
+            pointer-events: all;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ui-panel.hidden {
+            transform: translateX(-100%);
+        }
+
+        .ui-panel.right {
+            right: 0;
+        }
+
+        .ui-panel.bottom {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .ui-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--neon-blue);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .ui-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 10px;
+        }
+
+        .ui-stat-label {
+            color: var(--text-secondary);
+        }
+
+        .ui-stat-value {
+            color: var(--neon-green);
+            font-weight: 700;
+        }
+
+        .ui-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-panel);
+            border: 1px solid var(--pixel-border);
+            position: relative;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .ui-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .cash-fill { background: linear-gradient(90deg, var(--neon-green), #00cc33); }
+        .team-fill { background: linear-gradient(90deg, var(--neon-blue), #0088cc); }
+        .rep-fill { background: linear-gradient(90deg, var(--neon-yellow), #cc9900); }
+        .hype-fill { background: linear-gradient(90deg, var(--neon-purple), #9966cc); }
+
+        /* 🎮 BUTTONS */
         .pixel-button {
-            background: var(--border);
-            border: none;
+            font-family: 'Pixelify Sans', monospace;
+            font-size: 10px;
+            background: var(--bg-card);
+            border: 2px solid var(--pixel-border);
             color: var(--text-primary);
             padding: 8px 12px;
             cursor: pointer;
-            position: relative;
-            transition: all 0.1s;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 9px;
+            transition: all 0.15s;
+            display: block;
+            width: 100%;
+            margin-bottom: 6px;
+            text-transform: uppercase;
         }
 
         .pixel-button:hover {
-            background: var(--pixel-blue);
+            background: var(--neon-blue);
             color: var(--bg-dark);
+            border-color: var(--neon-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 184, 255, 0.3);
         }
 
         .pixel-button:active {
             transform: scale(0.95);
         }
 
-        .pixel-bar {
-            height: 16px;
-            background: var(--bg-panel);
-            border: 2px solid var(--border);
-            position: relative;
-            overflow: hidden;
+        .pixel-button.danger {
+            border-color: var(--neon-red);
         }
 
-        .pixel-fill {
-            height: 100%;
-            background: var(--pixel-green);
-            transition: width 0.5s;
-            image-rendering: pixelated;
+        .pixel-button.danger:hover {
+            background: var(--neon-red);
         }
 
-        /* 📺 GAME LAYOUT */
-        .game-container {
-            display: grid;
-            grid-template-columns: 260px 1fr 300px;
-            grid-template-rows: 100%;
-            height: 100vh;
-            gap: 10px;
-            padding: 10px;
+        .pixel-button.success {
+            border-color: var(--neon-green);
         }
 
-        .sidebar, .main-area, .event-panel {
-            background: var(--bg-panel);
-            border: 3px solid var(--border);
-            overflow-y: auto;
-            position: relative;
+        .pixel-button.success:hover {
+            background: var(--neon-green);
         }
 
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-        }
-
-        .main-area {
-            padding: 15px;
-        }
-
-        .event-panel {
-            padding: 10px;
-        }
-
-        /* 🏢 STUDIO INFO */
-        .studio-banner {
-            background: var(--pixel-purple);
-            color: var(--bg-dark);
-            padding: 10px;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 11px;
-        }
-
-        .resource-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .resource-label {
-            color: var(--pixel-yellow);
-        }
-
-        .resource-value {
-            color: var(--pixel-green);
-        }
-
-        /* 📊 STATS BOXES */
-        .stat-box {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            padding: 8px;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .stat-box:hover {
-            background: var(--bg-card-hover);
-        }
-
-        .stat-title {
-            color: var(--text-secondary);
-            font-size: 8px;
-        }
-
-        .stat-value {
-            color: var(--pixel-green);
-            font-size: 11px;
-            margin-top: 4px;
-        }
-
-        /* 🎮 GAME CARDS */
-        .game-card {
-            background: var(--bg-card);
-            border: 3px solid var(--border);
-            padding: 12px;
-            margin-bottom: 12px;
-            position: relative;
-        }
-
-        .game-card-title {
-            color: var(--pixel-blue);
-            font-size: 11px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .option-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-top: 8px;
-        }
-
-        .option-button {
-            background: var(--bg-panel);
-            border: 2px solid var(--border);
-            color: var(--text-primary);
-            padding: 8px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 8px;
-            transition: all 0.1s;
-        }
-
-        .option-button:hover {
-            border-color: var(--pixel-blue);
-            background: var(--pixel-blue);
-            color: var(--bg-dark);
-        }
-
-        .option-button.selected {
-            border-color: var(--pixel-green);
-            background: var(--pixel-green);
-            color: var(--bg-dark);
-        }
-
-        /* 📜 EVENT LOG */
-        .event-item {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            padding: 6px;
-            margin-bottom: 6px;
-            font-size: 8px;
-            line-height: 1.4;
-        }
-
-        .event-item.danger { border-color: var(--pixel-red); }
-        .event-item.success { border-color: var(--pixel-green); }
-        .event-item.warning { border-color: var(--pixel-yellow); }
-
-        .event-header {
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-
-        /* 🎯 MODAL */
+        /* 🎮 MODAL */
         .modal {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
+            display: none;
             place-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
         }
 
         .modal.active {
@@ -256,103 +196,94 @@
             background: var(--bg-panel);
             border: 4px solid var(--pixel-blue);
             padding: 20px;
-            max-width: 600px;
+            max-width: 700px;
             max-height: 90vh;
             overflow-y: auto;
+            animation: modalPop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border);
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .modal-title {
-            color: var(--pixel-blue);
-            font-size: 11px;
-        }
-
-        .close-button {
-            color: var(--pixel-red);
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        .modal-section {
+            font-size: 14px;
+            color: var(--neon-blue);
             margin-bottom: 15px;
-        }
-
-        .modal-section h4 {
-            color: var(--pixel-yellow);
-            margin-bottom: 8px;
-            font-size: 9px;
-        }
-
-        .genre-grid, .theme-grid, .platform-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 5px;
-        }
-
-        /* 📈 REVIEW SCREEN */
-        .review-modal {
             text-align: center;
         }
 
-        .review-score {
-            font-size: 48px;
-            color: var(--pixel-green);
-            margin: 20px 0;
-            text-shadow: 3px 3px 0 var(--bg-dark);
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
         }
 
-        .review-stars {
-            font-size: 24px;
-            color: var(--pixel-yellow);
-            margin-bottom: 20px;
-        }
-
-        .review-comments {
+        .option-tile {
             background: var(--bg-card);
-            border: 2px solid var(--border);
+            border: 2px solid var(--pixel-border);
             padding: 10px;
-            margin: 15px 0;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
             font-size: 9px;
-            line-height: 1.5;
         }
 
-        /* 💾 SAVE/LOAD */
-        .save-indicator {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: var(--pixel-green);
-            color: var(--bg-dark);
-            padding: 5px 10px;
-            font-size: 8px;
-            opacity: 0;
-            transition: opacity 0.3s;
+        .option-tile:hover {
+            border-color: var(--neon-blue);
+            transform: scale(1.05);
         }
 
-        .save-indicator.show {
-            opacity: 1;
+        .option-tile.selected {
+            border-color: var(--neon-green);
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
         }
 
-        /* 🎉 ACHIEVEMENT */
+        .option-icon {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        /* 🎮 REVIEW MODAL */
+        .review-modal .review-score {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 3px 3px 0 var(--bg-dark);
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .review-modal .review-stars {
+            font-size: 24px;
+            color: var(--neon-yellow);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .review-modal .review-comments {
+            background: var(--bg-card);
+            border: 2px solid var(--pixel-border);
+            padding: 12px;
+            font-size: 10px;
+            line-height: 1.4;
+            margin: 15px 0;
+        }
+
+        /* 🎮 ACHIEVEMENT */
         .achievement-popup {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            background: var(--pixel-purple);
-            color: var(--text-primary);
-            border: 4px solid var(--pixel-yellow);
-            padding: 20px 40px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border: 4px solid var(--neon-yellow);
+            padding: 20px 30px;
             z-index: 2000;
-            transition: transform 0.3s;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             text-align: center;
         }
 
@@ -361,753 +292,2310 @@
         }
 
         .achievement-title {
-            font-size: 11px;
+            font-size: 14px;
+            font-weight: 900;
             margin-bottom: 5px;
+            color: var(--bg-dark);
         }
 
         .achievement-desc {
-            font-size: 8px;
+            font-size: 10px;
+            color: var(--text-primary);
+        }
+
+        /* 🎮 NOTIFICATION */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: -400px;
+            background: var(--bg-panel);
+            border: 2px solid var(--neon-blue);
+            padding: 10px 15px;
+            max-width: 300px;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1500;
+        }
+
+        .notification.show {
+            right: 20px;
+        }
+
+        .notification-title {
+            color: var(--neon-blue);
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 10px;
+        }
+
+        .notification-text {
+            font-size: 9px;
             color: var(--text-secondary);
+        }
+
+        /* 🎮 ANIMATIONS */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .bouncing {
+            animation: bounce 0.3s ease-in-out;
+        }
+
+        /* 🎮 RESPONSIVE */
+        @media (max-width: 1024px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 200px 1fr 150px;
+            }
+            
+            .ui-panel.left, .ui-panel.right {
+                position: relative;
+                width: 100%;
+                height: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <!-- 🎮 SIDEBAR - RESOURCES -->
-        <aside class="sidebar">
-            <div class="studio-banner">
-                🎮 GARAGE STUDIOS 🎮
-                <div style="font-size: 8px; margin-top: 5px;">LEVEL 1 - GARAGE</div>
-            </div>
+    <canvas id="gameCanvas" width="1920" height="1080"></canvas>
 
-            <div class="stat-box">
-                <div class="stat-title">💰 CASH</div>
-                <div class="stat-value" id="cash">$500K</div>
-                <div class="pixel-bar">
-                    <div class="pixel-fill cash-fill" style="width: 50%"></div>
-                </div>
+    <!-- 🎮 UI OVERLAY -->
+    <div class="ui-overlay">
+        <!-- LEFT PANEL - RESOURCES -->
+        <div class="ui-panel left" id="leftPanel">
+            <div class="ui-title">📊 STUDIO RESOURCES</div>
+            
+            <div class="ui-stat">
+                <span class="ui-stat-label">💰 CASH</span>
+                <span class="ui-stat-value" id="uiCash">$500K</span>
             </div>
+            <div class="ui-bar"><div class="ui-fill cash-fill" id="cashBar" style="width: 50%"></div></div>
 
-            <div class="stat-box">
-                <div class="stat-title">👥 TEAM</div>
-                <div class="stat-value" id="team">15 / 50</div>
-                <div class="pixel-bar">
-                    <div class="pixel-fill team-fill" style="width: 30%"></div>
-                </div>
+            <div class="ui-stat">
+                <span class="ui-stat-label">👥 TEAM</span>
+                <span class="ui-stat-value" id="uiTeam">15 / 50</span>
             </div>
+            <div class="ui-bar"><div class="ui-fill team-fill" id="teamBar" style="width: 30%"></div></div>
 
-            <div class="stat-box">
-                <div class="stat-title">⭐ REPUTATION</div>
-                <div class="stat-value" id="reputation">65%</div>
-                <div class="pixel-bar">
-                    <div class="pixel-fill rep-fill" style="width: 65%"></div>
-                </div>
+            <div class="ui-stat">
+                <span class="ui-stat-label">⭐ REPUTATION</span>
+                <span class="ui-stat-value" id="uiRep">65%</span>
             </div>
+            <div class="ui-bar"><div class="ui-fill rep-fill" id="repBar" style="width: 65%"></div></div>
 
-            <div class="stat-box">
-                <div class="stat-title">🔥 HYPE</div>
-                <div class="stat-value" id="hype">30%</div>
-                <div class="pixel-bar">
-                    <div class="pixel-fill hype-fill" style="width: 30%"></div>
-                </div>
+            <div class="ui-stat">
+                <span class="ui-stat-label">🔥 HYPE</span>
+                <span class="ui-stat-value" id="uiHype">30%</span>
             </div>
+            <div class="ui-bar"><div class="ui-fill hype-fill" id="hypeBar" style="width: 30%"></div></div>
 
-            <div style="margin-top: 20px;">
-                <button class="pixel-button" style="width: 100%; margin-bottom: 5px;" onclick="hireStaff()">
-                    💼 HIRE STAFF
-                </button>
-                <button class="pixel-button" style="width: 100%; margin-bottom: 5px;" onclick="investMarketing()">
-                    📢 MARKETING
-                </button>
-                <button class="pixel-button" style="width: 100%; margin-bottom: 5px;" onclick="researchTech()">
-                    🔬 R&D
-                </button>
-                <button class="pixel-button" style="width: 100%;" onclick="moveOffice()">
-                    🏢 MOVE OFFICE
-                </button>
-            </div>
+            <button class="pixel-button" onclick="game.hireEmployee()">💼 CONTRATAR</button>
+            <button class="pixel-button" onclick="game.investMarketing()">📢 MARKETING</button>
+            <button class="pixel-button" onclick="game.researchTech()">🔬 R+D</button>
+            <button class="pixel-button" onclick="game.moveOffice()">🏢 MUDANZA</button>
+        </div>
 
-            <div class="stat-box" style="margin-top: 20px;">
-                <div class="stat-title">GAMES RELEASED</div>
-                <div class="stat-value" id="gamesReleased">0</div>
-            </div>
+        <!-- RIGHT PANEL - EMPLOYEES -->
+        <div class="ui-panel right" id="rightPanel">
+            <div class="ui-title">👥 EQUIPO ACTIVO</div>
+            <div id="employeeList"></div>
+        </div>
 
-            <div class="stat-box">
-                <div class="stat-title">AVG SCORE</div>
-                <div class="stat-value" id="avgScore">—</div>
-            </div>
-
-            <div class="stat-box">
-                <div class="stat-title">TOTAL REVENUE</div>
-                <div class="stat-value" id="totalRevenue">$0</div>
-            </div>
-        </aside>
-
-        <!-- 🎯 MAIN GAME AREA -->
-        <main class="main-area">
-            <div class="game-card" style="background: var(--pixel-purple); color: var(--bg-dark);">
-                <div class="game-card-title" style="color: var(--bg-dark); justify-content: center;">
-                    📅 YEAR <span id="year">2000</span> - <span id="phase">RETAIL ERA</span>
-                </div>
-                <div style="font-size: 8px; text-align: center; margin-top: 5px;">
-                    <span id="currentProblem">Retail model, early DRM. Indies are invisible.</span>
-                </div>
-            </div>
-
-            <div class="game-card">
-                <div class="game-card-title">🎮 DEVELOP NEW GAME</div>
-                <div id="activeProject" style="display: none;">
-                    <div style="background: var(--bg-card-hover); padding: 8px; margin: 10px 0; border: 2px solid var(--border);">
-                        <div style="display: flex; justify-content: space-between; font-size: 8px;">
-                            <span><strong id="projectName">NO PROJECT</strong></span>
-                            <span>PROGRESS: <span id="projectProgress">0%</span></span>
-                        </div>
-                        <div class="pixel-bar" style="margin-top: 5px;">
-                            <div class="pixel-fill progress-fill" id="progressBar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="option-grid">
-                    <button class="pixel-button" id="newGameBtn" onclick="openNewGameModal()">
-                        NEW GAME
-                    </button>
-                    <button class="pixel-button" id="continueBtn" style="display: none;" onclick="continueDevelopment()">
-                        CONTINUE
-                    </button>
-                    <button class="pixel-button" onclick="toggleCrunch()">
-                        CRUNCH: <span id="crunchStatus">OFF</span>
-                    </button>
-                    <button class="pixel-button" onclick="takeContract()">
-                        CONTRACT
-                    </button>
-                </div>
-            </div>
-
-            <div class="game-card">
-                <div class="game-card-title">📊 COMPANY ACTIONS</div>
-                <div class="option-grid">
-                    <button class="pixel-button" onclick="investMarketing()">
-                        MARKETING
-                    </button>
-                    <button class="pixel-button" onclick="teamBuilding()">
-                        TEAM BUILD
-                    </button>
-                    <button class="pixel-button" onclick="researchAI()">
-                        AI RESEARCH
-                    </button>
-                    <button class="pixel-button" onclick="patentTech()">
-                        PATENT TECH
-                    </button>
-                </div>
-            </div>
-        </main>
-
-        <!-- 📰 EVENT PANEL -->
-        <aside class="event-panel">
-            <div class="game-card-title">📰 INDUSTRY NEWS</div>
-            <div id="eventLog" style="margin-top: 10px;">
-                <div class="event-item">
-                    <div class="event-header">2000-01: STUDIO FOUNDED</div>
-                    Your journey begins in a small garage...
-                </div>
-            </div>
-        </aside>
+        <!-- BOTTOM PANEL - ACTIONS -->
+        <div class="ui-panel bottom" id="bottomPanel">
+            <button class="pixel-button danger" onclick="game.toggleCrunch()" style="width: 150px;">
+                🔥 CRUNCH: <span id="crunchStatus">OFF</span>
+            </button>
+            <button class="pixel-button success" onclick="game.startNewProject()" style="width: 150px;">
+                🎮 NUEVO PROYECTO
+            </button>
+            <button class="pixel-button" onclick="game.continueProject()" style="width: 150px;" id="continueBtn">
+                ⚙️ CONTINUAR
+            </button>
+            <button class="pixel-button" onclick="game.takeContract()" style="width: 150px;">
+                📋 CONTRATO
+            </button>
+        </div>
     </div>
 
-    <!-- 🎮 NEW GAME MODAL -->
+    <!-- 🎮 MODAL: NEW GAME -->
     <div class="modal" id="newGameModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">🎮 CREATE NEW GAME</div>
-                <div class="close-button" onclick="closeNewGameModal()">X</div>
-            </div>
-
-            <!-- GENRE SELECTION -->
+            <div class="modal-title">🎮 CREAR NUEVO JUEGO</div>
+            
             <div class="modal-section">
-                <h4>🎲 SELECT GENRE</h4>
-                <div class="genre-grid">
-                    <button class="option-button" data-type="genre" data-value="action" onclick="selectOption(this)">
-                        🎮 ACTION
-                    </button>
-                    <button class="option-button" data-type="genre" data-value="rpg" onclick="selectOption(this)">
-                        ⚔️ RPG
-                    </button>
-                    <button class="option-button" data-type="genre" data-value="strategy" onclick="selectOption(this)">
-                        🗺️ STRATEGY
-                    </button>
-                    <button class="option-button" data-type="genre" data-value="puzzle" onclick="selectOption(this)">
-                        🧩 PUZZLE
-                    </button>
-                    <button class="option-button" data-type="genre" data-value="horror" onclick="selectOption(this)">
-                        👻 HORROR
-                    </button>
-                    <button class="option-button" data-type="genre" data-value="simulation" onclick="selectOption(this)">
-                        🏭 SIMULATION
-                    </button>
+                <h4>🎲 GÉNERO</h4>
+                <div class="selection-grid">
+                    <div class="option-tile" data-type="genre" data-value="accion" onclick="game.selectOption(this)">
+                        <div class="option-icon">🎮</div>
+                        <div>ACCIÓN</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="rpg" onclick="game.selectOption(this)">
+                        <div class="option-icon">⚔️</div>
+                        <div>RPG</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="estrategia" onclick="game.selectOption(this)">
+                        <div class="option-icon">🗺️</div>
+                        <div>ESTRATEGIA</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="puzzle" onclick="game.selectOption(this)">
+                        <div class="option-icon">🧩</div>
+                        <div>PUZZLE</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="terror" onclick="game.selectOption(this)">
+                        <div class="option-icon">👻</div>
+                        <div>TERROR</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="simulacion" onclick="game.selectOption(this)">
+                        <div class="option-icon">🏭</div>
+                        <div>SIMULACIÓN</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- THEME SELECTION -->
             <div class="modal-section">
-                <h4>🎨 SELECT THEME</h4>
-                <div class="theme-grid">
-                    <button class="option-button" data-type="theme" data-value="space" onclick="selectOption(this)">
-                        🚀 SPACE
-                    </button>
-                    <button class="option-button" data-type="theme" data-value="medieval" onclick="selectOption(this)">
-                        🏰 MEDIEVAL
-                    </button>
-                    <button class="option-button" data-type="theme" data-value="cyberpunk" onclick="selectOption(this)">
-                        🌆 CYBERPUNK
-                    </button>
-                    <button class="option-button" data-type="theme" data-value="fantasy" onclick="selectOption(this)">
-                        🦄 FANTASY
-                    </button>
-                    <button class="option-button" data-type="theme" data-value="zombies" onclick="selectOption(this)">
-                        🧟 ZOMBIES
-                    </button>
-                    <button class="option-button" data-type="theme" data-value="sports" onclick="selectOption(this)">
-                        ⚽ SPORTS
-                    </button>
+                <h4>🎨 TEMA</h4>
+                <div class="selection-grid">
+                    <div class="option-tile" data-type="tema" data-value="espacial" onclick="game.selectOption(this)">
+                        <div class="option-icon">🚀</div>
+                        <div>ESPACIAL</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="medieval" onclick="game.selectOption(this)">
+                        <div class="option-icon">🏰</div>
+                        <div>MEDIEVAL</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="cyberpunk" onclick="game.selectOption(this)">
+                        <div class="option-icon">🌆</div>
+                        <div>CYBERPUNK</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="fantasia" onclick="game.selectOption(this)">
+                        <div class="option-icon">🦄</div>
+                        <div>FANTASÍA</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="zombies" onclick="game.selectOption(this)">
+                        <div class="option-icon">🧟</div>
+                        <div>ZOMBIES</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="deportes" onclick="game.selectOption(this)">
+                        <div class="option-icon">⚽</div>
+                        <div>DEPORTES</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- PLATFORM SELECTION -->
             <div class="modal-section">
-                <h4>📺 SELECT PLATFORM</h4>
-                <div class="platform-grid">
-                    <button class="option-button" data-type="platform" data-value="pc" onclick="selectOption(this)">
-                        💻 PC
-                    </button>
-                    <button class="option-button" data-type="platform" data-value="console" onclick="selectOption(this)">
-                        🎮 CONSOLE
-                    </button>
-                    <button class="option-button" data-type="platform" data-value="mobile" onclick="selectOption(this)">
-                        📱 MOBILE
-                    </button>
-                    <button class="option-button" data-type="platform" data-value="vr" onclick="selectOption(this)">
-                        🥽 VR
-                    </button>
+                <h4>📺 PLATAFORMA</h4>
+                <div class="selection-grid">
+                    <div class="option-tile" data-type="plataforma" data-value="pc" onclick="game.selectOption(this)">
+                        <div class="option-icon">💻</div>
+                        <div>PC</div>
+                    </div>
+                    <div class="option-tile" data-type="plataforma" data-value="consola" onclick="game.selectOption(this)">
+                        <div class="option-icon">🎮</div>
+                        <div>CONSOLA</div>
+                    </div>
+                    <div class="option-tile" data-type="plataforma" data-value="movil" onclick="game.selectOption(this)">
+                        <div class="option-icon">📱</div>
+                        <div>MÓVIL</div>
+                    </div>
+                    <div class="option-tile" data-type="plataforma" data-value="vr" onclick="game.selectOption(this)">
+                        <div class="option-icon">🥽</div>
+                        <div>VR</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- BUDGET -->
             <div class="modal-section">
-                <h4>💰 DEVELOPMENT BUDGET</h4>
+                <h4>💰 PRESUPUESTO</h4>
                 <input type="range" id="budgetSlider" min="50000" max="500000" value="150000" 
-                       style="width: 100%; height: 10px; background: var(--bg-card); cursor: pointer;"
-                       oninput="updateBudget(this.value)">
-                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 8px;">
+                       oninput="game.updateBudget(this.value)" 
+                       style="width: 100%; height: 10px; background: var(--bg-card); cursor: pointer;">
+                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 9px;">
                     <span>MIN: $50K</span>
-                    <span id="budgetDisplay">$150K</span>
+                    <span id="budgetValue" style="color: var(--neon-blue); font-weight: 800;">$150K</span>
                     <span>MAX: $500K</span>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button class="pixel-button" style="flex: 1;" onclick="closeNewGameModal()">CANCEL</button>
-                <button class="pixel-button" style="flex: 2;" onclick="startDevelopment()">START DEV</button>
-            </div>
+            <button class="pixel-button success" onclick="game.confirmProject()" style="margin-top: 15px;">✅ INICIAR DESARROLLO</button>
         </div>
     </div>
 
-    <!-- 🎉 REVIEW MODAL -->
+    <!-- 🎮 REVIEW MODAL -->
     <div class="modal" id="reviewModal">
         <div class="modal-content review-modal">
-            <div class="modal-title">📊 GAME REVIEWS</div>
+            <div class="modal-title">📊 CRÍTICAS DE JUEGO</div>
             <div class="review-score" id="reviewScore">85</div>
             <div class="review-stars" id="reviewStars">★★★★☆</div>
-            <div class="review-comments" id="reviewComments">
-                "Innovative gameplay and solid execution. A promising start for this studio."
-            </div>
-            <div style="margin-top: 20px;">
-                <div class="stat-box" style="display: inline-block; margin: 5px;">
-                    <div class="stat-title">SALES</div>
+            <div class="review-comments" id="reviewComments">Innovación y ejecución sólida. Un prometedor inicio.</div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div class="stat-box" style="flex: 1;">
+                    <div class="stat-title">VENTAS</div>
                     <div class="stat-value" id="salesFigure">$450K</div>
                 </div>
-                <div class="stat-box" style="display: inline-block; margin: 5px;">
-                    <div class="stat-title">UNITS</div>
+                <div class="stat-box" style="flex: 1;">
+                    <div class="stat-title">UNIDADES</div>
                     <div class="stat-value" id="unitsSold">50K</div>
                 </div>
             </div>
-            <button class="pixel-button" style="margin-top: 20px;" onclick="closeReviewModal()">CONTINUE</button>
+            <button class="pixel-button" onclick="game.closeReview()" style="margin-top: 15px;">CONTINUAR</button>
         </div>
     </div>
 
     <!-- 🏆 ACHIEVEMENT POPUP -->
     <div class="achievement-popup" id="achievementPopup">
-        <div class="achievement-title" id="achievementTitle">UNLOCKED!</div>
-        <div class="achievement-desc" id="achievementDesc">New Achievement</div>
+        <div class="achievement-title" id="achievementTitle">¡LOGRO DESBLOQUEADO!</div>
+        <div class="achievement-desc" id="achievementDesc">Descripción del logro</div>
+    </div>
+
+    <!-- 📢 NOTIFICATION -->
+    <div class="notification" id="notification">
+        <div class="notification-title" id="notificationTitle">NOTIFICACIÓN</div>
+        <div class="notification-text" id="notificationText">Mensaje</div>
     </div>
 
     <!-- 💾 SAVE INDICATOR -->
-    <div class="save-indicator" id="saveIndicator">💾 SAVING...</div>
+    <div class="save-indicator" id="saveIndicator">💾 GUARDANDO...</div>
 
     <script>
-        // 🎮 GAME STATE
-        const gameState = {
-            year: 2000,
-            month: 1,
-            cash: 500000,
-            team: 15,
-            maxTeam: 50,
-            reputation: 65,
-            hype: 30,
-            morale: 75,
-            games: [],
-            activeProject: null,
-            totalRevenue: 0,
-            officeLevel: 1,
-            researchLevel: 1,
-            crunchMode: false
-        };
+        // 🎮 MOTOR DE JUEGO COMPLETO
+        class IndustryEvolutionSimulator {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.gameState = {
+                    año: 2000,
+                    mes: 1,
+                    caja: 500000,
+                    equipo: 15,
+                    maxEquipo: 50,
+                    reputacion: 65,
+                    hype: 30,
+                    moral: 75,
+                    juegos: [],
+                    proyectoActivo: null,
+                    ingresosTotales: 0,
+                    nivelEstudio: 1,
+                    nivelInvestigacion: 1,
+                    crunchMode: false,
+                    descuentoContratacion: false,
+                    empleados: this.generarEmpleadosIniciales()
+                };
 
-        // 📊 COMBO DATABASE (based on your data trends)
-        const gameDB = {
-            genres: {
-                action: { name: "Action", baseScore: 70, risk: 0.3, trend: [1, 1, 1, 1, 1, 1.2, 1.3, 1.3, 1.2, 1.1] },
-                rpg: { name: "RPG", baseScore: 80, risk: 0.5, trend: [1, 1, 1, 1, 1, 1, 1.1, 1.1, 1.2, 1.4] },
-                strategy: { name: "Strategy", baseScore: 75, risk: 0.4, trend: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
-                puzzle: { name: "Puzzle", baseScore: 65, risk: 0.2, trend: [0.8, 0.8, 0.9, 1, 1, 1.1, 1.2, 1.3, 1.4, 1.5] },
-                horror: { name: "Horror", baseScore: 85, risk: 0.6, trend: [1, 1, 1, 1, 1, 1, 1, 1.1, 1.2, 1.3] },
-                simulation: { name: "Simulation", baseScore: 60, risk: 0.3, trend: [1, 1, 1, 1, 1, 1, 1.1, 1.1, 1.2, 1.3] }
-            },
-            themes: {
-                space: { name: "Space", multipliers: { action: 1.2, simulation: 1.3, rpg: 1.1 } },
-                medieval: { name: "Medieval", multipliers: { rpg: 1.4, strategy: 1.3, action: 1.1 } },
-                cyberpunk: { name: "Cyberpunk", multipliers: { rpg: 1.3, action: 1.2, horror: 1.1 } },
-                fantasy: { name: "Fantasy", multipliers: { rpg: 1.5, strategy: 1.1, action: 1 } },
-                zombies: { name: "Zombies", multipliers: { horror: 1.4, action: 1.2, strategy: 0.8 } },
-                sports: { name: "Sports", multipliers: { simulation: 1.3, action: 0.9, puzzle: 0.7 } }
-            },
-            platforms: {
-                pc: { name: "PC", reach: 1.0, cost: 1.0 },
-                console: { name: "Console", reach: 1.2, cost: 1.3 },
-                mobile: { name: "Mobile", reach: 0.8, cost: 0.6 },
-                vr: { name: "VR", reach: 0.3, cost: 1.8 }
+                this.teclado = { space: false };
+                this.config = {
+                    velocidadAnimacion: 0.05,
+                    tamanoTile: 32,
+                    escalaZoom: 1,
+                    offsetX: 0,
+                    offsetY: 0
+                };
+
+                this.sistemaParticulas = [];
+                this.sistemaEventos = [];
+                this.logros = {
+                    primero: { nombre: "Debutante", descripcion: "Lanza tu primer juego", desbloqueado: false },
+                    hit: { nombre: "Golpe de Suerte", descripcion: "Juego >85/100", desbloqueado: false },
+                    experto: { nombre: "Productor Veterano", descripcion: "Lanza 10 juegos", desbloqueado: false },
+                    millonario: { nombre: "Magnate", descripcion: "$1M en ingresos", desbloqueado: false }
+                };
+
+                this.baseDatos = {
+                    generos: {
+                        accion: { nombre: "Acción", base: 70, riesgo: 0.3, tendencia: [1,1,1,1,1,1.2,1.3,1.3,1.2,1.1] },
+                        rpg: { nombre: "RPG", base: 80, riesgo: 0.5, tendencia: [1,1,1,1,1,1,1.1,1.1,1.2,1.4] },
+                        estrategia: { nombre: "Estrategia", base: 75, riesgo: 0.4, tendencia: [1,1,1,1,1,1,1,1,1,1] },
+                        puzzle: { nombre: "Puzzle", base: 65, riesgo: 0.2, tendencia: [0.8,0.8,0.9,1,1,1.1,1.2,1.3,1.4,1.5] },
+                        terror: { nombre: "Terror", base: 85, riesgo: 0.6, tendencia: [1,1,1,1,1,1,1,1.1,1.2,1.3] },
+                        simulacion: { nombre: "Simulación", base: 60, riesgo: 0.3, tendencia: [1,1,1,1,1,1,1.1,1.1,1.2,1.3] }
+                    },
+                    temas: {
+                        espacial: { nombre: "Espacial", multi: { accion: 1.2, simulacion: 1.3, rpg: 1.1 } },
+                        medieval: { nombre: "Medieval", multi: { rpg: 1.4, estrategia: 1.3, accion: 1.1 } },
+                        cyberpunk: { nombre: "Cyberpunk", multi: { rpg: 1.3, accion: 1.2, terror: 1.1 } },
+                        fantasia: { nombre: "Fantasía", multi: { rpg: 1.5, estrategia: 1.1, accion: 1 } },
+                        zombies: { nombre: "Zombies", multi: { terror: 1.4, accion: 1.2, estrategia: 0.8 } },
+                        deportes: { nombre: "Deportes", multi: { simulacion: 1.3, accion: 0.9, puzzle: 0.7 } }
+                    },
+                    plataformas: {
+                        pc: { nombre: "PC", alcance: 1, costo: 1 },
+                        consola: { nombre: "Consola", alcance: 1.2, costo: 1.3 },
+                        movil: { nombre: "Móvil", alcance: 0.8, costo: 0.6 },
+                        vr: { nombre: "VR", alcance: 0.3, costo: 1.8 }
+                    }
+                };
+
+                this.eventosHistoria = {
+                    2004: { tipo: 'danger', texto: '💥 Caso EA Spouse expone crunch. Moral -20%', efecto: () => { this.gameState.moral = Math.max(0, this.gameState.moral - 20); } },
+                    2008: { tipo: 'warning', texto: '📉 Crisis financiera. Mercado -30%', efecto: () => { /* Aplica multiplicador temporal */ } },
+                    2012: { tipo: 'success', texto: '📱 Boom mobile. Bonus +50% juegos móviles', efecto: () => { this.gameState.hype += 30; } },
+                    2017: { tipo: 'danger', texto: '🎰 Controversia loot boxes. Riesgo +15%', efecto: () => { this.gameState.reputacion = Math.max(0, this.gameState.reputacion - 15); } },
+                    2020: { tipo: 'success', texto: '🏠 Pandemia +200% ventas digitales', efecto: () => { const bonus = 200000; this.gameState.caja += bonus; this.gameState.ingresosTotales += bonus; } },
+                    2023: { tipo: 'warning', texto: '🔥 Despidos masivos. Talento -50% coste', efecto: () => { this.gameState.descuentoContratacion = true; } }
+                };
+
+                this.inicializar();
             }
-        };
 
-        // 🎲 HISTORICAL EVENTS
-        const historicalEvents = {
-            2004: { type: 'danger', text: '💥 EA Spouse scandal! Crunch culture exposed. Morale penalty: -20%' },
-            2008: { type: 'warning', text: '📉 Financial crisis! Market shrinks -30% for 2 years' },
-            2012: { type: 'success', text: '📱 Mobile boom! Mobile games get +50% bonus' },
-            2017: { type: 'danger', text: '🎰 Loot box controversy! All games risk -15% rep' },
-            2020: { type: 'success', text: '🏠 Pandemic boom! Digital sales +200%' },
-            2023: { type: 'warning', text: '🔥 Mass layoffs! Talent available -50% cost' }
-        };
+            inicializar() {
+                this.configurarCanvas();
+                this.configurarEventos();
+                this.iniciarLoop();
+                this.mostrarNotificacion('🎮 BIENVENIDO', 'Usa ESPACIO para acelerar desarrollo');
+            }
 
-        // 🏆 ACHIEVEMENTS
-        const achievements = {
-            firstGame: { name: "FIRST GAME", desc: "Release your first game", unlocked: false },
-            hitGame: { name: "HIT GAME", desc: "Score over 85/100", unlocked: false },
-            tenGames: { name: "PROLIFIC", desc: "Release 10 games", unlocked: false },
-            millionaire: { name: "MILLIONAIRE", desc: "Earn $1M total", unlocked: false }
-        };
+            configurarCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                window.addEventListener('resize', () => {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                });
+            }
 
-        // 🎮 INITIALIZE
-        document.addEventListener('DOMContentLoaded', () => {
-            updateUI();
-            loadGame();
-            setInterval(autoSave, 60000);
-        });
+            configurarEventos() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') this.teclado.space = true;
+                });
+                document.addEventListener('keyup', (e) => {
+                    if (e.code === 'Space') this.teclado.space = false;
+                });
 
-        // 📊 UPDATE UI
-        function updateUI() {
-            document.getElementById('year').textContent = gameState.year;
-            document.getElementById('cash').textContent = `$${(gameState.cash / 1000).toFixed(0)}K`;
-            document.getElementById('team').textContent = `${gameState.team} / ${gameState.maxTeam}`;
-            document.getElementById('reputation').textContent = `${gameState.reputation}%`;
-            document.getElementById('hype').textContent = `${gameState.hype}%`;
-            document.getElementById('gamesReleased').textContent = gameState.games.length;
-            document.getElementById('avgScore').textContent = gameState.games.length ? 
-                (gameState.games.reduce((a, b) => a + b.score, 0) / gameState.games.length).toFixed(1) : '—';
-            document.getElementById('totalRevenue').textContent = `$${(gameState.totalRevenue / 1000).toFixed(0)}K`;
-            
-            // Update phase/problem
-            const phases = ["RETAIL", "CRISIS", "INDIE", "MONETIZATION", "LOOTBOX", "LIVE", "RESTRUCTURE"];
-            const phaseIndex = Math.floor((gameState.year - 2000) / 4);
-            document.getElementById('phase').textContent = `${phases[phaseIndex]} ERA`;
-            document.getElementById('currentProblem').textContent = getCurrentProblem();
+                // Auto-save
+                setInterval(() => this.guardarJuego(), 60000);
+            }
 
-            // Update active project
-            if (gameState.activeProject) {
-                document.getElementById('activeProject').style.display = 'block';
-                document.getElementById('newGameBtn').style.display = 'none';
-                document.getElementById('continueBtn').style.display = 'block';
-                document.getElementById('projectName').textContent = 
-                    `${gameDB.genres[gameState.activeProject.genre].name} / ${gameDB.themes[gameState.activeProject.theme].name}`;
-                document.getElementById('projectProgress').textContent = `${gameState.activeProject.progress}%`;
-                document.getElementById('progressBar').style.width = `${gameState.activeProject.progress}%`;
-            } else {
+            // 🎮 LOOP PRINCIPAL
+            iniciarLoop() {
+                let ultimoTiempo = 0;
+                const loop = (timestamp) => {
+                    const deltaTime = timestamp - ultimoTiempo;
+                    ultimoTiempo = timestamp;
+
+                    this.actualizar(deltaTime);
+                    this.renderizar();
+
+                    if (this.teclado.space && this.gameState.proyectoActivo) {
+                        this.continuarProyecto();
+                    }
+
+                    requestAnimationFrame(loop);
+                };
+                requestAnimationFrame(loop);
+            }
+
+            actualizar(deltaTime) {
+                // Actualizar empleados
+                this.gameState.empleados.forEach(empleado => empleado.actualizar(deltaTime));
+
+                // Actualizar partículas
+                this.sistemaParticulas = this.sistemaParticulas.filter(p => p.actualizar(deltaTime));
+
+                // Actualizar eventos
+                this.sistemaEventos = this.sistemaEventos.filter(e => e.actualizar(deltaTime));
+
+                // Check historical events
+                if (this.gameState.mes === 1 && this.eventosHistoria[this.gameState.año]) {
+                    const evento = this.eventosHistoria[this.gameState.año];
+                    this.agregarEvento(evento.tipo, evento.texto);
+                    evento.efecto();
+                }
+            }
+
+            renderizar() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Dibujar oficina isométrica
+                this.dibujarOficina();
+
+                // Dibujar empleados
+                this.gameState.empleados.forEach(empleado => empleado.dibujar(this.ctx));
+
+                // Dibujar partículas
+                this.sistemaParticulas.forEach(p => p.dibujar(this.ctx));
+
+                // Dibujar UI overlay
+                this.dibujarUI();
+            }
+
+            dibujarOficina() {
+                const ctx = this.ctx;
+                const tile = this.config.tamanoTile;
+                const offsetX = this.config.offsetX;
+                const offsetY = this.config.offsetY;
+
+                // Grid isométrico
+                ctx.strokeStyle = 'rgba(100,100,100,0.1)';
+                ctx.lineWidth = 1;
+
+                for (let x = 0; x < 50; x++) {
+                    for (let y = 0; y < 50; y++) {
+                        const isoX = (x - y) * tile / 2 + offsetX;
+                        const isoY = (x + y) * tile / 4 + offsetY;
+                        
+                        ctx.strokeRect(isoX, isoY, tile, tile / 2);
+                    }
+                }
+
+                // Muebles y workstations
+                ctx.fillStyle = '#444';
+                for (let i = 0; i < Math.min(this.gameState.equipo, 20); i++) {
+                    const x = i % 5;
+                    const y = Math.floor(i / 5);
+                    const isoX = (x - y) * tile / 2 + offsetX + 200;
+                    const isoY = (x + y) * tile / 4 + offsetY + 100;
+                    
+                    ctx.fillRect(isoX, isoY, tile * 0.8, tile * 0.4);
+                    ctx.fillStyle = '#222';
+                    ctx.fillRect(isoX + 5, isoY - 10, tile * 0.6, tile * 0.2);
+                    ctx.fillStyle = '#444';
+                }
+            }
+
+            dibujarUI() {
+                // Update UI values
+                document.getElementById('uiCash').textContent = `$${(this.gameState.caja / 1000).toFixed(0)}K`;
+                document.getElementById('uiTeam').textContent = `${this.gameState.equipo} / ${this.gameState.maxEquipo}`;
+                document.getElementById('uiRep').textContent = `${this.gameState.reputacion}%`;
+                document.getElementById('uiHype').textContent = `${this.gameState.hype}%`;
+                
+                document.getElementById('cashBar').style.width = `${Math.min(100, this.gameState.caja / 10000)}%`;
+                document.getElementById('teamBar').style.width = `${(this.gameState.equipo / this.gameState.maxEquipo) * 100}%`;
+                document.getElementById('repBar').style.width = `${this.gameState.reputacion}%`;
+                document.getElementById('hypeBar').style.width = `${this.gameState.hype}%`;
+
+                // Update employee list
+                this.actualizarListaEmpleados();
+            }
+
+            actualizarListaEmpleados() {
+                const container = document.getElementById('employeeList');
+                container.innerHTML = '';
+                
+                this.gameState.empleados.slice(0, 5).forEach(empleado => {
+                    const div = document.createElement('div');
+                    div.className = 'ui-stat';
+                    div.style.fontSize = '9px';
+                    div.innerHTML = `
+                        <span>${empleado.nombre}</span>
+                        <span style="color: ${empleado.moral > 60 ? '#00ff41' : '#ffcc00'}">${empleado.moral}%</span>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            // 🎮 MECÁNICAS DE JUEGO
+            generarEmpleadosIniciales() {
+                const nombres = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery'];
+                const apellidos = ['Dev', 'Coder', 'Designer', 'Artist', 'Tester', 'Producer'];
+                const empleados = [];
+                
+                for (let i = 0; i < 3; i++) {
+                    empleados.push(new Empleado(
+                        nombres[Math.floor(Math.random() * nombres.length)] + ' ' + apellidos[Math.floor(Math.random() * apellidos.length)],
+                        100 + i * 150,
+                        200 + i * 50,
+                        this
+                    ));
+                }
+                return empleados;
+            }
+
+            contratarEmpleado() {
+                const costo = this.gameState.descuentoContratacion ? 25000 : 50000;
+                if (this.gameState.caja >= costo && this.gameState.equipo < this.gameState.maxEquipo) {
+                    this.gameState.caja -= costo;
+                    this.gameState.equipo++;
+                    
+                    const nombres = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery'];
+                    const apellidos = ['Dev', 'Coder', 'Designer', 'Artist', 'Tester', 'Producer'];
+                    const emp = new Empleado(
+                        nombres[Math.floor(Math.random() * nombres.length)] + ' ' + apellidos[Math.floor(Math.random() * apellidos.length)],
+                        200 + Math.random() * 400,
+                        150 + Math.random() * 200,
+                        this
+                    );
+                    this.gameState.empleados.push(emp);
+                    
+                    this.gameState.moral = Math.min(100, this.gameState.moral + 5);
+                    this.mostrarNotificacion('💼 CONTRATADO', 'Nuevo miembro en el equipo');
+                    this.agregarEvento('success', `Contratado: ${emp.nombre}`);
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', this.gameState.equipo >= this.gameState.maxEquipo ? 'Equipo al máximo' : 'Caja insuficiente');
+                }
+            }
+
+            invertirMarketing() {
+                const costo = 30000;
+                if (this.gameState.caja >= costo) {
+                    this.gameState.caja -= costo;
+                    this.gameState.hype = Math.min(100, this.gameState.hype + 25);
+                    this.mostrarNotificacion('📢 MARKETING', 'Campaña aumenta hype +25');
+                    this.agregarEvento('info', 'Campaña de marketing lanzada');
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', 'Caja insuficiente');
+                }
+            }
+
+            investigarTecnologia() {
+                const costo = 75000;
+                if (this.gameState.caja >= costo) {
+                    this.gameState.caja -= costo;
+                    this.gameState.nivelInvestigacion++;
+                    this.mostrarNotificacion('🔬 INVESTIGACIÓN', `Nivel ${this.gameState.nivelInvestigacion} desbloqueado`);
+                    this.agregarEvento('success', 'Investigación completada');
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', 'Caja insuficiente');
+                }
+            }
+
+            mudarOficina() {
+                const costo = 150000;
+                if (this.gameState.caja >= costo && this.gameState.nivelEstudio < 5) {
+                    this.gameState.caja -= costo;
+                    this.gameState.nivelEstudio++;
+                    this.gameState.maxEquipo += 25;
+                    this.gameState.moral = Math.min(100, this.gameState.moral + 20);
+                    this.mostrarNotificacion('🏢 MUDANZA', `Oficina nivel ${this.gameState.nivelEstudio} activa`);
+                    this.agregarEvento('success', `Oficina mejorada: +25 equipo máximo`);
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', this.gameState.nivelEstudio >= 5 ? 'Máximo nivel' : 'Caja insuficiente');
+                }
+            }
+
+            alternarCrunch() {
+                this.gameState.crunchMode = !this.gameState.crunchMode;
+                document.getElementById('crunchStatus').textContent = this.gameState.crunchMode ? 'ON' : 'OFF';
+                this.mostrarNotificacion('🔥 CRUNCH', this.gameState.crunchMode ? 'Activado: +velocidad, -moral' : 'Desactivado');
+                this.agregarEvento('warning', `Crunch mode ${this.gameState.crunchMode ? 'ACTIVADO' : 'DESACTIVADO'}`);
+            }
+
+            trabajoContrato() {
+                const ingresos = 40000;
+                this.gameState.caja += ingresos;
+                this.gameState.ingresosTotales += ingresos;
+                this.mostrarNotificacion('📋 CONTRATO', `+${ingresos / 1000}K de ingresos seguros`);
+                this.agregarEvento('info', 'Trabajo por contrato completado');
+                this.actualizarUI();
+            }
+
+            construccionEquipo() {
+                const costo = 20000;
+                if (this.gameState.caja >= costo) {
+                    this.gameState.caja -= costo;
+                    this.gameState.moral = Math.min(100, this.gameState.moral + 15);
+                    this.mostrarNotificacion('🏖️ RETIRO', 'Moral de equipo +15');
+                    this.agregarEvento('success', 'Evento de team building completado');
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', 'Caja insuficiente');
+                }
+            }
+
+            investigacionAI() {
+                this.mostrarNotificacion('🔒 PRÓXIMAMENTE', 'Feature en desarrollo');
+            }
+
+            patentarTecnologia() {
+                this.mostrarNotificacion('🔒 PRÓXIMAMENTE', 'Feature en desarrollo');
+            }
+
+            // 🎮 PROYECTO
+            iniciarNuevoProyecto() {
+                if (this.gameState.proyectoActivo) {
+                    this.mostrarNotificacion('⚠️ PROYECTO ACTIVO', 'Termina el juego actual primero');
+                    return;
+                }
+                document.getElementById('newGameModal').classList.add('active');
+            }
+
+            continuarProyecto() {
+                if (!this.gameState.proyectoActivo) return;
+                document.getElementById('continueBtn').classList.add('bouncing');
+                setTimeout(() => document.getElementById('continueBtn').classList.remove('bouncing'), 300);
+                this.desarrollarProyecto();
+            }
+
+            desarrollarProyecto() {
+                const proyecto = this.gameState.proyectoActivo;
+                if (!proyecto) return;
+
+                const velocidad = this.gameState.crunchMode ? 25 : 15;
+                const penalidad = this.gameState.crunchMode ? 5 : 0;
+
+                proyecto.progreso += velocidad;
+                this.gameState.moral = Math.max(0, this.gameState.moral - penalidad);
+
+                // Eventos random durante desarrollo
+                if (Math.random() < 0.05) this.eventoDesarrolloRandom();
+
+                // Finalizar proyecto
+                if (proyecto.progreso >= 100) {
+                    this.lanzarJuego();
+                }
+
+                // Actualizar UI
+                document.getElementById('projectProgress').textContent = `${proyecto.progreso}%`;
+                document.getElementById('progressBar').style.width = `${proyecto.progreso}%`;
+
+                this.actualizarUI();
+            }
+
+            eventoDesarrolloRandom() {
+                const eventos = [
+                    { tipo: 'warning', texto: '🐛 ¡Bug crítico! -10% progreso', efecto: () => { this.gameState.proyectoActivo.progreso -= 10; } },
+                    { tipo: 'success', texto: '⭐ ¡Estrella del equipo! +15% progreso', efecto: () => { this.gameState.proyectoActivo.progreso += 15; } },
+                    { tipo: 'info', texto: '💡 ¡Inspiración! +5 calidad', efecto: () => { this.gameState.proyectoActivo.calidad += 5; } }
+                ];
+                const evento = eventos[Math.floor(Math.random() * eventos.length)];
+                evento.efecto();
+                this.agregarEvento(evento.tipo, evento.texto);
+            }
+
+            lanzarJuego() {
+                const proyecto = this.gameState.proyectoActivo;
+                const nota = this.calcularNotaFinal(proyecto);
+                const ventas = this.calcularVentas(proyecto, nota);
+
+                // Actualizar estado
+                this.gameState.caja += ventas;
+                this.gameState.ingresosTotales += ventas;
+                this.gameState.juegos.push({...proyecto, nota, ventas, año: this.gameState.año});
+
+                // Actualizar reputación y moral
+                const cambioRep = nota > 80 ? 8 : nota > 60 ? 3 : -5;
+                this.gameState.reputacion = Math.max(0, Math.min(100, this.gameState.reputacion + cambioRep));
+                this.gameState.hype = Math.max(10, this.gameState.hype - 30);
+                this.gameState.moral = Math.min(100, this.gameState.moral + 10);
+
+                // Limpiar proyecto
+                this.gameState.proyectoActivo = null;
                 document.getElementById('activeProject').style.display = 'none';
                 document.getElementById('newGameBtn').style.display = 'block';
                 document.getElementById('continueBtn').style.display = 'none';
-            }
 
-            // Check for historical events
-            checkHistoricalEvents();
-            checkAchievements();
-        }
+                // Mostrar review
+                this.mostrarReview(nota, ventas);
 
-        function getCurrentProblem() {
-            const year = gameState.year;
-            if (year <= 2004) return "Retail model, early DRM. Indies are invisible.";
-            if (year <= 2008) return "Rising costs, creative crisis. Crunch begins.";
-            if (year <= 2012) return "Digital distribution rises. Indies emerge.";
-            if (year <= 2017) return "Microtransactions dominate. Creative risk drops.";
-            if (year <= 2020) return "Live service games rule. AAA identity crisis.";
-            return "Mass layoffs. Indies & AA save the industry.";
-        }
+                // Eventos post-lanzamiento
+                if (nota > 80 && Math.random() < 0.3) this.eventoPostLanzamiento(proyecto, ventas);
 
-        // 🎮 GAME ACTIONS
-        function openNewGameModal() {
-            if (gameState.activeProject) {
-                alert('Finish current project first!');
-                return;
-            }
-            document.getElementById('newGameModal').classList.add('active');
-        }
-
-        function closeNewGameModal() {
-            document.getElementById('newGameModal').classList.remove('active');
-            document.querySelectorAll('.option-button').forEach(btn => btn.classList.remove('selected'));
-        }
-
-        function selectOption(btn) {
-            const type = btn.dataset.type;
-            document.querySelectorAll(`[data-type="${type}"]`).forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-        }
-
-        function updateBudget(value) {
-            document.getElementById('budgetDisplay').textContent = `$${(value / 1000).toFixed(0)}K`;
-        }
-
-        function startDevelopment() {
-            const genre = document.querySelector('[data-type="genre"].selected')?.dataset.value;
-            const theme = document.querySelector('[data-type="theme"].selected')?.dataset.value;
-            const platform = document.querySelector('[data-type="platform"].selected')?.dataset.value;
-            const budget = parseInt(document.getElementById('budgetSlider').value);
-
-            if (!genre || !theme || platform) {
-                alert('Please select genre, theme, and platform!');
-                return;
-            }
-
-            if (gameState.cash < budget) {
-                alert('Not enough cash!');
-                return;
-            }
-
-            gameState.cash -= budget;
-            gameState.activeProject = {
-                genre, theme, platform, budget,
-                progress: 0, quality: 0,
-                startYear: gameState.year
-            };
-
-            closeNewGameModal();
-            updateUI();
-            addEvent('info', `Started development: ${gameDB.genres[genre].name} / ${gameDB.themes[theme].name}`);
-        }
-
-        function continueDevelopment() {
-            if (!gameState.activeProject) return;
-
-            const project = gameState.activeProject;
-            const devSpeed = gameState.crunchMode ? 25 : 15;
-            const moralePenalty = gameState.crunchMode ? 3 : 0;
-
-            project.progress += devSpeed;
-            gameState.morale = Math.max(0, gameState.morale - moralePenalty);
-
-            // Random development events
-            if (Math.random() < 0.1) triggerDevEvent();
-
-            if (project.progress >= 100) {
-                releaseGame();
-            }
-
-            updateUI();
-        }
-
-        function triggerDevEvent() {
-            const events = [
-                { type: 'warning', text: 'Critical bug found! Progress -10%', effect: () => { gameState.activeProject.progress -= 10; } },
-                { type: 'success', text: 'Star programmer joins! Progress +15%', effect: () => { gameState.activeProject.progress += 15; } },
-                { type: 'info', text: 'Design breakthrough! Quality +5', effect: () => { gameState.activeProject.quality += 5; } }
-            ];
-            const event = events[Math.floor(Math.random() * events.length)];
-            event.effect();
-            addEvent(event.type, event.text);
-        }
-
-        function releaseGame() {
-            const project = gameState.activeProject;
-            const score = calculateScore(project);
-            const sales = calculateSales(project, score);
-
-            // Update state
-            gameState.cash += sales;
-            gameState.totalRevenue += sales;
-            gameState.games.push({
-                ...project,
-                score,
-                sales,
-                releaseYear: gameState.year
-            });
-
-            // Update reputation
-            const repChange = score > 80 ? 8 : score > 60 ? 3 : -5;
-            gameState.reputation = Math.max(0, Math.min(100, gameState.reputation + repChange));
-
-            // Reset hype
-            gameState.hype = Math.max(10, gameState.hype - 30);
-
-            // Morale boost for success
-            gameState.morale = Math.min(100, gameState.morale + 10);
-
-            // Clear project
-            gameState.activeProject = null;
-
-            // Show review
-            showReview(score, sales);
-
-            // Post-launch events
-            if (score > 80 && Math.random() < 0.3) {
-                const dlcRevenue = sales * 0.2;
-                gameState.cash += dlcRevenue;
-                gameState.totalRevenue += dlcRevenue;
-                addEvent('success', `DLC released! +$${(dlcRevenue / 1000).toFixed(0)}K`);
-            }
-
-            updateUI();
-        }
-
-        function calculateScore(project) {
-            const genre = gameDB.genres[project.genre];
-            const theme = gameDB.themes[project.theme];
-            const platform = gameDB.platforms[project.platform];
-            const yearTrend = genre.trend[Math.min(9, Math.floor((gameState.year - 2000) / 3))];
-
-            let score = genre.baseScore * yearTrend;
-            score *= (theme.multipliers[project.genre] || 1.0);
-            score *= (project.budget / 100000) * 0.5 + 0.5;
-            score *= (gameState.reputation / 100);
-            score *= (gameState.morale / 100) * 0.5 + 0.5;
-            score *= 0.8 + Math.random() * 0.4; // Random factor
-            
-            return Math.min(100, Math.max(0, score));
-        }
-
-        function calculateSales(project, score) {
-            const base = project.budget * 3;
-            const scoreBonus = (score - 50) / 50;
-            const hypeBonus = gameState.hype / 100;
-            const yearTrend = gameState.year < 2010 ? 0.8 : gameState.year < 2020 ? 1.0 : 1.2;
-            
-            return Math.floor(base * (1 + scoreBonus) * (1 + hypeBonus) * yearTrend);
-        }
-
-        function showReview(score, sales) {
-            document.getElementById('reviewScore').textContent = score.toFixed(0);
-            document.getElementById('reviewStars').textContent = '★'.repeat(Math.floor(score / 20)) + '☆'.repeat(5 - Math.floor(score / 20));
-            document.getElementById('salesFigure').textContent = `$${(sales / 1000).toFixed(0)}K`;
-            document.getElementById('unitsSold').textContent = `${(sales / 10).toFixed(0)}K`;
-            
-            const comments = score >= 90 ? "A masterpiece! Game of the year!" :
-                           score >= 80 ? "Excellent game! Must buy!" :
-                           score >= 70 ? "Good game with some flaws." :
-                           score >= 60 ? "Average experience." :
-                           "Disappointing. Needs improvement.";
-            document.getElementById('reviewComments').textContent = comments;
-            
-            document.getElementById('reviewModal').classList.add('active');
-        }
-
-        function closeReviewModal() {
-            document.getElementById('reviewModal').classList.remove('active');
-        }
-
-        // 💼 COMPANY ACTIONS
-        function hireStaff() {
-            const cost = 50000;
-            if (gameState.cash >= cost && gameState.team < gameState.maxTeam) {
-                gameState.cash -= cost;
-                gameState.team++;
-                gameState.morale = Math.min(100, gameState.morale + 5);
-                addEvent('success', 'New staff hired! +1 team, +5 morale');
-                updateUI();
-            } else {
-                alert(gameState.team >= gameState.maxTeam ? 'Max team size!' : 'Not enough cash!');
-            }
-        }
-
-        function investMarketing() {
-            const cost = 30000;
-            if (gameState.cash >= cost) {
-                gameState.cash -= cost;
-                gameState.hype = Math.min(100, gameState.hype + 25);
-                addEvent('info', 'Marketing campaign launched! +25 hype');
-                updateUI();
-            } else {
-                alert('Not enough cash!');
-            }
-        }
-
-        function researchTech() {
-            const cost = 75000;
-            if (gameState.cash >= cost) {
-                gameState.cash -= cost;
-                gameState.researchLevel++;
-                addEvent('success', `Research completed! Level ${gameState.researchLevel} unlocked`);
-                updateUI();
-            } else {
-                alert('Not enough cash!');
-            }
-        }
-
-        function moveOffice() {
-            const cost = 150000;
-            const level = gameState.officeLevel;
-            if (gameState.cash >= cost && level < 5) {
-                gameState.cash -= cost;
-                gameState.officeLevel++;
-                gameState.maxTeam += 25;
-                gameState.morale = Math.min(100, gameState.morale + 20);
-                addEvent('success', `Office upgraded! Level ${gameState.officeLevel}, +25 max team`);
-                updateUI();
-            } else {
-                alert(level >= 5 ? 'Max office level!' : 'Not enough cash!');
-            }
-        }
-
-        function toggleCrunch() {
-            gameState.crunchMode = !gameState.crunchMode;
-            document.getElementById('crunchStatus').textContent = gameState.crunchMode ? 'ON' : 'OFF';
-            addEvent('warning', `Crunch mode ${gameState.crunchMode ? 'enabled' : 'disabled'}`);
-        }
-
-        function takeContract() {
-            const revenue = 40000;
-            gameState.cash += revenue;
-            gameState.totalRevenue += revenue;
-            addEvent('info', `Contract work completed! +$${revenue / 1000}K`);
-            updateUI();
-        }
-
-        function teamBuilding() {
-            const cost = 20000;
-            if (gameState.cash >= cost) {
-                gameState.cash -= cost;
-                gameState.morale = Math.min(100, gameState.morale + 15);
-                addEvent('success', 'Team building event! +15 morale');
-                updateUI();
-            } else {
-                alert('Not enough cash!');
-            }
-        }
-
-        function researchAI() {
-            alert('Feature coming soon!');
-        }
-
-        function patentTech() {
-            alert('Feature coming soon!');
-        }
-
-        // 📜 EVENT LOG
-        function addEvent(type, text) {
-            const eventLog = document.getElementById('eventLog');
-            const event = document.createElement('div');
-            event.className = `event-item ${type}`;
-            event.innerHTML = `
-                <div class="event-header">${gameState.year}-${gameState.month.toString().padStart(2, '0')}</div>
-                ${text}
-            `;
-            eventLog.insertBefore(event, eventLog.firstChild);
-            while (eventLog.children.length > 10) eventLog.removeChild(eventLog.lastChild);
-        }
-
-        // 🏆 ACHIEVEMENTS
-        function checkAchievements() {
-            if (gameState.games.length === 1 && !achievements.firstGame.unlocked) {
-                unlockAchievement(achievements.firstGame);
-            }
-            if (gameState.games.length >= 10 && !achievements.tenGames.unlocked) {
-                unlockAchievement(achievements.tenGames);
-            }
-            if (gameState.totalRevenue >= 1000000 && !achievements.millionaire.unlocked) {
-                unlockAchievement(achievements.millionaire);
-            }
-            const hit = gameState.games.find(g => g.score >= 85);
-            if (hit && !achievements.hitGame.unlocked) {
-                unlockAchievement(achievements.hitGame);
-            }
-        }
-
-        function unlockAchievement(achievement) {
-            achievement.unlocked = true;
-            document.getElementById('achievementTitle').textContent = achievement.name;
-            document.getElementById('achievementDesc').textContent = achievement.desc;
-            document.getElementById('achievementPopup').classList.add('active');
-            setTimeout(() => {
-                document.getElementById('achievementPopup').classList.remove('active');
-            }, 3000);
-            addEvent('success', `🏆 Achievement: ${achievement.name}`);
-        }
-
-        // 📅 HISTORICAL EVENTS
-        function checkHistoricalEvents() {
-            const event = historicalEvents[gameState.year];
-            if (event && gameState.month === 1) {
-                addEvent(event.type, event.text);
+                this.agregarEvento(nota > 80 ? 'success' : nota > 60 ? 'info' : 'danger',
+                    `🎮 ${this.baseDatos.generos[proyecto.genero].nombre} lanzado: ${nota.toFixed(1)}/100`);
                 
-                // Apply event effects
-                if (gameState.year === 2004) gameState.morale = Math.max(0, gameState.morale - 20);
-                if (gameState.year === 2008) {
-                    // Market shrink for 2 years
+                this.comprobarLogros();
+                this.actualizarUI();
+            }
+
+            calcularNotaFinal(proyecto) {
+                const genero = this.baseDatos.generos[proyecto.genero];
+                const tema = this.baseDatos.temas[proyecto.tema];
+                const plataforma = this.baseDatos.plataformas[proyecto.plataforma];
+                
+                const añoIndex = Math.min(9, Math.floor((this.gameState.año - 2000) / 3));
+                const tendencia = genero.tendencia[añoIndex];
+                
+                let nota = genero.base * tendencia;
+                nota *= (tema.multi[proyecto.genero] || 1);
+                nota *= (proyecto.presupuesto / 100000) * 0.5 + 0.5;
+                nota *= (this.gameState.reputacion / 100);
+                nota *= (this.gameState.moral / 100) * 0.5 + 0.5;
+                nota *= (this.gameState.equipo / 30) * 0.3 + 0.7;
+                nota *= 0.8 + Math.random() * 0.4;
+
+                return Math.min(100, Math.max(0, nota));
+            }
+
+            calcularVentas(proyecto, nota) {
+                const base = proyecto.presupuesto * 3;
+                const bonusNota = (nota - 50) / 50;
+                const bonusHype = this.gameState.hype / 100;
+                const añoMulti = this.gameState.año < 2010 ? 0.8 : this.gameState.año < 2020 ? 1.0 : 1.2;
+                return Math.floor(base * (1 + bonusNota) * (1 + bonusHype) * añoMulti);
+            }
+
+            eventoPostLanzamiento(proyecto, ventas) {
+                // DLC
+                if (Math.random() < 0.3) {
+                    const dlc = ventas * 0.2;
+                    this.gameState.caja += dlc;
+                    this.gameState.ingresosTotales += dlc;
+                    this.agregarEvento('success', `📦 DLC genera +$${(dlc/1000).toFixed(0)}K`);
                 }
-                if (gameState.year === 2020) {
-                    const bonus = 200000;
-                    gameState.cash += bonus;
-                    gameState.totalRevenue += bonus;
+                // Premios
+                if (Math.random() < 0.1) {
+                    const premio = 50000;
+                    this.gameState.caja += premio;
+                    this.gameState.reputacion = Math.min(100, this.gameState.reputacion + 10);
+                    this.agregarEvento('success', `🏆 ¡Game of the Year! +$50K`);
                 }
             }
-        }
 
-        // 💾 SAVE/LOAD
-        function autoSave() {
-            localStorage.setItem('industrySimSave', JSON.stringify(gameState));
-            showSaveIndicator();
-        }
+            mostrarReview(nota, ventas) {
+                document.getElementById('reviewScore').textContent = nota.toFixed(0);
+                document.getElementById('reviewStars').textContent = '★'.repeat(Math.floor(nota / 20)) + '☆'.repeat(5 - Math.floor(nota / 20));
+                document.getElementById('salesFigure').textContent = `$${(ventas / 1000).toFixed(0)}K`;
+                document.getElementById('unitsSold').textContent = `${(ventas / 10).toFixed(0)}K`;
+                
+                const comentarios = nota >= 90 ? "¡Obra maestra! Game of the Year." :
+                                  nota >= 80 ? "¡Excelente! Compra obligatoria." :
+                                  nota >= 70 ? "Buen juego con pequeños fallos." :
+                                  nota >= 60 ? "Experiencia promedio." :
+                                  "Decepcionante. Necesita mejora.";
+                document.getElementById('reviewComments').textContent = comentarios;
+                
+                document.getElementById('reviewModal').classList.add('active');
+            }
 
-        function loadGame() {
-            const saved = localStorage.getItem('industrySimSave');
-            if (saved) {
-                Object.assign(gameState, JSON.parse(saved));
-                updateUI();
+            cerrarReview() {
+                document.getElementById('reviewModal').classList.remove('active');
+            }
+
+            // 🎮 UTILIDADES
+            actualizarUI() {
+                document.getElementById('uiCash').textContent = `$${(this.gameState.caja / 1000).toFixed(0)}K`;
+                document.getElementById('uiTeam').textContent = `${this.gameState.equipo} / ${this.gameState.maxEquipo}`;
+                document.getElementById('uiRep').textContent = `${this.gameState.reputacion}%`;
+                document.getElementById('uiHype').textContent = `${this.gameState.hype}%`;
+                
+                document.getElementById('cashBar').style.width = `${Math.min(100, this.gameState.caja / 10000)}%`;
+                document.getElementById('teamBar').style.width = `${(this.gameState.equipo / this.gameState.maxEquipo) * 100}%`;
+                document.getElementById('repBar').style.width = `${this.gameState.reputacion}%`;
+                document.getElementById('hypeBar').style.width = `${this.gameState.hype}%`;
+                
+                // Actualizar proyecto activo
+                if (this.gameState.proyectoActivo) {
+                    document.getElementById('activeProject').style.display = 'block';
+                    document.getElementById('newGameBtn').style.display = 'none';
+                    document.getElementById('continueBtn').style.display = 'block';
+                    document.getElementById('projectName').textContent = 
+                        `${this.baseDatos.generos[this.gameState.proyectoActivo.genero].nombre}`;
+                    document.getElementById('projectProgress').textContent = `${this.gameState.proyectoActivo.progreso}%`;
+                    document.getElementById('progressBar').style.width = `${this.gameState.proyectoActivo.progreso}%`;
+                } else {
+                    document.getElementById('activeProject').style.display = 'none';
+                    document.getElementById('newGameBtn').style.display = 'block';
+                    document.getElementById('continueBtn').style.display = 'none';
+                }
+
+                this.comprobarLogros();
+            }
+
+            comprobarLogros() {
+                if (this.gameState.juegos.length === 1 && !this.logros.primero.desbloqueado) {
+                    this.desbloquearLogro(this.logros.primero);
+                }
+                if (this.gameState.juegos.length >= 10 && !this.logros.experto.desbloqueado) {
+                    this.desbloquearLogro(this.logros.experto);
+                }
+                if (this.gameState.ingresosTotales >= 1000000 && !this.logros.millonario.desbloqueado) {
+                    this.desbloquearLogro(this.logros.millonario);
+                }
+                const hit = this.gameState.juegos.find(j => j.nota >= 85);
+                if (hit && !this.logros.hit.desbloqueado) {
+                    this.desbloquearLogro(this.logros.hit);
+                }
+            }
+
+            desbloquearLogro(logro) {
+                logro.desbloqueado = true;
+                document.getElementById('achievementTitle').textContent = `🏆 ${logro.nombre}`;
+                document.getElementById('achievementDesc').textContent = logro.descripcion;
+                document.getElementById('achievementPopup').classList.add('active');
+                setTimeout(() => document.getElementById('achievementPopup').classList.remove('active'), 4000);
+                this.agregarEvento('success', `¡Logro desbloqueado: ${logro.nombre}!`);
+            }
+
+            agregarEvento(tipo, texto) {
+                const log = document.getElementById('eventLog');
+                const evento = document.createElement('div');
+                evento.className = `event-item ${tipo}`;
+                evento.innerHTML = `<div class="event-header">${this.gameState.año}-${this.gameState.mes.toString().padStart(2, '0')}</div>${texto}`;
+                log.insertBefore(evento, log.firstChild);
+                while (log.children.length > 10) log.removeChild(log.lastChild);
+            }
+
+            mostrarNotificacion(titulo, texto) {
+                document.getElementById('notificationTitle').textContent = titulo;
+                document.getElementById('notificationText').textContent = texto;
+                const notif = document.getElementById('notification');
+                notif.classList.add('show');
+                setTimeout(() => notif.classList.remove('show'), 4000);
+            }
+
+            guardarJuego() {
+                localStorage.setItem('industrySimGOTY', JSON.stringify(this.gameState));
+                document.getElementById('saveIndicator').classList.add('show');
+                setTimeout(() => document.getElementById('saveIndicator').classList.remove('show'), 1000);
+            }
+
+            cargarJuego() {
+                const guardado = localStorage.getItem('industrySimGOTY');
+                if (guardado) {
+                    Object.assign(this.gameState, JSON.parse(guardado));
+                    this.gameState.empleados = this.gameState.empleados.map(e => Object.assign(new Empleado('', 0, 0, this), e));
+                    this.actualizarUI();
+                    this.mostrarNotificacion('📂 PARTIDA CARGADA', 'Continúa desde tu último guardado');
+                }
+            }
+
+            actualizarBudget(valor) {
+                document.getElementById('budgetValue').textContent = `$${(valor / 1000).toFixed(0)}K`;
+            }
+
+            selectOption(element) {
+                const type = element.dataset.type;
+                document.querySelectorAll(`[data-type="${type}"]`).forEach(el => el.classList.remove('selected'));
+                element.classList.add('selected');
+            }
+
+            confirmProject() {
+                const genero = document.querySelector('[data-type="genero"].selected')?.dataset.value;
+                const tema = document.querySelector('[data-type="tema"].selected')?.dataset.value;
+                const plataforma = document.querySelector('[data-type="plataforma"].selected')?.dataset.value;
+                const presupuesto = parseInt(document.getElementById('budgetSlider').value);
+
+                if (!genero || !tema || !plataforma) {
+                    this.mostrarNotificacion('❌ ERROR', 'Selecciona todas las opciones');
+                    return;
+                }
+
+                if (this.gameState.caja < presupuesto) {
+                    this.mostrarNotificacion('❌ ERROR', `Necesitas $${presupuesto.toLocaleString()}`);
+                    return;
+                }
+
+                this.gameState.caja -= presupuesto;
+                this.gameState.proyectoActivo = {
+                    genero, tema, plataforma, presupuesto,
+                    progreso: 0, calidad: 0,
+                    notaEsperada: this.calcularNotaEsperada(genero, tema, plataforma, presupuesto)
+                };
+
+                document.getElementById('newGameModal').classList.remove('active');
+                document.querySelectorAll('.option-tile').forEach(el => el.classList.remove('selected'));
+                
+                this.mostrarNotificacion('🎮 PROYECTO INICIADO', `${this.baseDatos.generos[genero].nombre}`);
+                this.actualizarUI();
+            }
+
+            calcularNotaEsperada(genero, tema, plataforma, presupuesto) {
+                const gen = this.baseDatos.generos[genero];
+                const tem = this.baseDatos.temas[tema];
+                const plat = this.baseDatos.plataformas[plataforma];
+                
+                const añoIndex = Math.min(9, Math.floor((this.gameState.año - 2000) / 3));
+                const tendencia = gen.tendencia[añoIndex];
+                
+                return gen.base * tendencia * (tem.multi[genero] || 1) * (presupuesto / 100000) * (this.gameState.reputacion / 100);
+            }
+
+            closeReview() {
+                document.getElementById('reviewModal').classList.remove('active');
             }
         }
 
-        function showSaveIndicator() {
-            const indicator = document.getElementById('saveIndicator');
-            indicator.classList.add('show');
-            setTimeout(() => indicator.classList.remove('show'), 1000);
+        // 🎮 CLASE EMPLEADO
+        class Empleado {
+            constructor(nombre, x, y, juego) {
+                this.nombre = nombre;
+                this.x = x;
+                this.y = y;
+                this.juego = juego;
+                this.moral = 75;
+                this.habilidad = Math.random() * 0.5 + 0.5;
+                this.estado = 'idle'; // idle, walk, work, celebrate, stress
+                this.frame = 0;
+                this.velocidad = 2;
+                this.destinoX = x;
+                this.destinoY = y;
+                this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+            }
+
+            actualizar(deltaTime) {
+                this.frame += deltaTime * 0.01;
+
+                // Movimiento hacia destino
+                if (this.estado === 'walk') {
+                    const dx = this.destinoX - this.x;
+                    const dy = this.destinoY - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist > 5) {
+                        this.x += (dx / dist) * this.velocidad;
+                        this.y += (dy / dist) * this.velocidad;
+                    } else {
+                        this.estado = 'idle';
+                    }
+                }
+
+                // Cambiar estado basado en moral y crunch
+                if (this.juego.gameState.crunchMode && this.moral < 40) {
+                    this.estado = 'stress';
+                } else if (this.juego.gameState.proyectoActivo && this.moral > 60) {
+                    this.estado = 'work';
+                } else if (Math.random() < 0.001) {
+                    this.caminarAleatorio();
+                }
+            }
+
+            dibujar(ctx) {
+                const size = 16;
+                const x = this.x - size / 2;
+                const y = this.y - size / 2;
+
+                // Cuerpo
+                ctx.fillStyle = this.color;
+                ctx.fillRect(x, y, size, size);
+
+                // Cabeza
+                ctx.fillStyle = '#fdbcb4';
+                ctx.fillRect(x + 4, y - 8, 8, 8);
+
+                // Estado visual
+                if (this.estado === 'stress') {
+                    ctx.fillStyle = 'rgba(255, 0, 64, 0.5)';
+                    ctx.fillRect(x, y, size, size);
+                } else if (this.estado === 'work') {
+                    ctx.fillStyle = 'rgba(0, 184, 255, 0.3)';
+                    ctx.fillRect(x - 2, y - 2, size + 4, size + 4);
+                }
+
+                // Nombre
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '8px Pixelify Sans';
+                ctx.fillText(this.nombre.split(' ')[0], x - 10, y + size + 10);
+            }
+
+            caminarAleatorio() {
+                const tile = this.juego.config.tamanoTile;
+                this.destinoX = 200 + Math.random() * 400;
+                this.destinoY = 150 + Math.random() * 200;
+                this.estado = 'walk';
+            }
+
+            celebrar() {
+                this.estado = 'celebrate';
+                this.moral = Math.min(100, this.moral + 10);
+                setTimeout(() => this.estado = 'idle', 3000);
+            }
         }
 
-        // 🎮 KEYBOARD CONTROLS
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && gameState.activeProject) {
-                e.preventDefault();
-                continueDevelopment();
-            }
+        // 🎮 INICIAR JUEGO
+        window.addEventListener('load', () => {
+            window.game = new IndustryEvolutionSimulator();
+            window.game.cargarJuego();
         });
     </script>
 </body>
-</html>
-</html>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industry Evolution Simulator - GOTY Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Pixelify+Sans:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-panel: #2a2a2a;
+            --bg-card: #3a3a3a;
+            --bg-card-hover: #4a4a4a;
+            --neon-green: #00ff41;
+            --neon-blue: #00b8ff;
+            --neon-yellow: #ffcc00;
+            --neon-red: #ff0040;
+            --neon-purple: #b967ff;
+            --pixel-border: #555555;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+        }
+
+        body {
+            font-family: 'Pixelify Sans', monospace;
+            background: radial-gradient(ellipse at center, #1a0033 0%, var(--bg-primary) 100%);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 🎮 PIXEL PERFECT RENDERING */
+        canvas {
+            display: block;
+            background: var(--bg-secondary);
+            border: 3px solid var(--pixel-border);
+            box-shadow: 0 0 20px rgba(0, 184, 255, 0.3);
+        }
+
+        /* 📊 UI OVERLAY */
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .ui-panel {
+            position: absolute;
+            background: rgba(26, 26, 26, 0.95);
+            border: 3px solid var(--pixel-border);
+            padding: 10px;
+            pointer-events: all;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ui-panel.hidden {
+            transform: translateX(-100%);
+        }
+
+        .ui-panel.right {
+            right: 0;
+        }
+
+        .ui-panel.bottom {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .ui-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--neon-blue);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .ui-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 10px;
+        }
+
+        .ui-stat-label {
+            color: var(--text-secondary);
+        }
+
+        .ui-stat-value {
+            color: var(--neon-green);
+            font-weight: 700;
+        }
+
+        .ui-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-panel);
+            border: 1px solid var(--pixel-border);
+            position: relative;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .ui-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .cash-fill { background: linear-gradient(90deg, var(--neon-green), #00cc33); }
+        .team-fill { background: linear-gradient(90deg, var(--neon-blue), #0088cc); }
+        .rep-fill { background: linear-gradient(90deg, var(--neon-yellow), #cc9900); }
+        .hype-fill { background: linear-gradient(90deg, var(--neon-purple), #9966cc); }
+
+        /* 🎮 BUTTONS */
+        .pixel-button {
+            font-family: 'Pixelify Sans', monospace;
+            font-size: 10px;
+            background: var(--bg-card);
+            border: 2px solid var(--pixel-border);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: block;
+            width: 100%;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .pixel-button:hover {
+            background: var(--neon-blue);
+            color: var(--bg-dark);
+            border-color: var(--neon-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 184, 255, 0.3);
+        }
+
+        .pixel-button:active {
+            transform: scale(0.95);
+        }
+
+        .pixel-button.danger {
+            border-color: var(--neon-red);
+        }
+
+        .pixel-button.danger:hover {
+            background: var(--neon-red);
+        }
+
+        .pixel-button.success {
+            border-color: var(--neon-green);
+        }
+
+        .pixel-button.success:hover {
+            background: var(--neon-green);
+        }
+
+        /* 🎮 MODAL */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            place-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: grid;
+        }
+
+        .modal-content {
+            background: var(--bg-panel);
+            border: 4px solid var(--pixel-blue);
+            padding: 20px;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalPop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 14px;
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .option-tile {
+            background: var(--bg-card);
+            border: 2px solid var(--pixel-border);
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-size: 9px;
+        }
+
+        .option-tile:hover {
+            border-color: var(--neon-blue);
+            transform: scale(1.05);
+        }
+
+        .option-tile.selected {
+            border-color: var(--neon-green);
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+        }
+
+        .option-icon {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        /* 🎮 REVIEW MODAL */
+        .review-modal .review-score {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 3px 3px 0 var(--bg-dark);
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .review-modal .review-stars {
+            font-size: 24px;
+            color: var(--neon-yellow);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .review-modal .review-comments {
+            background: var(--bg-card);
+            border: 2px solid var(--pixel-border);
+            padding: 12px;
+            font-size: 10px;
+            line-height: 1.4;
+            margin: 15px 0;
+        }
+
+        /* 🎮 ACHIEVEMENT */
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border: 4px solid var(--neon-yellow);
+            padding: 20px 30px;
+            z-index: 2000;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-align: center;
+        }
+
+        .achievement-popup.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .achievement-title {
+            font-size: 14px;
+            font-weight: 900;
+            margin-bottom: 5px;
+            color: var(--bg-dark);
+        }
+
+        .achievement-desc {
+            font-size: 10px;
+            color: var(--text-primary);
+        }
+
+        /* 🎮 NOTIFICATION */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: -400px;
+            background: var(--bg-panel);
+            border: 2px solid var(--neon-blue);
+            padding: 10px 15px;
+            max-width: 300px;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1500;
+        }
+
+        .notification.show {
+            right: 20px;
+        }
+
+        .notification-title {
+            color: var(--neon-blue);
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 10px;
+        }
+
+        .notification-text {
+            font-size: 9px;
+            color: var(--text-secondary);
+        }
+
+        /* 🎮 ANIMATIONS */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .bouncing {
+            animation: bounce 0.3s ease-in-out;
+        }
+
+        /* 🎮 RESPONSIVE */
+        @media (max-width: 1024px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 200px 1fr 150px;
+            }
+            
+            .ui-panel.left, .ui-panel.right {
+                position: relative;
+                width: 100%;
+                height: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="1920" height="1080"></canvas>
+
+    <!-- 🎮 UI OVERLAY -->
+    <div class="ui-overlay">
+        <!-- LEFT PANEL - RESOURCES -->
+        <div class="ui-panel left" id="leftPanel">
+            <div class="ui-title">📊 STUDIO RESOURCES</div>
+            
+            <div class="ui-stat">
+                <span class="ui-stat-label">💰 CASH</span>
+                <span class="ui-stat-value" id="uiCash">$500K</span>
+            </div>
+            <div class="ui-bar"><div class="ui-fill cash-fill" id="cashBar" style="width: 50%"></div></div>
+
+            <div class="ui-stat">
+                <span class="ui-stat-label">👥 TEAM</span>
+                <span class="ui-stat-value" id="uiTeam">15 / 50</span>
+            </div>
+            <div class="ui-bar"><div class="ui-fill team-fill" id="teamBar" style="width: 30%"></div></div>
+
+            <div class="ui-stat">
+                <span class="ui-stat-label">⭐ REPUTATION</span>
+                <span class="ui-stat-value" id="uiRep">65%</span>
+            </div>
+            <div class="ui-bar"><div class="ui-fill rep-fill" id="repBar" style="width: 65%"></div></div>
+
+            <div class="ui-stat">
+                <span class="ui-stat-label">🔥 HYPE</span>
+                <span class="ui-stat-value" id="uiHype">30%</span>
+            </div>
+            <div class="ui-bar"><div class="ui-fill hype-fill" id="hypeBar" style="width: 30%"></div></div>
+
+            <button class="pixel-button" onclick="game.hireEmployee()">💼 CONTRATAR</button>
+            <button class="pixel-button" onclick="game.investMarketing()">📢 MARKETING</button>
+            <button class="pixel-button" onclick="game.researchTech()">🔬 R+D</button>
+            <button class="pixel-button" onclick="game.moveOffice()">🏢 MUDANZA</button>
+        </div>
+
+        <!-- RIGHT PANEL - EMPLOYEES -->
+        <div class="ui-panel right" id="rightPanel">
+            <div class="ui-title">👥 EQUIPO ACTIVO</div>
+            <div id="employeeList"></div>
+        </div>
+
+        <!-- BOTTOM PANEL - ACTIONS -->
+        <div class="ui-panel bottom" id="bottomPanel">
+            <button class="pixel-button danger" onclick="game.toggleCrunch()" style="width: 150px;">
+                🔥 CRUNCH: <span id="crunchStatus">OFF</span>
+            </button>
+            <button class="pixel-button success" onclick="game.startNewProject()" style="width: 150px;">
+                🎮 NUEVO PROYECTO
+            </button>
+            <button class="pixel-button" onclick="game.continueProject()" style="width: 150px;" id="continueBtn">
+                ⚙️ CONTINUAR
+            </button>
+            <button class="pixel-button" onclick="game.takeContract()" style="width: 150px;">
+                📋 CONTRATO
+            </button>
+        </div>
+    </div>
+
+    <!-- 🎮 MODAL: NEW GAME -->
+    <div class="modal" id="newGameModal">
+        <div class="modal-content">
+            <div class="modal-title">🎮 CREAR NUEVO JUEGO</div>
+            
+            <div class="modal-section">
+                <h4>🎲 GÉNERO</h4>
+                <div class="selection-grid">
+                    <div class="option-tile" data-type="genre" data-value="accion" onclick="game.selectOption(this)">
+                        <div class="option-icon">🎮</div>
+                        <div>ACCIÓN</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="rpg" onclick="game.selectOption(this)">
+                        <div class="option-icon">⚔️</div>
+                        <div>RPG</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="estrategia" onclick="game.selectOption(this)">
+                        <div class="option-icon">🗺️</div>
+                        <div>ESTRATEGIA</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="puzzle" onclick="game.selectOption(this)">
+                        <div class="option-icon">🧩</div>
+                        <div>PUZZLE</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="terror" onclick="game.selectOption(this)">
+                        <div class="option-icon">👻</div>
+                        <div>TERROR</div>
+                    </div>
+                    <div class="option-tile" data-type="genre" data-value="simulacion" onclick="game.selectOption(this)">
+                        <div class="option-icon">🏭</div>
+                        <div>SIMULACIÓN</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h4>🎨 TEMA</h4>
+                <div class="selection-grid">
+                    <div class="option-tile" data-type="tema" data-value="espacial" onclick="game.selectOption(this)">
+                        <div class="option-icon">🚀</div>
+                        <div>ESPACIAL</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="medieval" onclick="game.selectOption(this)">
+                        <div class="option-icon">🏰</div>
+                        <div>MEDIEVAL</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="cyberpunk" onclick="game.selectOption(this)">
+                        <div class="option-icon">🌆</div>
+                        <div>CYBERPUNK</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="fantasia" onclick="game.selectOption(this)">
+                        <div class="option-icon">🦄</div>
+                        <div>FANTASÍA</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="zombies" onclick="game.selectOption(this)">
+                        <div class="option-icon">🧟</div>
+                        <div>ZOMBIES</div>
+                    </div>
+                    <div class="option-tile" data-type="tema" data-value="deportes" onclick="game.selectOption(this)">
+                        <div class="option-icon">⚽</div>
+                        <div>DEPORTES</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h4>📺 PLATAFORMA</h4>
+                <div class="selection-grid">
+                    <div class="option-tile" data-type="plataforma" data-value="pc" onclick="game.selectOption(this)">
+                        <div class="option-icon">💻</div>
+                        <div>PC</div>
+                    </div>
+                    <div class="option-tile" data-type="plataforma" data-value="consola" onclick="game.selectOption(this)">
+                        <div class="option-icon">🎮</div>
+                        <div>CONSOLA</div>
+                    </div>
+                    <div class="option-tile" data-type="plataforma" data-value="movil" onclick="game.selectOption(this)">
+                        <div class="option-icon">📱</div>
+                        <div>MÓVIL</div>
+                    </div>
+                    <div class="option-tile" data-type="plataforma" data-value="vr" onclick="game.selectOption(this)">
+                        <div class="option-icon">🥽</div>
+                        <div>VR</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h4>💰 PRESUPUESTO</h4>
+                <input type="range" id="budgetSlider" min="50000" max="500000" value="150000" 
+                       oninput="game.updateBudget(this.value)" 
+                       style="width: 100%; height: 10px; background: var(--bg-card); cursor: pointer;">
+                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 9px;">
+                    <span>MIN: $50K</span>
+                    <span id="budgetValue" style="color: var(--neon-blue); font-weight: 800;">$150K</span>
+                    <span>MAX: $500K</span>
+                </div>
+            </div>
+
+            <button class="pixel-button success" onclick="game.confirmProject()" style="margin-top: 15px;">✅ INICIAR DESARROLLO</button>
+        </div>
+    </div>
+
+    <!-- 🎮 REVIEW MODAL -->
+    <div class="modal" id="reviewModal">
+        <div class="modal-content review-modal">
+            <div class="modal-title">📊 CRÍTICAS DE JUEGO</div>
+            <div class="review-score" id="reviewScore">85</div>
+            <div class="review-stars" id="reviewStars">★★★★☆</div>
+            <div class="review-comments" id="reviewComments">Innovación y ejecución sólida. Un prometedor inicio.</div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div class="stat-box" style="flex: 1;">
+                    <div class="stat-title">VENTAS</div>
+                    <div class="stat-value" id="salesFigure">$450K</div>
+                </div>
+                <div class="stat-box" style="flex: 1;">
+                    <div class="stat-title">UNIDADES</div>
+                    <div class="stat-value" id="unitsSold">50K</div>
+                </div>
+            </div>
+            <button class="pixel-button" onclick="game.closeReview()" style="margin-top: 15px;">CONTINUAR</button>
+        </div>
+    </div>
+
+    <!-- 🏆 ACHIEVEMENT POPUP -->
+    <div class="achievement-popup" id="achievementPopup">
+        <div class="achievement-title" id="achievementTitle">¡LOGRO DESBLOQUEADO!</div>
+        <div class="achievement-desc" id="achievementDesc">Descripción del logro</div>
+    </div>
+
+    <!-- 📢 NOTIFICATION -->
+    <div class="notification" id="notification">
+        <div class="notification-title" id="notificationTitle">NOTIFICACIÓN</div>
+        <div class="notification-text" id="notificationText">Mensaje</div>
+    </div>
+
+    <!-- 💾 SAVE INDICATOR -->
+    <div class="save-indicator" id="saveIndicator">💾 GUARDANDO...</div>
+
+    <script>
+        // 🎮 MOTOR DE JUEGO COMPLETO
+        class IndustryEvolutionSimulator {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.gameState = {
+                    año: 2000,
+                    mes: 1,
+                    caja: 500000,
+                    equipo: 15,
+                    maxEquipo: 50,
+                    reputacion: 65,
+                    hype: 30,
+                    moral: 75,
+                    juegos: [],
+                    proyectoActivo: null,
+                    ingresosTotales: 0,
+                    nivelEstudio: 1,
+                    nivelInvestigacion: 1,
+                    crunchMode: false,
+                    descuentoContratacion: false,
+                    empleados: this.generarEmpleadosIniciales()
+                };
+
+                this.teclado = { space: false };
+                this.config = {
+                    velocidadAnimacion: 0.05,
+                    tamanoTile: 32,
+                    escalaZoom: 1,
+                    offsetX: 0,
+                    offsetY: 0
+                };
+
+                this.sistemaParticulas = [];
+                this.sistemaEventos = [];
+                this.logros = {
+                    primero: { nombre: "Debutante", descripcion: "Lanza tu primer juego", desbloqueado: false },
+                    hit: { nombre: "Golpe de Suerte", descripcion: "Juego >85/100", desbloqueado: false },
+                    experto: { nombre: "Productor Veterano", descripcion: "Lanza 10 juegos", desbloqueado: false },
+                    millonario: { nombre: "Magnate", descripcion: "$1M en ingresos", desbloqueado: false }
+                };
+
+                this.baseDatos = {
+                    generos: {
+                        accion: { nombre: "Acción", base: 70, riesgo: 0.3, tendencia: [1,1,1,1,1,1.2,1.3,1.3,1.2,1.1] },
+                        rpg: { nombre: "RPG", base: 80, riesgo: 0.5, tendencia: [1,1,1,1,1,1,1.1,1.1,1.2,1.4] },
+                        estrategia: { nombre: "Estrategia", base: 75, riesgo: 0.4, tendencia: [1,1,1,1,1,1,1,1,1,1] },
+                        puzzle: { nombre: "Puzzle", base: 65, riesgo: 0.2, tendencia: [0.8,0.8,0.9,1,1,1.1,1.2,1.3,1.4,1.5] },
+                        terror: { nombre: "Terror", base: 85, riesgo: 0.6, tendencia: [1,1,1,1,1,1,1,1.1,1.2,1.3] },
+                        simulacion: { nombre: "Simulación", base: 60, riesgo: 0.3, tendencia: [1,1,1,1,1,1,1.1,1.1,1.2,1.3] }
+                    },
+                    temas: {
+                        espacial: { nombre: "Espacial", multi: { accion: 1.2, simulacion: 1.3, rpg: 1.1 } },
+                        medieval: { nombre: "Medieval", multi: { rpg: 1.4, estrategia: 1.3, accion: 1.1 } },
+                        cyberpunk: { nombre: "Cyberpunk", multi: { rpg: 1.3, accion: 1.2, terror: 1.1 } },
+                        fantasia: { nombre: "Fantasía", multi: { rpg: 1.5, estrategia: 1.1, accion: 1 } },
+                        zombies: { nombre: "Zombies", multi: { terror: 1.4, accion: 1.2, estrategia: 0.8 } },
+                        deportes: { nombre: "Deportes", multi: { simulacion: 1.3, accion: 0.9, puzzle: 0.7 } }
+                    },
+                    plataformas: {
+                        pc: { nombre: "PC", alcance: 1, costo: 1 },
+                        consola: { nombre: "Consola", alcance: 1.2, costo: 1.3 },
+                        movil: { nombre: "Móvil", alcance: 0.8, costo: 0.6 },
+                        vr: { nombre: "VR", alcance: 0.3, costo: 1.8 }
+                    }
+                };
+
+                this.eventosHistoria = {
+                    2004: { tipo: 'danger', texto: '💥 Caso EA Spouse expone crunch. Moral -20%', efecto: () => { this.gameState.moral = Math.max(0, this.gameState.moral - 20); } },
+                    2008: { tipo: 'warning', texto: '📉 Crisis financiera. Mercado -30%', efecto: () => { /* Aplica multiplicador temporal */ } },
+                    2012: { tipo: 'success', texto: '📱 Boom mobile. Bonus +50% juegos móviles', efecto: () => { this.gameState.hype += 30; } },
+                    2017: { tipo: 'danger', texto: '🎰 Controversia loot boxes. Riesgo +15%', efecto: () => { this.gameState.reputacion = Math.max(0, this.gameState.reputacion - 15); } },
+                    2020: { tipo: 'success', texto: '🏠 Pandemia +200% ventas digitales', efecto: () => { const bonus = 200000; this.gameState.caja += bonus; this.gameState.ingresosTotales += bonus; } },
+                    2023: { tipo: 'warning', texto: '🔥 Despidos masivos. Talento -50% coste', efecto: () => { this.gameState.descuentoContratacion = true; } }
+                };
+
+                this.inicializar();
+            }
+
+            inicializar() {
+                this.configurarCanvas();
+                this.configurarEventos();
+                this.iniciarLoop();
+                this.mostrarNotificacion('🎮 BIENVENIDO', 'Usa ESPACIO para acelerar desarrollo');
+            }
+
+            configurarCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                window.addEventListener('resize', () => {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                });
+            }
+
+            configurarEventos() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') this.teclado.space = true;
+                });
+                document.addEventListener('keyup', (e) => {
+                    if (e.code === 'Space') this.teclado.space = false;
+                });
+
+                // Auto-save
+                setInterval(() => this.guardarJuego(), 60000);
+            }
+
+            // 🎮 LOOP PRINCIPAL
+            iniciarLoop() {
+                let ultimoTiempo = 0;
+                const loop = (timestamp) => {
+                    const deltaTime = timestamp - ultimoTiempo;
+                    ultimoTiempo = timestamp;
+
+                    this.actualizar(deltaTime);
+                    this.renderizar();
+
+                    if (this.teclado.space && this.gameState.proyectoActivo) {
+                        this.continuarProyecto();
+                    }
+
+                    requestAnimationFrame(loop);
+                };
+                requestAnimationFrame(loop);
+            }
+
+            actualizar(deltaTime) {
+                // Actualizar empleados
+                this.gameState.empleados.forEach(empleado => empleado.actualizar(deltaTime));
+
+                // Actualizar partículas
+                this.sistemaParticulas = this.sistemaParticulas.filter(p => p.actualizar(deltaTime));
+
+                // Actualizar eventos
+                this.sistemaEventos = this.sistemaEventos.filter(e => e.actualizar(deltaTime));
+
+                // Check historical events
+                if (this.gameState.mes === 1 && this.eventosHistoria[this.gameState.año]) {
+                    const evento = this.eventosHistoria[this.gameState.año];
+                    this.agregarEvento(evento.tipo, evento.texto);
+                    evento.efecto();
+                }
+            }
+
+            renderizar() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Dibujar oficina isométrica
+                this.dibujarOficina();
+
+                // Dibujar empleados
+                this.gameState.empleados.forEach(empleado => empleado.dibujar(this.ctx));
+
+                // Dibujar partículas
+                this.sistemaParticulas.forEach(p => p.dibujar(this.ctx));
+
+                // Dibujar UI overlay
+                this.dibujarUI();
+            }
+
+            dibujarOficina() {
+                const ctx = this.ctx;
+                const tile = this.config.tamanoTile;
+                const offsetX = this.config.offsetX;
+                const offsetY = this.config.offsetY;
+
+                // Grid isométrico
+                ctx.strokeStyle = 'rgba(100,100,100,0.1)';
+                ctx.lineWidth = 1;
+
+                for (let x = 0; x < 50; x++) {
+                    for (let y = 0; y < 50; y++) {
+                        const isoX = (x - y) * tile / 2 + offsetX;
+                        const isoY = (x + y) * tile / 4 + offsetY;
+                        
+                        ctx.strokeRect(isoX, isoY, tile, tile / 2);
+                    }
+                }
+
+                // Muebles y workstations
+                ctx.fillStyle = '#444';
+                for (let i = 0; i < Math.min(this.gameState.equipo, 20); i++) {
+                    const x = i % 5;
+                    const y = Math.floor(i / 5);
+                    const isoX = (x - y) * tile / 2 + offsetX + 200;
+                    const isoY = (x + y) * tile / 4 + offsetY + 100;
+                    
+                    ctx.fillRect(isoX, isoY, tile * 0.8, tile * 0.4);
+                    ctx.fillStyle = '#222';
+                    ctx.fillRect(isoX + 5, isoY - 10, tile * 0.6, tile * 0.2);
+                    ctx.fillStyle = '#444';
+                }
+            }
+
+            dibujarUI() {
+                // Update UI values
+                document.getElementById('uiCash').textContent = `$${(this.gameState.caja / 1000).toFixed(0)}K`;
+                document.getElementById('uiTeam').textContent = `${this.gameState.equipo} / ${this.gameState.maxEquipo}`;
+                document.getElementById('uiRep').textContent = `${this.gameState.reputacion}%`;
+                document.getElementById('uiHype').textContent = `${this.gameState.hype}%`;
+                
+                document.getElementById('cashBar').style.width = `${Math.min(100, this.gameState.caja / 10000)}%`;
+                document.getElementById('teamBar').style.width = `${(this.gameState.equipo / this.gameState.maxEquipo) * 100}%`;
+                document.getElementById('repBar').style.width = `${this.gameState.reputacion}%`;
+                document.getElementById('hypeBar').style.width = `${this.gameState.hype}%`;
+
+                // Update employee list
+                this.actualizarListaEmpleados();
+            }
+
+            actualizarListaEmpleados() {
+                const container = document.getElementById('employeeList');
+                container.innerHTML = '';
+                
+                this.gameState.empleados.slice(0, 5).forEach(empleado => {
+                    const div = document.createElement('div');
+                    div.className = 'ui-stat';
+                    div.style.fontSize = '9px';
+                    div.innerHTML = `
+                        <span>${empleado.nombre}</span>
+                        <span style="color: ${empleado.moral > 60 ? '#00ff41' : '#ffcc00'}">${empleado.moral}%</span>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            // 🎮 MECÁNICAS DE JUEGO
+            generarEmpleadosIniciales() {
+                const nombres = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery'];
+                const apellidos = ['Dev', 'Coder', 'Designer', 'Artist', 'Tester', 'Producer'];
+                const empleados = [];
+                
+                for (let i = 0; i < 3; i++) {
+                    empleados.push(new Empleado(
+                        nombres[Math.floor(Math.random() * nombres.length)] + ' ' + apellidos[Math.floor(Math.random() * apellidos.length)],
+                        100 + i * 150,
+                        200 + i * 50,
+                        this
+                    ));
+                }
+                return empleados;
+            }
+
+            contratarEmpleado() {
+                const costo = this.gameState.descuentoContratacion ? 25000 : 50000;
+                if (this.gameState.caja >= costo && this.gameState.equipo < this.gameState.maxEquipo) {
+                    this.gameState.caja -= costo;
+                    this.gameState.equipo++;
+                    
+                    const nombres = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery'];
+                    const apellidos = ['Dev', 'Coder', 'Designer', 'Artist', 'Tester', 'Producer'];
+                    const emp = new Empleado(
+                        nombres[Math.floor(Math.random() * nombres.length)] + ' ' + apellidos[Math.floor(Math.random() * apellidos.length)],
+                        200 + Math.random() * 400,
+                        150 + Math.random() * 200,
+                        this
+                    );
+                    this.gameState.empleados.push(emp);
+                    
+                    this.gameState.moral = Math.min(100, this.gameState.moral + 5);
+                    this.mostrarNotificacion('💼 CONTRATADO', 'Nuevo miembro en el equipo');
+                    this.agregarEvento('success', `Contratado: ${emp.nombre}`);
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', this.gameState.equipo >= this.gameState.maxEquipo ? 'Equipo al máximo' : 'Caja insuficiente');
+                }
+            }
+
+            invertirMarketing() {
+                const costo = 30000;
+                if (this.gameState.caja >= costo) {
+                    this.gameState.caja -= costo;
+                    this.gameState.hype = Math.min(100, this.gameState.hype + 25);
+                    this.mostrarNotificacion('📢 MARKETING', 'Campaña aumenta hype +25');
+                    this.agregarEvento('info', 'Campaña de marketing lanzada');
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', 'Caja insuficiente');
+                }
+            }
+
+            investigarTecnologia() {
+                const costo = 75000;
+                if (this.gameState.caja >= costo) {
+                    this.gameState.caja -= costo;
+                    this.gameState.nivelInvestigacion++;
+                    this.mostrarNotificacion('🔬 INVESTIGACIÓN', `Nivel ${this.gameState.nivelInvestigacion} desbloqueado`);
+                    this.agregarEvento('success', 'Investigación completada');
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', 'Caja insuficiente');
+                }
+            }
+
+            mudarOficina() {
+                const costo = 150000;
+                if (this.gameState.caja >= costo && this.gameState.nivelEstudio < 5) {
+                    this.gameState.caja -= costo;
+                    this.gameState.nivelEstudio++;
+                    this.gameState.maxEquipo += 25;
+                    this.gameState.moral = Math.min(100, this.gameState.moral + 20);
+                    this.mostrarNotificacion('🏢 MUDANZA', `Oficina nivel ${this.gameState.nivelEstudio} activa`);
+                    this.agregarEvento('success', `Oficina mejorada: +25 equipo máximo`);
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', this.gameState.nivelEstudio >= 5 ? 'Máximo nivel' : 'Caja insuficiente');
+                }
+            }
+
+            alternarCrunch() {
+                this.gameState.crunchMode = !this.gameState.crunchMode;
+                document.getElementById('crunchStatus').textContent = this.gameState.crunchMode ? 'ON' : 'OFF';
+                this.mostrarNotificacion('🔥 CRUNCH', this.gameState.crunchMode ? 'Activado: +velocidad, -moral' : 'Desactivado');
+                this.agregarEvento('warning', `Crunch mode ${this.gameState.crunchMode ? 'ACTIVADO' : 'DESACTIVADO'}`);
+            }
+
+            trabajoContrato() {
+                const ingresos = 40000;
+                this.gameState.caja += ingresos;
+                this.gameState.ingresosTotales += ingresos;
+                this.mostrarNotificacion('📋 CONTRATO', `+${ingresos / 1000}K de ingresos seguros`);
+                this.agregarEvento('info', 'Trabajo por contrato completado');
+                this.actualizarUI();
+            }
+
+            construccionEquipo() {
+                const costo = 20000;
+                if (this.gameState.caja >= costo) {
+                    this.gameState.caja -= costo;
+                    this.gameState.moral = Math.min(100, this.gameState.moral + 15);
+                    this.mostrarNotificacion('🏖️ RETIRO', 'Moral de equipo +15');
+                    this.agregarEvento('success', 'Evento de team building completado');
+                    this.actualizarUI();
+                } else {
+                    this.mostrarNotificacion('❌ ERROR', 'Caja insuficiente');
+                }
+            }
+
+            investigacionAI() {
+                this.mostrarNotificacion('🔒 PRÓXIMAMENTE', 'Feature en desarrollo');
+            }
+
+            patentarTecnologia() {
+                this.mostrarNotificacion('🔒 PRÓXIMAMENTE', 'Feature en desarrollo');
+            }
+
+            // 🎮 PROYECTO
+            iniciarNuevoProyecto() {
+                if (this.gameState.proyectoActivo) {
+                    this.mostrarNotificacion('⚠️ PROYECTO ACTIVO', 'Termina el juego actual primero');
+                    return;
+                }
+                document.getElementById('newGameModal').classList.add('active');
+            }
+
+            continuarProyecto() {
+                if (!this.gameState.proyectoActivo) return;
+                document.getElementById('continueBtn').classList.add('bouncing');
+                setTimeout(() => document.getElementById('continueBtn').classList.remove('bouncing'), 300);
+                this.desarrollarProyecto();
+            }
+
+            desarrollarProyecto() {
+                const proyecto = this.gameState.proyectoActivo;
+                if (!proyecto) return;
+
+                const velocidad = this.gameState.crunchMode ? 25 : 15;
+                const penalidad = this.gameState.crunchMode ? 5 : 0;
+
+                proyecto.progreso += velocidad;
+                this.gameState.moral = Math.max(0, this.gameState.moral - penalidad);
+
+                // Eventos random durante desarrollo
+                if (Math.random() < 0.05) this.eventoDesarrolloRandom();
+
+                // Finalizar proyecto
+                if (proyecto.progreso >= 100) {
+                    this.lanzarJuego();
+                }
+
+                // Actualizar UI
+                document.getElementById('projectProgress').textContent = `${proyecto.progreso}%`;
+                document.getElementById('progressBar').style.width = `${proyecto.progreso}%`;
+
+                this.actualizarUI();
+            }
+
+            eventoDesarrolloRandom() {
+                const eventos = [
+                    { tipo: 'warning', texto: '🐛 ¡Bug crítico! -10% progreso', efecto: () => { this.gameState.proyectoActivo.progreso -= 10; } },
+                    { tipo: 'success', texto: '⭐ ¡Estrella del equipo! +15% progreso', efecto: () => { this.gameState.proyectoActivo.progreso += 15; } },
+                    { tipo: 'info', texto: '💡 ¡Inspiración! +5 calidad', efecto: () => { this.gameState.proyectoActivo.calidad += 5; } }
+                ];
+                const evento = eventos[Math.floor(Math.random() * eventos.length)];
+                evento.efecto();
+                this.agregarEvento(evento.tipo, evento.texto);
+            }
+
+            lanzarJuego() {
+                const proyecto = this.gameState.proyectoActivo;
+                const nota = this.calcularNotaFinal(proyecto);
+                const ventas = this.calcularVentas(proyecto, nota);
+
+                // Actualizar estado
+                this.gameState.caja += ventas;
+                this.gameState.ingresosTotales += ventas;
+                this.gameState.juegos.push({...proyecto, nota, ventas, año: this.gameState.año});
+
+                // Actualizar reputación y moral
+                const cambioRep = nota > 80 ? 8 : nota > 60 ? 3 : -5;
+                this.gameState.reputacion = Math.max(0, Math.min(100, this.gameState.reputacion + cambioRep));
+                this.gameState.hype = Math.max(10, this.gameState.hype - 30);
+                this.gameState.moral = Math.min(100, this.gameState.moral + 10);
+
+                // Limpiar proyecto
+                this.gameState.proyectoActivo = null;
+                document.getElementById('activeProject').style.display = 'none';
+                document.getElementById('newGameBtn').style.display = 'block';
+                document.getElementById('continueBtn').style.display = 'none';
+
+                // Mostrar review
+                this.mostrarReview(nota, ventas);
+
+                // Eventos post-lanzamiento
+                if (nota > 80 && Math.random() < 0.3) this.eventoPostLanzamiento(proyecto, ventas);
+
+                this.agregarEvento(nota > 80 ? 'success' : nota > 60 ? 'info' : 'danger',
+                    `🎮 ${this.baseDatos.generos[proyecto.genero].nombre} lanzado: ${nota.toFixed(1)}/100`);
+                
+                this.comprobarLogros();
+                this.actualizarUI();
+            }
+
+            calcularNotaFinal(proyecto) {
+                const genero = this.baseDatos.generos[proyecto.genero];
+                const tema = this.baseDatos.temas[proyecto.tema];
+                const plataforma = this.baseDatos.plataformas[proyecto.plataforma];
+                
+                const añoIndex = Math.min(9, Math.floor((this.gameState.año - 2000) / 3));
+                const tendencia = genero.tendencia[añoIndex];
+                
+                let nota = genero.base * tendencia;
+                nota *= (tema.multi[proyecto.genero] || 1);
+                nota *= (proyecto.presupuesto / 100000) * 0.5 + 0.5;
+                nota *= (this.gameState.reputacion / 100);
+                nota *= (this.gameState.moral / 100) * 0.5 + 0.5;
+                nota *= (this.gameState.equipo / 30) * 0.3 + 0.7;
+                nota *= 0.8 + Math.random() * 0.4;
+
+                return Math.min(100, Math.max(0, nota));
+            }
+
+            calcularVentas(proyecto, nota) {
+                const base = proyecto.presupuesto * 3;
+                const bonusNota = (nota - 50) / 50;
+                const bonusHype = this.gameState.hype / 100;
+                const añoMulti = this.gameState.año < 2010 ? 0.8 : this.gameState.año < 2020 ? 1.0 : 1.2;
+                return Math.floor(base * (1 + bonusNota) * (1 + bonusHype) * añoMulti);
+            }
+
+            eventoPostLanzamiento(proyecto, ventas) {
+                // DLC
+                if (Math.random() < 0.3) {
+                    const dlc = ventas * 0.2;
+                    this.gameState.caja += dlc;
+                    this.gameState.ingresosTotales += dlc;
+                    this.agregarEvento('success', `📦 DLC genera +$${(dlc/1000).toFixed(0)}K`);
+                }
+                // Premios
+                if (Math.random() < 0.1) {
+                    const premio = 50000;
+                    this.gameState.caja += premio;
+                    this.gameState.reputacion = Math.min(100, this.gameState.reputacion + 10);
+                    this.agregarEvento('success', `🏆 ¡Game of the Year! +$50K`);
+                }
+            }
+
+            mostrarReview(nota, ventas) {
+                document.getElementById('reviewScore').textContent = nota.toFixed(0);
+                document.getElementById('reviewStars').textContent = '★'.repeat(Math.floor(nota / 20)) + '☆'.repeat(5 - Math.floor(nota / 20));
+                document.getElementById('salesFigure').textContent = `$${(ventas / 1000).toFixed(0)}K`;
+                document.getElementById('unitsSold').textContent = `${(ventas / 10).toFixed(0)}K`;
+                
+                const comentarios = nota >= 90 ? "¡Obra maestra! Game of the Year." :
+                                  nota >= 80 ? "¡Excelente! Compra obligatoria." :
+                                  nota >= 70 ? "Buen juego con pequeños fallos." :
+                                  nota >= 60 ? "Experiencia promedio." :
+                                  "Decepcionante. Necesita mejora.";
+                document.getElementById('reviewComments').textContent = comentarios;
+                
+                document.getElementById('reviewModal').classList.add('active');
+            }
+
+            cerrarReview() {
+                document.getElementById('reviewModal').classList.remove('active');
+            }
+
+            // 🎮 UTILIDADES
+            actualizarUI() {
+                document.getElementById('uiCash').textContent = `$${(this.gameState.caja / 1000).toFixed(0)}K`;
+                document.getElementById('uiTeam').textContent = `${this.gameState.equipo} / ${this.gameState.maxEquipo}`;
+                document.getElementById('uiRep').textContent = `${this.gameState.reputacion}%`;
+                document.getElementById('uiHype').textContent = `${this.gameState.hype}%`;
+                
+                document.getElementById('cashBar').style.width = `${Math.min(100, this.gameState.caja / 10000)}%`;
+                document.getElementById('teamBar').style.width = `${(this.gameState.equipo / this.gameState.maxEquipo) * 100}%`;
+                document.getElementById('repBar').style.width = `${this.gameState.reputacion}%`;
+                document.getElementById('hypeBar').style.width = `${this.gameState.hype}%`;
+                
+                // Actualizar proyecto activo
+                if (this.gameState.proyectoActivo) {
+                    document.getElementById('activeProject').style.display = 'block';
+                    document.getElementById('newGameBtn').style.display = 'none';
+                    document.getElementById('continueBtn').style.display = 'block';
+                    document.getElementById('projectName').textContent = 
+                        `${this.baseDatos.generos[this.gameState.proyectoActivo.genero].nombre}`;
+                    document.getElementById('projectProgress').textContent = `${this.gameState.proyectoActivo.progreso}%`;
+                    document.getElementById('progressBar').style.width = `${this.gameState.proyectoActivo.progreso}%`;
+                } else {
+                    document.getElementById('activeProject').style.display = 'none';
+                    document.getElementById('newGameBtn').style.display = 'block';
+                    document.getElementById('continueBtn').style.display = 'none';
+                }
+
+                this.comprobarLogros();
+            }
+
+            comprobarLogros() {
+                if (this.gameState.juegos.length === 1 && !this.logros.primero.desbloqueado) {
+                    this.desbloquearLogro(this.logros.primero);
+                }
+                if (this.gameState.juegos.length >= 10 && !this.logros.experto.desbloqueado) {
+                    this.desbloquearLogro(this.logros.experto);
+                }
+                if (this.gameState.ingresosTotales >= 1000000 && !this.logros.millonario.desbloqueado) {
+                    this.desbloquearLogro(this.logros.millonario);
+                }
+                const hit = this.gameState.juegos.find(j => j.nota >= 85);
+                if (hit && !this.logros.hit.desbloqueado) {
+                    this.desbloquearLogro(this.logros.hit);
+                }
+            }
+
+            desbloquearLogro(logro) {
+                logro.desbloqueado = true;
+                document.getElementById('achievementTitle').textContent = `🏆 ${logro.nombre}`;
+                document.getElementById('achievementDesc').textContent = logro.descripcion;
+                document.getElementById('achievementPopup').classList.add('active');
+                setTimeout(() => document.getElementById('achievementPopup').classList.remove('active'), 4000);
+                this.agregarEvento('success', `¡Logro desbloqueado: ${logro.nombre}!`);
+            }
+
+            agregarEvento(tipo, texto) {
+                const log = document.getElementById('eventLog');
+                const evento = document.createElement('div');
+                evento.className = `event-item ${tipo}`;
+                evento.innerHTML = `<div class="event-header">${this.gameState.año}-${this.gameState.mes.toString().padStart(2, '0')}</div>${texto}`;
+                log.insertBefore(evento, log.firstChild);
+                while (log.children.length > 10) log.removeChild(log.lastChild);
+            }
+
+            mostrarNotificacion(titulo, texto) {
+                document.getElementById('notificationTitle').textContent = titulo;
+                document.getElementById('notificationText').textContent = texto;
+                const notif = document.getElementById('notification');
+                notif.classList.add('show');
+                setTimeout(() => notif.classList.remove('show'), 4000);
+            }
+
+            guardarJuego() {
+                localStorage.setItem('industrySimGOTY', JSON.stringify(this.gameState));
+                document.getElementById('saveIndicator').classList.add('show');
+                setTimeout(() => document.getElementById('saveIndicator').classList.remove('show'), 1000);
+            }
+
+            cargarJuego() {
+                const guardado = localStorage.getItem('industrySimGOTY');
+                if (guardado) {
+                    Object.assign(this.gameState, JSON.parse(guardado));
+                    this.gameState.empleados = this.gameState.empleados.map(e => Object.assign(new Empleado('', 0, 0, this), e));
+                    this.actualizarUI();
+                    this.mostrarNotificacion('📂 PARTIDA CARGADA', 'Continúa desde tu último guardado');
+                }
+            }
+
+            actualizarBudget(valor) {
+                document.getElementById('budgetValue').textContent = `$${(valor / 1000).toFixed(0)}K`;
+            }
+
+            selectOption(element) {
+                const type = element.dataset.type;
+                document.querySelectorAll(`[data-type="${type}"]`).forEach(el => el.classList.remove('selected'));
+                element.classList.add('selected');
+            }
+
+            confirmProject() {
+                const genero = document.querySelector('[data-type="genero"].selected')?.dataset.value;
+                const tema = document.querySelector('[data-type="tema"].selected')?.dataset.value;
+                const plataforma = document.querySelector('[data-type="plataforma"].selected')?.dataset.value;
+                const presupuesto = parseInt(document.getElementById('budgetSlider').value);
+
+                if (!genero || !tema || !plataforma) {
+                    this.mostrarNotificacion('❌ ERROR', 'Selecciona todas las opciones');
+                    return;
+                }
+
+                if (this.gameState.caja < presupuesto) {
+                    this.mostrarNotificacion('❌ ERROR', `Necesitas $${presupuesto.toLocaleString()}`);
+                    return;
+                }
+
+                this.gameState.caja -= presupuesto;
+                this.gameState.proyectoActivo = {
+                    genero, tema, plataforma, presupuesto,
+                    progreso: 0, calidad: 0,
+                    notaEsperada: this.calcularNotaEsperada(genero, tema, plataforma, presupuesto)
+                };
+
+                document.getElementById('newGameModal').classList.remove('active');
+                document.querySelectorAll('.option-tile').forEach(el => el.classList.remove('selected'));
+                
+                this.mostrarNotificacion('🎮 PROYECTO INICIADO', `${this.baseDatos.generos[genero].nombre}`);
+                this.actualizarUI();
+            }
+
+            calcularNotaEsperada(genero, tema, plataforma, presupuesto) {
+                const gen = this.baseDatos.generos[genero];
+                const tem = this.baseDatos.temas[tema];
+                const plat = this.baseDatos.plataformas[plataforma];
+                
+                const añoIndex = Math.min(9, Math.floor((this.gameState.año - 2000) / 3));
+                const tendencia = gen.tendencia[añoIndex];
+                
+                return gen.base * tendencia * (tem.multi[genero] || 1) * (presupuesto / 100000) * (this.gameState.reputacion / 100);
+            }
+
+            closeReview() {
+                document.getElementById('reviewModal').classList.remove('active');
+            }
+        }
+
+        // 🎮 CLASE EMPLEADO
+        class Empleado {
+            constructor(nombre, x, y, juego) {
+                this.nombre = nombre;
+                this.x = x;
+                this.y = y;
+                this.juego = juego;
+                this.moral = 75;
+                this.habilidad = Math.random() * 0.5 + 0.5;
+                this.estado = 'idle'; // idle, walk, work, celebrate, stress
+                this.frame = 0;
+                this.velocidad = 2;
+                this.destinoX = x;
+                this.destinoY = y;
+                this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+            }
+
+            actualizar(deltaTime) {
+                this.frame += deltaTime * 0.01;
+
+                // Movimiento hacia destino
+                if (this.estado === 'walk') {
+                    const dx = this.destinoX - this.x;
+                    const dy = this.destinoY - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist > 5) {
+                        this.x += (dx / dist) * this.velocidad;
+                        this.y += (dy / dist) * this.velocidad;
+                    } else {
+                        this.estado = 'idle';
+                    }
+                }
+
+                // Cambiar estado basado en moral y crunch
+                if (this.juego.gameState.crunchMode && this.moral < 40) {
+                    this.estado = 'stress';
+                } else if (this.juego.gameState.proyectoActivo && this.moral > 60) {
+                    this.estado = 'work';
+                } else if (Math.random() < 0.001) {
+                    this.caminarAleatorio();
+                }
+            }
+
+            dibujar(ctx) {
+                const size = 16;
+                const x = this.x - size / 2;
+                const y = this.y - size / 2;
+
+                // Cuerpo
+                ctx.fillStyle = this.color;
+                ctx.fillRect(x, y, size, size);
+
+                // Cabeza
+                ctx.fillStyle = '#fdbcb4';
+                ctx.fillRect(x + 4, y - 8, 8, 8);
+
+                // Estado visual
+                if (this.estado === 'stress') {
+                    ctx.fillStyle = 'rgba(255, 0, 64, 0.5)';
+                    ctx.fillRect(x, y, size, size);
+                } else if (this.estado === 'work') {
+                    ctx.fillStyle = 'rgba(0, 184, 255, 0.3)';
+                    ctx.fillRect(x - 2, y - 2, size + 4, size + 4);
+                }
+
+                // Nombre
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '8px Pixelify Sans';
+                ctx.fillText(this.nombre.split(' ')[0], x - 10, y + size + 10);
+            }
+
+            caminarAleatorio() {
+                const tile = this.juego.config.tamanoTile;
+                this.destinoX = 200 + Math.random() * 400;
+                this.destinoY = 150 + Math.random() * 200;
+                this.estado = 'walk';
+            }
+
+            celebrar() {
+                this.estado = 'celebrate';
+                this.moral = Math.min(100, this.moral + 10);
+                setTimeout(() => this.estado = 'idle', 3000);
+            }
+        }
+
+        // 🎮 INICIAR JUEGO
+        window.addEventListener('load', () => {
+            window.game = new IndustryEvolutionSimulator();
+            window.game.cargarJuego();
+        });
+    </script>
 </body>
 </html>
