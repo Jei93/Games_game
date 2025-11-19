@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industry Evolution Simulator | Professional Game Dev Tycoon</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0F1C;
+            --bg-secondary: #121A2B;
+            --bg-card: #1B2439;
+            --bg-card-hover: #202B45;
+            --accent: #00D4FF;
+            --accent-glow: rgba(0, 212, 255, 0.5);
+            --success: #00FF88;
+            --success-glow: rgba(0, 255, 136, 0.4);
+            --warning: #FFB800;
+            --warning-glow: rgba(255, 184, 0, 0.4);
+            --danger: #FF3B3B;
+            --danger-glow: rgba(255, 59, 59, 0.4);
+            --text-primary: #F0F4F8;
+            --text-secondary: #A8B2C1;
+            --text-tertiary: #6C7A92;
+            --border: #2A3A5C;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            
+            --font-xs: 0.75rem;
+            --font-sm: 0.875rem;
+            --font-base: 1rem;
+            --font-lg: 1.125rem;
+            --font-xl: 1.25rem;
+            --font-2xl: 1.5rem;
+            --font-3xl: 2rem;
+            --font-4xl: 3rem;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            font-size: var(--font-base);
+            line-height: 1.6;
+        }
+
+        /* 🎬 ANIMACIONES */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px var(--accent-glow); }
+            50% { transform: scale(1.02); box-shadow: 0 0 30px var(--accent-glow); }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px var(--accent-glow); }
+            50% { text-shadow: 0 0 20px var(--accent-glow); }
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+            background: radial-gradient(ellipse at center top, rgba(0, 212, 255, 0.1) 0%, transparent 60%);
+        }
+
+        .sidebar, .main-content, .event-panel {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 24px;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .sidebar::-webkit-scrollbar, .event-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track, .event-panel::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb, .event-panel::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        /* 🎨 SIDEBAR - RECURSOS */
+        .studio-logo {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 255, 136, 0.1));
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .studio-name {
+            font-size: var(--font-lg);
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .resource-group {
+            margin-bottom: 24px;
+        }
+
+        .resource-item {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .resource-item:hover {
+            background: var(--bg-card-hover);
+            transform: translateX(4px);
+        }
+
+        .resource-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .resource-label {
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .resource-value {
+            font-size: var(--font-lg);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .resource-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .resource-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .cash-fill { background: linear-gradient(90deg, var(--success), #00C9A7); }
+        .team-fill { background: linear-gradient(90deg, var(--accent), #0099FF); }
+        .reputation-fill { background: linear-gradient(90deg, var(--warning), #FF9E00); }
+        .hype-fill { background: linear-gradient(90deg, #FF00FF, #FF00AA); }
+
+        /* 📊 MAIN CONTENT */
+        .main-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 255, 136, 0.15));
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .year-display {
+            font-size: var(--font-4xl);
+            font-weight: 900;
+            color: var(--accent);
+            margin: 12px 0;
+            animation: glow 3s infinite;
+        }
+
+        .phase-indicator {
+            font-size: var(--font-base);
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .current-problem {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--danger);
+            font-style: italic;
+            margin-top: 16px;
+        }
+
+        /* 🎮 DECISION CARDS */
+        .decision-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .decision-card h3 {
+            font-size: var(--font-xl);
+            margin-bottom: 16px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .decision-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .decision-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .decision-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .decision-btn:hover::before {
+            left: 100%;
+        }
+
+        .decision-btn:hover {
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
+        }
+
+        .decision-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-title {
+            font-size: var(--font-lg);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-desc {
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+        }
+
+        .btn-cost {
+            font-size: var(--font-xs);
+            color: var(--danger);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* 🎯 PROJECT CREATION MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            place-items: center;
+        }
+
+        .modal.active {
+            display: grid;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: var(--font-2xl);
+            color: var(--accent);
+        }
+
+        .close-modal {
+            font-size: var(--font-3xl);
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        /* 📋 PROJECT OPTIONS */
+        .project-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .option-group {
+            margin-bottom: 24px;
+        }
+
+        .option-group h4 {
+            margin-bottom: 12px;
+            color: var(--accent);
+            font-size: var(--font-lg);
+        }
+
+        .option-btn {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            width: 100%;
+            text-align: left;
+            transition: all 0.2s;
+            font-size: var(--font-sm);
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+        }
+
+        .option-btn.selected {
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 15px var(--success-glow);
+        }
+
+        /* 📜 EVENT PANEL */
+        .event-panel h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .event {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--accent);
+            animation: fadeIn 0.3s ease-out;
+            transition: all 0.2s;
+        }
+
+        .event:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .event.danger { border-left-color: var(--danger); }
+        .event.success { border-left-color: var(--success); }
+        .event.warning { border-left-color: var(--warning); }
+        .event.info { border-left-color: var(--accent); }
+
+        .event-time {
+            font-size: var(--font-xs);
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .event-text {
+            font-size: var(--font-sm);
+            line-height: 1.5;
+        }
+
+        /* 📊 STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: var(--font-2xl);
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: var(--font-xs);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 🎖️ ACHIEVEMENTS */
+        .achievement-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--success), #00C9A7);
+            padding: 16px 32px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 255, 136, 0.3);
+            z-index: 2000;
+            animation: fadeIn 0.5s ease-out;
+            display: none;
+        }
+
+        .achievement-popup.active {
+            display: block;
+        }
+
+        .achievement-text {
+            font-weight: 700;
+            color: white;
+        }
+
+        /* 📈 PROGRESS INDICATORS */
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        .progress-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 4;
+        }
+
+        .progress-ring-circle-fill {
+            fill: none;
+            stroke: var(--success);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        /* 📱 RESPONSIVE */
+        @media (max-width: 1024px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .sidebar, .event-panel {
+                max-height: 300px;
+            }
+        }
+
+        /* 🎮 NOTIFICATIONS */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--accent);
+            max-width: 320px;
+            z-index: 1500;
+            transform: translateX(400px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-title {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .notification-text {
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            cursor: pointer;
+            color: var(--text-tertiary);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- SIDEBAR - RESOURCES & CONTROLS -->
+        <aside class="sidebar">
+            <div class="studio-logo">
+                <div class="studio-name" id="studioName">GARAGE STUDIOS</div>
+                <div style="font-size: var(--font-sm); color: var(--text-secondary);">Nivel 1 - Garage</div>
+            </div>
+
+            <div class="resource-group">
+                <div class="resource-item">
+                    <div class="resource-header">
+                        <span class="resource-label">💰 Cash</span>
+                        <span class="resource-value" id="cashDisplay">$500,000</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-fill cash-fill" id="cashBar" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-header">
+                        <span class="resource-label">👥 Equipo</span>
+                        <span class="resource-value" id="teamDisplay">15 / 50</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-fill team-fill" id="teamBar" style="width: 30%"></div>
+                    </div>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-header">
+                        <span class="resource-label">⭐ Reputación</span>
+                        <span class="resource-value" id="repDisplay">65%</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-fill reputation-fill" id="repBar" style="width: 65%"></div>
+                    </div>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-header">
+                        <span class="resource-label">🔥 Hype</span>
+                        <span class="resource-value" id="hypeDisplay">30%</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-fill hype-fill" id="hypeBar" style="width: 30%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resource-group">
+                <h4 style="margin-bottom: 12px; color: var(--accent);">🎮 Acciones Rápidas</h4>
+                <button class="decision-btn" onclick="hireTeamMember()">
+                    <span class="btn-title">💼 Contratar</span>
+                    <span class="btn-desc">Nuevo desarrollador</span>
+                    <span class="btn-cost">-$50,000</span>
+                </button>
+                <button class="decision-btn" onclick="investMarketing()">
+                    <span class="btn-title">📢 Marketing</span>
+                    <span class="btn-desc">Aumentar hype</span>
+                    <span class="btn-cost">-$30,000</span>
+                </button>
+                <button class="decision-btn" onclick="researchTech()">
+                    <span class="btn-title">🔬 I+D</span>
+                    <span class="btn-desc">Desbloquear motor</span>
+                    <span class="btn-cost">-$75,000</span>
+                </button>
+                <button class="decision-btn" onclick="moveOffice()">
+                    <span class="btn-title">🏢 Mudanza</span>
+                    <span class="btn-desc">Mejorar espacio</span>
+                    <span class="btn-cost">-$150,000</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT - GAME AREA -->
+        <main class="main-content">
+            <div class="main-header">
+                <div class="phase-indicator" id="phaseIndicator">ERA RETAIL (2000-2004)</div>
+                <h1 class="year-display" id="yearDisplay">2000</h1>
+                <div class="current-problem" id="currentProblem">
+                    Modelo retail, primeros DRM; industria AAA en expansión controlada. Los indies son invisibles.
+                </div>
+            </div>
+
+            <div class="decision-card">
+                <h3>🎯 Desarrollar Nuevo Juego</h3>
+                <p id="projectContext">Elige tu próximo proyecto. El mercado está esperando innovación.</p>
+                <div class="decision-options">
+                    <button class="decision-btn" onclick="openProjectModal()">
+                        <span class="btn-title">🎮 Nuevo Proyecto</span>
+                        <span class="btn-desc">Género, tema, plataforma</span>
+                        <span class="btn-cost">Crear juego</span>
+                    </button>
+                    <button class="decision-btn" onclick="continueProject()" id="continueBtn" style="display: none;">
+                        <span class="btn-title">⚙️ Continuar Proyecto</span>
+                        <span class="btn-desc" id="activeProjectName">Sin proyecto</span>
+                        <span class="btn-cost" id="activeProjectProgress">0%</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="decision-card">
+                <h3>📈 Gestión Operativa</h3>
+                <div class="decision-options">
+                    <button class="decision-btn" onclick="crunchMode()">
+                        <span class="btn-title">🔥 Crunch Mode</span>
+                        <span class="btn-desc">+Velocidad, -Moral</span>
+                        <span class="btn-cost">Riesgo: Bajo</span>
+                    </button>
+                    <button class="decision-btn" onclick="takeBreak()">
+                        <span class="btn-title">🏖️ Team Retreat</span>
+                        <span class="btn-desc">+Moral, -Tiempo</span>
+                        <span class="btn-cost">-$20,000</span>
+                    </button>
+                    <button class="decision-btn" onclick="indieContract()">
+                        <span class="btn-title">📋 Contrato Indie</span>
+                        <span class="btn-desc">Ingresos seguros</span>
+                        <span class="btn-cost">+$40,000</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalGames">0</div>
+                    <div class="stat-label">Juegos Lanzados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgScore">—</div>
+                    <div class="stat-label">Nota Media</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRevenue">$0</div>
+                    <div class="stat-label">Ingresos Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="marketShare">0%</div>
+                    <div class="stat-label">Market Share</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- EVENT PANEL - LOG & NEWS -->
+        <aside class="event-panel">
+            <h2>
+                <span>📰</span>
+                Industry News & Events
+                <span class="progress-ring" style="float: right;">
+                    <svg>
+                        <circle class="progress-ring-circle" cx="30" cy="30" r="26"></circle>
+                        <circle class="progress-ring-circle-fill" id="yearProgress" cx="30" cy="30" r="26"
+                                stroke-dasharray="163.36" stroke-dashoffset="0"></circle>
+                    </svg>
+                </span>
+            </h2>
+            
+            <div id="eventLog">
+                <div class="event info">
+                    <div class="event-time">Año 2000 - Mes 1</div>
+                    <div class="event-text">Tu estudio se funda en un garage. La aventura comienza.</div>
+                </div>
+            </div>
+
+            <button class="decision-btn" onclick="saveGame()" style="margin-top: 20px; width: 100%;">
+                <span class="btn-title">💾 Guardar Partida</span>
+            </button>
+        </aside>
+    </div>
+
+    <!-- PROJECT CREATION MODAL -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎮 Crear Nuevo Juego</h2>
+                <span class="close-modal" onclick="closeProjectModal()">&times;</span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                <!-- GÉNERO -->
+                <div class="option-group">
+                    <h4>🎲 Género</h4>
+                    <div id="genresList">
+                        <button class="option-btn" data-type="genre" data-value="action">🎮 Action</button>
+                        <button class="option-btn" data-type="genre" data-value="rpg">⚔️ RPG</button>
+                        <button class="option-btn" data-type="genre" data-value="strategy">🗺️ Strategy</button>
+                        <button class="option-btn" data-type="genre" data-value="puzzle">🧩 Puzzle</button>
+                        <button class="option-btn" data-type="genre" data-value="horror">👻 Horror</button>
+                        <button class="option-btn" data-type="genre" data-value="simulation">🏭 Simulation</button>
+                    </div>
+                </div>
+
+                <!-- TEMA -->
+                <div class="option-group">
+                    <h4>🎨 Tema</h4>
+                    <div id="themesList">
+                        <button class="option-btn" data-type="theme" data-value="space">🚀 Space</button>
+                        <button class="option-btn" data-type="theme" data-value="medieval">🏰 Medieval</button>
+                        <button class="option-btn" data-type="theme" data-value="cyberpunk">🌆 Cyberpunk</button>
+                        <button class="option-btn" data-type="theme" data-value="fantasy">🦄 Fantasy</button>
+                        <button class="option-btn" data-type="theme" data-value="zombies">🧟 Zombies</button>
+                        <button class="option-btn" data-type="theme" data-value="sports">⚽ Sports</button>
+                    </div>
+                </div>
+
+                <!-- PLATAFORMA -->
+                <div class="option-group">
+                    <h4>📺 Plataforma</h4>
+                    <div id="platformsList">
+                        <button class="option-btn" data-type="platform" data-value="pc">💻 PC</button>
+                        <button class="option-btn" data-type="platform" data-value="console">🎮 Console</button>
+                        <button class="option-btn" data-type="platform" data-value="mobile">📱 Mobile</button>
+                        <button class="option-btn" data-type="platform" data-value="vr">🥽 VR</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <h4>💰 Presupuesto de Desarrollo</h4>
+                <input type="range" id="budgetSlider" min="50000" max="500000" value="150000" 
+                       style="width: 100%; margin: 16px 0;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Min: $50K</span>
+                    <span id="budgetValue" style="font-weight: 800; color: var(--accent);">$150K</span>
+                    <span>Max: $500K</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px; display: flex; gap: 16px;">
+                <button class="decision-btn" onclick="cancelProject()" style="flex: 1;">
+                    <span class="btn-title">❌ Cancelar</span>
+                </button>
+                <button class="decision-btn" onclick="confirmProject()" style="flex: 2; border-color: var(--success);">
+                    <span class="btn-title">✅ Iniciar Proyecto</span>
+                    <span class="btn-cost" id="projectCost">Cost: $150K</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACHIEVEMENT POPUP -->
+    <div class="achievement-popup" id="achievementPopup">
+        <div class="achievement-text" id="achievementText">¡Logro desbloqueado!</div>
+    </div>
+
+    <!-- NOTIFICATION -->
+    <div class="notification" id="notification">
+        <span class="notification-close" onclick="hideNotification()">×</span>
+        <div class="notification-title" id="notificationTitle">Notificación</div>
+        <div class="notification-text" id="notificationText">Mensaje importante</div>
+    </div>
+
+    <script>
+        // 🎮 GAME STATE
+        const gameState = {
+            year: 2000,
+            month: 1,
+            cash: 500000,
+            team: 15,
+            maxTeam: 50,
+            reputation: 65,
+            hype: 30,
+            morale: 75,
+            completedGames: [],
+            activeProject: null,
+            totalRevenue: 0,
+            studioLevel: 1,
+            unlockedEngines: ['2D Basic'],
+            marketShare: 0,
+            crunchActive: false
+        };
+
+        // 📊 HISTORICAL DATA FROM EXCEL
+        const historicalData = {
+            years: [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
+            phase: [0,0,0,0,1,1,1,1,1,2,2,2,3,3,3,3,3,4,4,4,5,5,6,6,6,6],
+            problems: [
+                "Modelo retail, primeros DRM; industria AAA en expansión controlada. Los indies son invisibles.",
+                "Modelo retail, primeros DRM; industria AAA en expansión controlada",
+                "Modelo retail, primeros DRM; industria AAA en expansión controlada",
+                "Modelo retail, primeros DRM; industria AAA en expansión controlada",
+                "Caso 'EA Spouse' reveló abusos laborales; inicio del debate sobre el crunch.",
+                "Altos costes de desarrollo AAA, brecha consola/PC, crisis de creatividad",
+                "Altos costes de desarrollo AAA, brecha consola/PC, crisis de creatividad",
+                "Altos costes de desarrollo AAA, brecha consola/PC, crisis de creatividad",
+                "Altos costes de desarrollo AAA, brecha consola/PC, crisis de creatividad",
+                "Altos costes de desarrollo AAA, brecha consola/PC, crisis de creatividad. Minecraft alpha aparece.",
+                "Altos costes de desarrollo AAA, brecha consola/PC, crisis de creatividad",
+                "Altos costes de desarrollo AAA, brecha consola/PC, crisis de creatividad",
+                "Microtransacciones emergentes, servicios en vivo, menos riesgo creativo",
+                "Microtransacciones emergentes, servicios en vivo, menos riesgo creativo",
+                "Microtransacciones emergentes, servicios en vivo, menos riesgo creativo",
+                "Microtransacciones emergentes, servicios en vivo, menos riesgo creativo",
+                "Microtransacciones emergentes, servicios en vivo, menos riesgo creativo",
+                "Loot boxes, monetización agresiva, casos de crunch masivos",
+                "Loot boxes, monetización agresiva, casos de crunch masivos",
+                "Loot boxes, monetización agresiva, casos de crunch masivos",
+                "Live service dominante, fusiones, pérdida de identidad AAA",
+                "Live service dominante, fusiones, pérdida de identidad AAA",
+                "Live service dominante, fusiones, pérdida de identidad AAA. Despidos masivos.",
+                "Despidos masivos, cierres de estudios, auge de indies y AA de calidad",
+                "Despidos masivos, cierres de estudios, auge de indies y AA de calidad",
+                "Despidos masivos, cierres de estudios, auge de indies y AA de calidad"
+            ]
+        };
+
+        // 🎲 GAME COMBOS DATABASE
+        const gameDatabase = {
+            genres: {
+                action: { name: "Action", baseScore: 70, risk: 0.3 },
+                rpg: { name: "RPG", baseScore: 80, risk: 0.5 },
+                strategy: { name: "Strategy", baseScore: 75, risk: 0.4 },
+                puzzle: { name: "Puzzle", baseScore: 65, risk: 0.2 },
+                horror: { name: "Horror", baseScore: 85, risk: 0.6 },
+                simulation: { name: "Simulation", baseScore: 60, risk: 0.3 }
+            },
+            themes: {
+                space: { name: "Space", multipliers: { action: 1.2, simulation: 1.3, rpg: 1.1 } },
+                medieval: { name: "Medieval", multipliers: { rpg: 1.4, strategy: 1.3, action: 1.1 } },
+                cyberpunk: { name: "Cyberpunk", multipliers: { rpg: 1.3, action: 1.2, horror: 1.1 } },
+                fantasy: { name: "Fantasy", multipliers: { rpg: 1.5, strategy: 1.1, action: 1.0 } },
+                zombies: { name: "Zombies", multipliers: { horror: 1.4, action: 1.2, strategy: 0.8 } },
+                sports: { name: "Sports", multipliers: { simulation: 1.3, action: 0.9, puzzle: 0.7 } }
+            },
+            platforms: {
+                pc: { name: "PC", baseReach: 1.0, cost: 1.0 },
+                console: { name: "Console", baseReach: 1.2, cost: 1.3 },
+                mobile: { name: "Mobile", baseReach: 0.8, cost: 0.6 },
+                vr: { name: "VR", baseReach: 0.3, cost: 1.8 }
+            }
+        };
+
+        // 🎭 RANDOM EVENTS SYSTEM
+        const randomEvents = [
+            { year: 2008, text: "Crisis financiera golpea al sector. Presupuestos -20%", effect: () => { gameState.cash *= 0.8; }, type: 'danger' },
+            { year: 2012, text: "Steam Greenlight revoluciona la distribución. Oportunidad indie +50%", effect: () => { if(gameState.activeProject && !gameState.activeProject.type.includes('AAA')) gameState.hype += 50; }, type: 'success' },
+            { year: 2017, text: "Controversia de loot boxes. Reputación -15% si usas microtransacciones", effect: () => { if(Math.random() > 0.5) gameState.reputation = Math.max(0, gameState.reputation - 15); }, type: 'warning' },
+            { year: 2020, text: "Pandemia aumenta ventas digitales. +$200K ingresos inesperados", effect: () => { gameState.cash += 200000; }, type: 'success' },
+            { year: 2023, text: "Despidos masivos en industria. Puedes contratar talento top -50% coste", effect: () => { gameState.hireDiscount = 0.5; }, type: 'info' }
+        ];
+
+        // 🏆 ACHIEVEMENT SYSTEM
+        const achievements = {
+            firstGame: { name: "Debutante", desc: "Lanza tu primer juego", unlocked: false },
+            hitGame: { name: "Golpe de Suerte", desc: "Lanza un juego >90/100", unlocked: false },
+            tenGames: { name: "Productor Veterano", desc: "Lanza 10 juegos", unlocked: false },
+            millionaire: { name: "Millonario", desc: "Acumula $1M en ingresos", unlocked: false },
+            indieHit: { name: "Rey Indie", desc: "Lanza un indie >85/100", unlocked: false },
+            aaaMaster: { name: "AAA God", desc: "Lanza un AAA >95/100", unlocked: false }
+        };
+
+        // 🎮 INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUI();
+            setupEventListeners();
+            showNotification('Bienvenido a Industry Evolution Simulator', 'Usa tus datos para dominar la industria');
+        });
+
+        function setupEventListeners() {
+            // Modal option selection
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    const value = this.dataset.value;
+                    
+                    // Remove previous selection
+                    document.querySelectorAll(`[data-type="${type}"]`).forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // Update project preview
+                    updateProjectPreview();
+                });
+            });
+
+            // Budget slider
+            document.getElementById('budgetSlider').addEventListener('input', function() {
+                document.getElementById('budgetValue').textContent = `$${parseInt(this.value).toLocaleString()}`;
+                document.getElementById('projectCost').textContent = `Cost: $${parseInt(this.value).toLocaleString()}`;
+            });
+        }
+
+        function updateUI() {
+            // Update all displays
+            document.getElementById('yearDisplay').textContent = gameState.year;
+            document.getElementById('cashDisplay').textContent = `$${gameState.cash.toLocaleString()}`;
+            document.getElementById('teamDisplay').textContent = `${gameState.team} / ${gameState.maxTeam}`;
+            document.getElementById('repDisplay').textContent = `${gameState.reputation}%`;
+            document.getElementById('hypeDisplay').textContent = `${gameState.hype}%`;
+            
+            // Update bars
+            document.getElementById('cashBar').style.width = `${Math.min(100, gameState.cash / 10000)}%`;
+            document.getElementById('teamBar').style.width = `${(gameState.team / gameState.maxTeam) * 100}%`;
+            document.getElementById('repBar').style.width = `${gameState.reputation}%`;
+            document.getElementById('hypeBar').style.width = `${gameState.hype}%`;
+            
+            // Update phase
+            const phaseNames = ["Era Retail", "Crisis Creativa", "Eclosión Indie", "Monetización", "Ética & Loot Boxes", "Live Service", "Reestructuración"];
+            document.getElementById('phaseIndicator').textContent = `${phaseNames[historicalData.phase[gameState.year - 2000]]} (${gameState.year})`;
+            
+            // Update problem
+            document.getElementById('currentProblem').textContent = historicalData.problems[gameState.year - 2000];
+            
+            // Update stats
+            document.getElementById('totalGames').textContent = gameState.completedGames.length;
+            document.getElementById('avgScore').textContent = gameState.completedGames.length > 0 ? 
+                (gameState.completedGames.reduce((a,b) => a + b.score, 0) / gameState.completedGames.length).toFixed(1) : '—';
+            document.getElementById('totalRevenue').textContent = `$${gameState.totalRevenue.toLocaleString()}`;
+            document.getElementById('marketShare').textContent = `${(Math.min(100, gameState.totalRevenue / 100000)).toFixed(1)}%`;
+            
+            // Update year progress
+            const progress = ((gameState.year - 2000) / 25) * 163.36;
+            document.getElementById('yearProgress').style.strokeDashoffset = 163.36 - progress;
+            
+            // Check achievements
+            checkAchievements();
+        }
+
+        function openProjectModal() {
+            if(gameState.activeProject) {
+                showNotification('⚠️ Ya tienes un proyecto activo', 'Termina el actual antes de empezar otro');
+                return;
+            }
+            document.getElementById('projectModal').classList.add('active');
+        }
+
+        function closeProjectModal() {
+            document.getElementById('projectModal').classList.remove('active');
+            // Clear selections
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+        }
+
+        function updateProjectPreview() {
+            // Calculate projected score
+            const selectedGenre = document.querySelector('[data-type="genre"].selected')?.dataset.value;
+            const selectedTheme = document.querySelector('[data-type="theme"].selected')?.dataset.value;
+            const selectedPlatform = document.querySelector('[data-type="platform"].selected')?.dataset.value;
+            
+            if(selectedGenre && selectedTheme && selectedPlatform) {
+                const genreData = gameDatabase.genres[selectedGenre];
+                const themeMultiplier = gameDatabase.themes[selectedTheme].multipliers[selectedGenre] || 1.0;
+                const projectedScore = genreData.baseScore * themeMultiplier;
+                
+                console.log(`Proyected Score: ${projectedScore.toFixed(1)}`);
+            }
+        }
+
+        function confirmProject() {
+            const genre = document.querySelector('[data-type="genre"].selected')?.dataset.value;
+            const theme = document.querySelector('[data-type="theme"].selected')?.dataset.value;
+            const platform = document.querySelector('[data-type="platform"].selected')?.dataset.value;
+            const budget = parseInt(document.getElementById('budgetSlider').value);
+            
+            if(!genre || !theme || !platform) {
+                showNotification('❌ Selección incompleta', 'Debes elegir género, tema y plataforma');
+                return;
+            }
+            
+            if(gameState.cash < budget) {
+                showNotification('❌ Cash insuficiente', `Necesitas $${budget.toLocaleString()}`);
+                return;
+            }
+            
+            // Create project
+            gameState.activeProject = {
+                genre,
+                theme,
+                platform,
+                budget,
+                progress: 0,
+                quality: 0,
+                hype: gameState.hype,
+                startYear: gameState.year,
+                startMonth: gameState.month,
+                expectedScore: calculateExpectedScore(genre, theme, platform, budget)
+            };
+            
+            gameState.cash -= budget;
+            
+            showNotification('🎮 Proyecto iniciado', `${gameDatabase.genres[genre].name} + ${gameDatabase.themes[theme].name} en ${gameDatabase.platforms[platform].name}`);
+            closeProjectModal();
+            updateUI();
+            updateActiveProjectDisplay();
+        }
+
+        function calculateExpectedScore(genre, theme, platform, budget) {
+            const base = gameDatabase.genres[genre].baseScore;
+            const themeMult = gameDatabase.themes[theme].multipliers[genre] || 1.0;
+            const budgetMult = Math.min(1.5, budget / 100000);
+            const repMult = gameState.reputation / 100;
+            const hypeMult = gameState.hype / 100;
+            
+            return base * themeMult * budgetMult * repMult * hypeMult;
+        }
+
+        function updateActiveProjectDisplay() {
+            if(gameState.activeProject) {
+                document.getElementById('continueBtn').style.display = 'block';
+                document.getElementById('activeProjectName').textContent = 
+                    `${gameDatabase.genres[gameState.activeProject.genre].name} - ${gameDatabase.themes[gameState.activeProject.theme].name}`;
+                document.getElementById('activeProjectProgress').textContent = `${gameState.activeProject.progress}%`;
+            } else {
+                document.getElementById('continueBtn').style.display = 'none';
+            }
+        }
+
+        function continueProject() {
+            if(!gameState.activeProject) return;
+            
+            const devSpeed = gameState.crunchMode ? 25 : 15;
+            const moralePenalty = gameState.crunchMode ? 5 : 0;
+            
+            gameState.activeProject.progress += devSpeed;
+            gameState.morale = Math.max(0, gameState.morale - moralePenalty);
+            
+            // Random events during development
+            if(Math.random() < 0.1) {
+                triggerDevEvent();
+            }
+            
+            if(gameState.activeProject.progress >= 100) {
+                releaseGame();
+            }
+            
+            updateUI();
+            updateActiveProjectDisplay();
+        }
+
+        function releaseGame() {
+            const project = gameState.activeProject;
+            const finalScore = calculateFinalScore(project);
+            
+            // Calculate sales
+            const baseSales = project.budget * 3;
+            const scoreBonus = (finalScore - 50) / 50;
+            const hypeBonus = project.hype / 100;
+            const totalSales = baseSales * (1 + scoreBonus) * (1 + hypeBonus) * (gameState.reputation / 100);
+            
+            // Update state
+            gameState.cash += totalSales;
+            gameState.totalRevenue += totalSales;
+            gameState.completedGames.push({
+                ...project,
+                score: finalScore,
+                revenue: totalSales,
+                year: gameState.year
+            });
+            
+            // Reset hype
+            gameState.hype = Math.max(10, gameState.hype - 30);
+            
+            // Reputation change
+            const repChange = finalScore > 70 ? 5 : finalScore > 50 ? 1 : -3;
+            gameState.reputation = Math.max(0, Math.min(100, gameState.reputation + repChange));
+            
+            // Morale boost for success
+            gameState.morale = Math.min(100, gameState.morale + 10);
+            
+            // Clear active project
+            gameState.activeProject = null;
+            
+            // Log event
+            addEvent(finalScore > 80 ? 'success' : finalScore > 50 ? 'info' : 'warning',
+                `¡${gameDatabase.genres[project.genre].name} lanzado! Nota: ${finalScore.toFixed(1)}/100. Ingresos: $${totalSales.toLocaleString()}`);
+            
+            // Trigger post-launch events
+            if(finalScore > 90) {
+                triggerPostLaunchSuccess(project, totalSales);
+            }
+            
+            updateUI();
+            updateActiveProjectDisplay();
+        }
+
+        function calculateFinalScore(project) {
+            const base = project.expectedScore;
+            const randomFactor = 0.8 + Math.random() * 0.4; // 0.8 to 1.2
+            const moraleFactor = gameState.morale / 100;
+            const teamFactor = Math.min(1.2, gameState.team / 30);
+            
+            return Math.min(100, base * randomFactor * moraleFactor * teamFactor);
+        }
+
+        function triggerDevEvent() {
+            const events = [
+                { text: "¡Bug crítico encontrado! -1 mes de desarrollo", effect: () => { gameState.activeProject.progress -= 10; } },
+                { text: "Programador estrella se une al equipo +20% velocidad", effect: () => { gameState.activeProject.progress += 10; } },
+                { text: "Inspiración creativa! +5 puntos calidad", effect: () => { gameState.activeProject.quality += 5; } }
+            ];
+            
+            const event = events[Math.floor(Math.random() * events.length)];
+            event.effect();
+            addEvent('warning', event.text);
+        }
+
+        function triggerPostLaunchSuccess(project, revenue) {
+            if(Math.random() < 0.3) {
+                const dlcRevenue = revenue * 0.2;
+                gameState.cash += dlcRevenue;
+                gameState.totalRevenue += dlcRevenue;
+                addEvent('success', `¡Tu juego genera DLCs por $${dlcRevenue.toLocaleString()}!`);
+            }
+            
+            if(Math.random() < 0.1) {
+                const awardBonus = 50000;
+                gameState.cash += awardBonus;
+                gameState.reputation = Math.min(100, gameState.reputation + 10);
+                addEvent('success', `🏆 ¡Ganas Game of the Year! +$50K, +10 reputación`);
+            }
+        }
+
+        function crunchMode() {
+            gameState.crunchMode = !gameState.crunchMode;
+            const status = gameState.crunchMode ? 'ACTIVADO' : 'DESACTIVADO';
+            addEvent('warning', `Crunch mode ${status}. Velocidad +25%, moral -5%/mes`);
+        }
+
+        function hireTeamMember() {
+            const cost = gameState.hireDiscount ? 25000 : 50000;
+            if(gameState.cash >= cost && gameState.team < gameState.maxTeam) {
+                gameState.cash -= cost;
+                gameState.team += 1;
+                gameState.morale = Math.min(100, gameState.morale + 5);
+                addEvent('success', `Nuevo desarrollador contratado. +1 equipo, +5 moral`);
+                updateUI();
+            } else {
+                showNotification('❌ No puedes contratar', gameState.team >= gameState.maxTeam ? 'Equipo al máximo' : 'Cash insuficiente');
+            }
+        }
+
+        function investMarketing() {
+            const cost = 30000;
+            if(gameState.cash >= cost) {
+                gameState.cash -= cost;
+                gameState.hype = Math.min(100, gameState.hype + 20);
+                addEvent('info', `Campaña de marketing. +20 hype`);
+                updateUI();
+            } else {
+                showNotification('❌ Cash insuficiente', 'Necesitas $30,000');
+            }
+        }
+
+        function researchTech() {
+            const cost = 75000;
+            if(gameState.cash >= cost) {
+                gameState.cash -= cost;
+                gameState.unlockedEngines.push('3D Advanced');
+                addEvent('success', '🔓 Motor 3D Advanced desbloqueado');
+                updateUI();
+            } else {
+                showNotification('❌ Cash insuficiente', 'Necesitas $75,000');
+            }
+        }
+
+        function moveOffice() {
+            const cost = 150000;
+            if(gameState.cash >= cost && gameState.studioLevel < 5) {
+                gameState.cash -= cost;
+                gameState.studioLevel++;
+                gameState.maxTeam += 25;
+                gameState.morale = Math.min(100, gameState.morale + 20);
+                addEvent('success', `¡Mudanza a nivel ${gameState.studioLevel}! +25 máx equipo, +20 moral`);
+                updateUI();
+            } else {
+                showNotification('❌ No puedes mudarte', gameState.studioLevel >= 5 ? 'Max level' : 'Cash insuficiente');
+            }
+        }
+
+        function addEvent(type, text) {
+            const eventLog = document.getElementById('eventLog');
+            const event = document.createElement('div');
+            event.className = `event ${type}`;
+            event.innerHTML = `
+                <div class="event-time">Año ${gameState.year} - Mes ${gameState.month}</div>
+                <div class="event-text">${text}</div>
+            `;
+            eventLog.insertBefore(event, eventLog.firstChild);
+            
+            // Limit events
+            while(eventLog.children.length > 15) {
+                eventLog.removeChild(eventLog.lastChild);
+            }
+        }
+
+        function showNotification(title, text) {
+            document.getElementById('notificationTitle').textContent = title;
+            document.getElementById('notificationText').textContent = text;
+            const notif = document.getElementById('notification');
+            notif.classList.add('show');
+            
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 4000);
+        }
+
+        function hideNotification() {
+            document.getElementById('notification').classList.remove('show');
+        }
+
+        function checkAchievements() {
+            // First game
+            if(gameState.completedGames.length === 1 && !achievements.firstGame.unlocked) {
+                unlockAchievement(achievements.firstGame);
+            }
+            
+            // Hit game
+            const hit = gameState.completedGames.find(g => g.score >= 90);
+            if(hit && !achievements.hitGame.unlocked) {
+                unlockAchievement(achievements.hitGame);
+            }
+            
+            // Ten games
+            if(gameState.completedGames.length === 10 && !achievements.tenGames.unlocked) {
+                unlockAchievement(achievements.tenGames);
+            }
+            
+            // Millionaire
+            if(gameState.totalRevenue >= 1000000 && !achievements.millionaire.unlocked) {
+                unlockAchievement(achievements.millionaire);
+            }
+        }
+
+        function unlockAchievement(achievement) {
+            achievement.unlocked = true;
+            const popup = document.getElementById('achievementPopup');
+            document.getElementById('achievementText').textContent = `🏆 ${achievement.name}: ${achievement.desc}`;
+            popup.classList.add('active');
+            
+            setTimeout(() => {
+                popup.classList.remove('active');
+            }, 5000);
+            
+            addEvent('success', `¡Logro desbloqueado: ${achievement.name}!`);
+        }
+
+        function saveGame() {
+            const saveData = {
+                ...gameState,
+                timestamp: Date.now(),
+                achievements
+            };
+            localStorage.setItem('industrySimulatorProSave', JSON.stringify(saveData));
+            showNotification('💾 Partida guardada', 'Progreso almacenado localmente');
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('industrySimulatorProSave');
+            if(saved) {
+                const data = JSON.parse(saved);
+                Object.assign(gameState, data.state || data);
+                Object.assign(achievements, data.achievements || achievements);
+                showNotification('📂 Partida cargada', 'Continúa desde tu último guardado');
+                updateUI();
+            }
+        }
+
+        // Auto-save cada 60 segundos
+        setInterval(saveGame, 60000);
+
+        // Enter key advances project
+        document.addEventListener('keydown', (e) => {
+            if(e.code === 'Space' && gameState.activeProject) {
+                e.preventDefault();
+                continueProject();
+            }
+        });
+
+        // Initial load
+        loadGame();
+    </script>
+</body>
+</html>
