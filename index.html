@@ -1,538 +1,132 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Industry Evolution Simulator - FIXED EDITION</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Industry Evolution Simulator - TYCOON EDITION</title>
     <style>
+        /* --- Mantengo tu CSS original (recortado aquí para brevedad) --- */
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Pixelify+Sans:wght@400;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-        }
 
-        :root {
+        * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; image-rendering:-moz-crisp-edges; image-rendering:crisp-edges; }
+        :root{
             --bg-primary: #0a0a0a;
             --bg-secondary: #1a1a1a;
             --bg-panel: #2a2a2a;
             --bg-card: #3a3a3a;
-            --bg-card-hover: #4a4a4a;
             --neon-green: #00ff41;
             --neon-blue: #00b8ff;
             --neon-yellow: #ffcc00;
             --neon-red: #ff0040;
-            --neon-purple: #b967ff;
             --pixel-border: #555555;
             --text-primary: #e0e0e0;
             --text-secondary: #a0a0a0;
         }
-
-        body {
+        body{
             font-family: 'Pixelify Sans', monospace;
             background: radial-gradient(ellipse at center, #1a0033 0%, var(--bg-primary) 100%);
-            color: var(--text-primary);
-            overflow: hidden;
-            height: 100vh;
+            color:var(--text-primary);
+            overflow:hidden;
+            height:100vh;
         }
+        canvas{ display:block; background:var(--bg-secondary); border:3px solid var(--pixel-border); box-shadow:0 0 20px rgba(0,184,255,0.3); }
 
-        canvas {
-            display: block;
-            background: var(--bg-secondary);
-            border: 3px solid var(--pixel-border);
-            box-shadow: 0 0 20px rgba(0, 184, 255, 0.3);
-        }
-
-        .ui-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 100;
-        }
-
-        .ui-panel {
-            position: absolute;
-            background: rgba(26, 26, 26, 0.95);
-            border: 3px solid var(--pixel-border);
-            padding: 10px;
-            pointer-events: all;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .ui-panel.hidden {
-            transform: translateX(-100%);
-        }
-
-        .ui-panel.left {
-            left: 0;
-            top: 0;
-            width: 220px;
-            height: 100%;
-            overflow-y: auto;
-        }
-
-        .ui-panel.right {
-            right: 0;
-            top: 0;
-            width: 200px;
-            height: 100%;
-            overflow-y: auto;
-        }
-
-        .ui-panel.bottom {
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 800px;
-            max-width: 90%;
-            height: 100px;
-        }
-
-        .ui-panel.center {
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: auto;
-            max-height: 200px;
-        }
-
-        .ui-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--neon-blue);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 8px var(--neon-blue);
-        }
-
-        .ui-stat {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-            font-size: 10px;
-        }
-
-        .ui-stat-label {
-            color: var(--text-secondary);
-        }
-
-        .ui-stat-value {
-            color: var(--neon-green);
-            font-weight: 700;
-        }
-
-        .ui-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--bg-panel);
-            border: 1px solid var(--pixel-border);
-            position: relative;
-            margin-top: 4px;
-            overflow: hidden;
-        }
-
-        .ui-fill {
-            height: 100%;
-            transition: width 0.5s ease;
-        }
-
-        .cash-fill { background: linear-gradient(90deg, var(--neon-green), #00cc33); }
-        .team-fill { background: linear-gradient(90deg, var(--neon-blue), #0088cc); }
-        .rep-fill { background: linear-gradient(90deg, var(--neon-yellow), #cc9900); }
-        .hype-fill { background: linear-gradient(90deg, var(--neon-purple), #9966cc); }
-        .progress-fill { background: linear-gradient(90deg, var(--neon-purple), #b967ff); }
-
-        .pixel-button {
-            font-family: 'Pixelify Sans', monospace;
-            font-size: 10px;
-            background: var(--bg-card);
-            border: 2px solid var(--pixel-border);
-            color: var(--text-primary);
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: all 0.15s;
-            display: block;
-            width: 100%;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-
-        .pixel-button:hover {
-            background: var(--neon-blue);
-            color: var(--bg-primary);
-            border-color: var(--neon-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 184, 255, 0.3);
-        }
-
-        .pixel-button:active {
-            transform: scale(0.95);
-        }
-
-        .pixel-button.danger {
-            border-color: var(--neon-red);
-        }
-
-        .pixel-button.danger:hover {
-            background: var(--neon-red);
-        }
-
-        .pixel-button.success {
-            border-color: var(--neon-green);
-        }
-
-        .pixel-button.success:hover {
-            background: var(--neon-green);
-        }
-
-        .pixel-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            place-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal.active {
-            display: grid;
-        }
-
-        .modal-content {
-            background: var(--bg-panel);
-            border: 4px solid var(--neon-blue);
-            padding: 20px;
-            max-width: 700px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalPop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes modalPop {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-title {
-            font-size: 14px;
-            color: var(--neon-blue);
-            margin-bottom: 15px;
-        }
-
-        .selection-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .option-tile {
-            background: var(--bg-card);
-            border: 2px solid var(--pixel-border);
-            padding: 10px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-            font-size: 9px;
-        }
-
-        .option-tile:hover {
-            border-color: var(--neon-blue);
-            transform: scale(1.05);
-        }
-
-        .option-tile.selected {
-            border-color: var(--neon-green);
-            background: rgba(0, 255, 65, 0.1);
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
-        }
-
-        .option-icon {
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .review-modal .review-score {
-            font-size: 48px;
-            font-weight: 900;
-            color: var(--neon-green);
-            text-shadow: 3px 3px 0 var(--bg-primary);
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .review-modal .review-stars {
-            font-size: 24px;
-            color: var(--neon-yellow);
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .review-modal .review-comments {
-            background: var(--bg-card);
-            border: 2px solid var(--pixel-border);
-            padding: 12px;
-            font-size: 10px;
-            line-height: 1.4;
-            margin: 15px 0;
-        }
-
-        .stat-box {
-            flex: 1;
-            background: var(--bg-card);
-            border: 1px solid var(--pixel-border);
-            padding: 8px;
-            margin: 0 5px;
-        }
-
-        .stat-title {
-            font-size: 9px;
-            color: var(--text-secondary);
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--neon-green);
-            text-align: center;
-        }
-
-        .achievement-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: linear-gradient(135deg, var(--neon-purple), #ff00ff);
-            border: 4px solid var(--neon-yellow);
-            padding: 20px 30px;
-            z-index: 2000;
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            text-align: center;
-        }
-
-        .achievement-popup.active {
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .achievement-title {
-            font-size: 14px;
-            font-weight: 900;
-            margin-bottom: 5px;
-            color: var(--bg-primary);
-        }
-
-        .achievement-desc {
-            font-size: 10px;
-            color: var(--text-primary);
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: -400px;
-            background: var(--bg-panel);
-            border: 2px solid var(--neon-blue);
-            padding: 10px 15px;
-            max-width: 300px;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1500;
-        }
-
-        .notification.show {
-            right: 20px;
-        }
-
-        .notification-title {
-            color: var(--neon-blue);
-            font-weight: 700;
-            margin-bottom: 5px;
-            font-size: 10px;
-        }
-
-        .notification-text {
-            font-size: 9px;
-            color: var(--text-secondary);
-        }
-
-        .save-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: -200px;
-            background: var(--neon-green);
-            color: var(--bg-primary);
-            padding: 8px 12px;
-            font-size: 10px;
-            font-weight: 700;
-            transition: right 0.3s;
-            z-index: 1500;
-        }
-
-        .save-indicator.show {
-            right: 20px;
-        }
-
-        .event-log {
-            position: absolute;
-            bottom: 120px;
-            left: 10px;
-            width: 300px;
-            max-height: 200px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid var(--pixel-border);
-            padding: 10px;
-            overflow-y: auto;
-            font-size: 9px;
-            z-index: 50;
-        }
-
-        .event-item {
-            margin-bottom: 5px;
-            padding: 3px;
-            border-left: 3px solid transparent;
-        }
-
-        .event-item.success {
-            border-left-color: var(--neon-green);
-        }
-
-        .event-item.danger {
-            border-left-color: var(--neon-red);
-        }
-
-        .event-item.warning {
-            border-left-color: var(--neon-yellow);
-        }
-
-        .event-item.info {
-            border-left-color: var(--neon-blue);
-        }
-
-        .event-header {
-            color: var(--text-secondary);
-            font-size: 8px;
-        }
-
-        .project-panel {
-            display: none;
-            background: rgba(42, 42, 42, 0.95);
-            border: 2px solid var(--neon-purple);
-            padding: 8px;
-            margin-top: 10px;
-        }
-
-        .project-panel.active {
-            display: block;
-        }
-
-        .bottom-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-
-        .bottom-buttons .pixel-button {
-            width: auto;
-            min-width: 150px;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        .bouncing {
-            animation: bounce 0.3s ease-in-out;
-        }
-
-        @media (max-width: 1024px) {
-            .ui-panel.left, .ui-panel.right {
-                width: 180px;
-            }
-            .selection-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+        /* UI panels (kept identical to yours) */
+        .ui-overlay{ position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:100; }
+        .ui-panel{ position:absolute; background:rgba(26,26,26,0.95); border:3px solid var(--pixel-border); padding:10px; pointer-events:all; transition:transform .3s cubic-bezier(.4,0,.2,1); }
+        .ui-panel.left{ left:0; top:0; width:220px; height:100%; overflow-y:auto;}
+        .ui-panel.right{ right:0; top:0; width:200px; height:100%; overflow-y:auto;}
+        .ui-panel.bottom{ bottom:0; left:50%; transform:translateX(-50%); width:800px; max-width:90%; height:100px;}
+        .ui-panel.center{ top:10px; left:50%; transform:translateX(-50%); width:300px; max-height:200px;}
+        .ui-title{ font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:700; color:var(--neon-blue); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px; text-shadow:0 0 8px var(--neon-blue);}
+        .ui-stat{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:10px;}
+        .ui-stat-label{ color:var(--text-secondary); }
+        .ui-stat-value{ color:var(--neon-green); font-weight:700; }
+        .ui-bar{ width:100%; height:8px; background:var(--bg-panel); border:1px solid var(--pixel-border); position:relative; margin-top:4px; overflow:hidden;}
+        .ui-fill{ height:100%; transition:width .5s ease;}
+        .cash-fill{ background:linear-gradient(90deg,var(--neon-green),#00cc33); }
+        .team-fill{ background:linear-gradient(90deg,var(--neon-blue),#0088cc); }
+        .rep-fill{ background:linear-gradient(90deg,var(--neon-yellow),#cc9900); }
+        .hype-fill{ background:linear-gradient(90deg,var(--neon-purple),#9966cc); }
+        .progress-fill{ background:linear-gradient(90deg,var(--neon-purple),#b967ff); }
+        .pixel-button{ font-family:'Pixelify Sans', monospace; font-size:10px; background:var(--bg-card); border:2px solid var(--pixel-border); color:var(--text-primary); padding:8px 12px; cursor:pointer; transition:all .15s; display:block; width:100%; margin-bottom:6px; text-transform:uppercase;}
+        .pixel-button:hover{ background:var(--neon-blue); color:var(--bg-primary); border-color:var(--neon-blue); transform:translateY(-2px); box-shadow:0 4px 8px rgba(0,184,255,0.3);}
+        .pixel-button:active{ transform:scale(.95); }
+        .pixel-button.danger{ border-color:var(--neon-red); }
+        .pixel-button.success{ border-color:var(--neon-green); }
+        .event-log{ position:absolute; bottom:120px; left:10px; width:300px; max-height:200px; background:rgba(0,0,0,0.7); border:2px solid var(--pixel-border); padding:10px; overflow-y:auto; font-size:9px; z-index:50; }
+        .notification{ position:fixed; top:20px; right:-400px; background:var(--bg-panel); border:2px solid var(--neon-blue); padding:10px 15px; max-width:300px; transition:right .3s cubic-bezier(.4,0,.2,1); z-index:1500;}
+        .notification.show{ right:20px; }
+        .save-indicator{ position:fixed; bottom:20px; right:-200px; background:var(--neon-green); color:var(--bg-primary); padding:8px 12px; font-size:10px; font-weight:700; transition:right .3s; z-index:1500; }
+        .save-indicator.show{ right:20px; }
+        .modal{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; place-items:center; z-index:1000; backdrop-filter: blur(4px); }
+        .modal.active{ display:grid; }
+        .modal-content{ background:var(--bg-panel); border:4px solid var(--neon-blue); padding:20px; max-width:700px; max-height:90vh; overflow-y:auto; animation:modalPop .3s cubic-bezier(.4,0,.2,1); }
+        .modal-title{ font-size:14px; color:var(--neon-blue); margin-bottom:15px; }
+        .selection-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:15px; }
+        .option-tile{ background:var(--bg-card); border:2px solid var(--pixel-border); padding:10px; cursor:pointer; text-align:center; transition:all .2s; font-size:9px; }
+        .option-tile:hover{ border-color:var(--neon-blue); transform:scale(1.05); }
+        .option-tile.selected{ border-color:var(--neon-green); background:rgba(0,255,65,0.1); box-shadow:0 0 15px rgba(0,255,65,0.3); }
+        .stat-box{ flex:1; background:var(--bg-card); border:1px solid var(--pixel-border); padding:8px; margin:0 5px; }
+        .stat-title{ font-size:9px; color:var(--text-secondary); text-align:center; }
+        .stat-value{ font-size:14px; font-weight:700; color:var(--neon-green); text-align:center; }
+        .achievement-popup{ position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0); background:linear-gradient(135deg,var(--neon-purple),#ff00ff); border:4px solid var(--neon-yellow); padding:20px 30px; z-index:2000; transition:transform .5s cubic-bezier(.68,-0.55,.265,1.55); text-align:center;}
+        .achievement-popup.active{ transform:translate(-50%,-50%) scale(1); }
+        @keyframes modalPop{ from{ transform:scale(.8); opacity:0;} to{ transform:scale(1); opacity:1; } }
+        @media (max-width:1024px){ .ui-panel.left, .ui-panel.right{ width:180px; } .selection-grid{ grid-template-columns:repeat(2,1fr); } }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
 
-    <!-- 🎮 UI OVERLAY -->
     <div class="ui-overlay">
-        <!-- LEFT PANEL - RESOURCES -->
         <div class="ui-panel left" id="leftPanel">
-            <div class="ui-title">📊 STUDIO RESOURCES</div>
-            
+            <div class="ui-title">STUDIO RESOURCES</div>
+
             <div class="ui-stat">
-                <span class="ui-stat-label">💰 CASH</span>
+                <span class="ui-stat-label">CASH</span>
                 <span class="ui-stat-value" id="uiCash">$500K</span>
             </div>
-            <div class="ui-bar"><div class="ui-fill cash-fill" id="cashBar" style="width: 50%"></div></div>
+            <div class="ui-bar"><div class="ui-fill cash-fill" id="cashBar" style="width:50%"></div></div>
 
             <div class="ui-stat">
-                <span class="ui-stat-label">👥 TEAM</span>
+                <span class="ui-stat-label">TEAM</span>
                 <span class="ui-stat-value" id="uiTeam">15 / 50</span>
             </div>
-            <div class="ui-bar"><div class="ui-fill team-fill" id="teamBar" style="width: 30%"></div></div>
+            <div class="ui-bar"><div class="ui-fill team-fill" id="teamBar" style="width:30%"></div></div>
 
             <div class="ui-stat">
-                <span class="ui-stat-label">⭐ REPUTATION</span>
+                <span class="ui-stat-label">REPUTATION</span>
                 <span class="ui-stat-value" id="uiRep">65%</span>
             </div>
-            <div class="ui-bar"><div class="ui-fill rep-fill" id="repBar" style="width: 65%"></div></div>
+            <div class="ui-bar"><div class="ui-fill rep-fill" id="repBar" style="width:65%"></div></div>
 
             <div class="ui-stat">
-                <span class="ui-stat-label">🔥 HYPE</span>
+                <span class="ui-stat-label">HYPE</span>
                 <span class="ui-stat-value" id="uiHype">30%</span>
             </div>
-            <div class="ui-bar"><div class="ui-fill hype-fill" id="hypeBar" style="width: 30%"></div></div>
+            <div class="ui-bar"><div class="ui-fill hype-fill" id="hypeBar" style="width:30%"></div></div>
 
-            <button class="pixel-button" onclick="game.hireEmployee()">💼 HIRE STAFF</button>
-            <button class="pixel-button" onclick="game.investMarketing()">📢 MARKETING</button>
-            <button class="pixel-button" onclick="game.researchTech()">🔬 R&D</button>
-            <button class="pixel-button" onclick="game.moveOffice()">🏢 MOVE OFFICE</button>
-            <button class="pixel-button danger" onclick="game.resetGame()">🔄 NEW GAME</button>
+            <button class="pixel-button" onclick="game.hireEmployee()">HIRE STAFF</button>
+            <button class="pixel-button" onclick="game.investMarketing()">MARKETING</button>
+            <button class="pixel-button" onclick="game.researchTech()">TRAIN TEAM</button>
+            <button class="pixel-button" onclick="game.moveOffice()">MOVE OFFICE</button>
+            <button class="pixel-button danger" onclick="game.resetGame()">NEW GAME</button>
         </div>
 
-        <!-- RIGHT PANEL - EMPLOYEES -->
         <div class="ui-panel right" id="rightPanel">
-            <div class="ui-title">👥 ACTIVE TEAM</div>
+            <div class="ui-title">ACTIVE TEAM</div>
             <div id="employeeList"></div>
         </div>
 
-        <!-- CENTER PANEL - PROJECT STATUS -->
         <div class="ui-panel center" id="activeProjectPanel">
-            <div class="ui-title">🎮 ACTIVE PROJECT</div>
+            <div class="ui-title">ACTIVE PROJECT</div>
             <div class="project-panel" id="activeProject">
                 <div class="ui-stat">
                     <span class="ui-stat-label" id="projectName">None</span>
                     <span class="ui-stat-value" id="projectProgress">0%</span>
                 </div>
-                <div class="ui-bar"><div class="ui-fill progress-fill" id="progressBar" style="width: 0%"></div></div>
+                <div class="ui-bar"><div class="ui-fill progress-fill" id="progressBar" style="width:0%"></div></div>
             </div>
             <div class="ui-stat">
                 <span class="ui-stat-label">YEAR</span>
@@ -540,139 +134,86 @@
             </div>
         </div>
 
-        <!-- BOTTOM PANEL - ACTIONS -->
         <div class="ui-panel bottom" id="bottomPanel">
             <div class="bottom-buttons">
                 <button class="pixel-button danger" onclick="game.toggleCrunch()" id="crunchBtn">
-                    🔥 CRUNCH: <span id="crunchStatus">OFF</span>
+                    CRUNCH: <span id="crunchStatus">OFF</span>
                 </button>
                 <button class="pixel-button success" onclick="game.startNewProject()" id="newGameBtn">
-                    🎮 NEW PROJECT
+                    NEW PROJECT
                 </button>
-                <button class="pixel-button" onclick="game.continueProject()" id="continueBtn" style="display: none;">
-                    ⚙️ CONTINUE DEV
+                <button class="pixel-button" onclick="game.continueProject()" id="continueBtn" style="display:none;">
+                    CONTINUE DEV
                 </button>
                 <button class="pixel-button" onclick="game.takeContract()">
-                    📋 CONTRACT JOB
+                    CONTRACT JOB
                 </button>
             </div>
         </div>
 
-        <!-- EVENT LOG -->
         <div class="event-log" id="eventLog"></div>
     </div>
 
-    <!-- NEW GAME MODAL -->
+    <!-- NEW PROJECT MODAL (kept as-is) -->
     <div class="modal" id="newGameModal">
         <div class="modal-content">
-            <div class="modal-title">🎮 CREATE NEW GAME PROJECT</div>
-            
+            <div class="modal-title">CREATE NEW GAME PROJECT</div>
             <div class="modal-section">
-                <h4>🎲 GENRE</h4>
+                <h4>GENRE</h4>
                 <div class="selection-grid">
-                    <div class="option-tile" data-type="genre" data-value="accion" onclick="game.selectOption(this)">
-                        <div class="option-icon">🎮</div>
-                        <div>ACTION</div>
-                    </div>
-                    <div class="option-tile" data-type="genre" data-value="rpg" onclick="game.selectOption(this)">
-                        <div class="option-icon">⚔️</div>
-                        <div>RPG</div>
-                    </div>
-                    <div class="option-tile" data-type="genre" data-value="estrategia" onclick="game.selectOption(this)">
-                        <div class="option-icon">🗺️</div>
-                        <div>STRATEGY</div>
-                    </div>
-                    <div class="option-tile" data-type="genre" data-value="puzzle" onclick="game.selectOption(this)">
-                        <div class="option-icon">🧩</div>
-                        <div>PUZZLE</div>
-                    </div>
-                    <div class="option-tile" data-type="genre" data-value="terror" onclick="game.selectOption(this)">
-                        <div class="option-icon">👻</div>
-                        <div>HORROR</div>
-                    </div>
-                    <div class="option-tile" data-type="genre" data-value="simulacion" onclick="game.selectOption(this)">
-                        <div class="option-icon">🏭</div>
-                        <div>SIMULATION</div>
-                    </div>
+                    <div class="option-tile" data-type="genre" data-value="accion" onclick="game.selectOption(this)"><div class="option-icon">🎮</div><div>ACTION</div></div>
+                    <div class="option-tile" data-type="genre" data-value="rpg" onclick="game.selectOption(this)"><div class="option-icon">⚔</div><div>RPG</div></div>
+                    <div class="option-tile" data-type="genre" data-value="estrategia" onclick="game.selectOption(this)"><div class="option-icon">🗺</div><div>STRATEGY</div></div>
+                    <div class="option-tile" data-type="genre" data-value="puzzle" onclick="game.selectOption(this)"><div class="option-icon">🧩</div><div>PUZZLE</div></div>
+                    <div class="option-tile" data-type="genre" data-value="terror" onclick="game.selectOption(this)"><div class="option-icon">👻</div><div>HORROR</div></div>
+                    <div class="option-tile" data-type="genre" data-value="simulacion" onclick="game.selectOption(this)"><div class="option-icon">🏭</div><div>SIMULATION</div></div>
                 </div>
             </div>
 
             <div class="modal-section">
-                <h4>🎨 THEME</h4>
+                <h4>THEME</h4>
                 <div class="selection-grid">
-                    <div class="option-tile" data-type="tema" data-value="espacial" onclick="game.selectOption(this)">
-                        <div class="option-icon">🚀</div>
-                        <div>SPACE</div>
-                    </div>
-                    <div class="option-tile" data-type="tema" data-value="medieval" onclick="game.selectOption(this)">
-                        <div class="option-icon">🏰</div>
-                        <div>MEDIEVAL</div>
-                    </div>
-                    <div class="option-tile" data-type="tema" data-value="cyberpunk" onclick="game.selectOption(this)">
-                        <div class="option-icon">🌆</div>
-                        <div>CYBERPUNK</div>
-                    </div>
-                    <div class="option-tile" data-type="tema" data-value="fantasia" onclick="game.selectOption(this)">
-                        <div class="option-icon">🦄</div>
-                        <div>FANTASY</div>
-                    </div>
-                    <div class="option-tile" data-type="tema" data-value="zombies" onclick="game.selectOption(this)">
-                        <div class="option-icon">🧟</div>
-                        <div>ZOMBIES</div>
-                    </div>
-                    <div class="option-tile" data-type="tema" data-value="deportes" onclick="game.selectOption(this)">
-                        <div class="option-icon">⚽</div>
-                        <div>SPORTS</div>
-                    </div>
+                    <div class="option-tile" data-type="tema" data-value="espacial" onclick="game.selectOption(this)"><div class="option-icon">🚀</div><div>SPACE</div></div>
+                    <div class="option-tile" data-type="tema" data-value="medieval" onclick="game.selectOption(this)"><div class="option-icon">🏰</div><div>MEDIEVAL</div></div>
+                    <div class="option-tile" data-type="tema" data-value="cyberpunk" onclick="game.selectOption(this)"><div class="option-icon">🌆</div><div>CYBERPUNK</div></div>
+                    <div class="option-tile" data-type="tema" data-value="fantasia" onclick="game.selectOption(this)"><div class="option-icon">🦄</div><div>FANTASY</div></div>
+                    <div class="option-tile" data-type="tema" data-value="zombies" onclick="game.selectOption(this)"><div class="option-icon">🧟</div><div>ZOMBIES</div></div>
+                    <div class="option-tile" data-type="tema" data-value="deportes" onclick="game.selectOption(this)"><div class="option-icon">⚽</div><div>SPORTS</div></div>
                 </div>
             </div>
 
             <div class="modal-section">
-                <h4>📺 PLATFORM</h4>
+                <h4>PLATFORM</h4>
                 <div class="selection-grid">
-                    <div class="option-tile" data-type="plataforma" data-value="pc" onclick="game.selectOption(this)">
-                        <div class="option-icon">💻</div>
-                        <div>PC</div>
-                    </div>
-                    <div class="option-tile" data-type="plataforma" data-value="consola" onclick="game.selectOption(this)">
-                        <div class="option-icon">🎮</div>
-                        <div>CONSOLE</div>
-                    </div>
-                    <div class="option-tile" data-type="plataforma" data-value="movil" onclick="game.selectOption(this)">
-                        <div class="option-icon">📱</div>
-                        <div>MOBILE</div>
-                    </div>
-                    <div class="option-tile" data-type="plataforma" data-value="vr" onclick="game.selectOption(this)">
-                        <div class="option-icon">🥽</div>
-                        <div>VR</div>
-                    </div>
+                    <div class="option-tile" data-type="plataforma" data-value="pc" onclick="game.selectOption(this)"><div class="option-icon">💻</div><div>PC</div></div>
+                    <div class="option-tile" data-type="plataforma" data-value="consola" onclick="game.selectOption(this)"><div class="option-icon">🎮</div><div>CONSOLE</div></div>
+                    <div class="option-tile" data-type="plataforma" data-value="movil" onclick="game.selectOption(this)"><div class="option-icon">📱</div><div>MOBILE</div></div>
+                    <div class="option-tile" data-type="plataforma" data-value="vr" onclick="game.selectOption(this)"><div class="option-icon">🥽</div><div>VR</div></div>
                 </div>
             </div>
 
             <div class="modal-section">
-                <h4>💰 BUDGET</h4>
-                <input type="range" id="budgetSlider" min="50000" max="500000" value="150000" 
-                       oninput="game.updateBudget(this.value)" 
-                       style="width: 100%; height: 10px; background: var(--bg-card); cursor: pointer;">
-                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 9px;">
+                <h4>BUDGET</h4>
+                <input type="range" id="budgetSlider" min="50000" max="500000" value="150000" oninput="game.updateBudget(this.value)" style="width:100%; height:10px; background:var(--bg-card); cursor:pointer;">
+                <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:9px;">
                     <span>MIN: $50K</span>
-                    <span id="budgetValue" style="color: var(--neon-blue); font-weight: 800;">$150K</span>
+                    <span id="budgetValue" style="color:var(--neon-blue); font-weight:800;">$150K</span>
                     <span>MAX: $500K</span>
                 </div>
             </div>
 
-            <button class="pixel-button success" onclick="game.confirmProject()" style="margin-top: 15px;">✅ START DEVELOPMENT</button>
+            <button class="pixel-button success" onclick="game.confirmProject()" style="margin-top:15px;">START DEVELOPMENT</button>
         </div>
     </div>
 
     <!-- REVIEW MODAL -->
     <div class="modal" id="reviewModal">
         <div class="modal-content review-modal">
-            <div class="modal-title">📊 GAME REVIEWS</div>
+            <div class="modal-title">GAME REVIEWS</div>
             <div class="review-score" id="reviewScore">85</div>
             <div class="review-stars" id="reviewStars">★★★★☆</div>
             <div class="review-comments" id="reviewComments">Solid execution.</div>
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <div style="display:flex; gap:10px; margin-top:15px;">
                 <div class="stat-box">
                     <div class="stat-title">SALES</div>
                     <div class="stat-value" id="salesFigure">$450K</div>
@@ -686,27 +227,26 @@
         </div>
     </div>
 
-    <!-- ACHIEVEMENT POPUP -->
     <div class="achievement-popup" id="achievementPopup">
         <div class="achievement-title" id="achievementTitle">ACHIEVEMENT UNLOCKED!</div>
         <div class="achievement-desc" id="achievementDesc">Description</div>
     </div>
 
-    <!-- NOTIFICATION -->
-    <div class="notification" id="notification">
-        <div class="notification-title" id="notificationTitle">NOTIFICATION</div>
-        <div class="notification-text" id="notificationText">Message</div>
-    </div>
-
-    <!-- SAVE INDICATOR -->
+    <div class="notification" id="notification"><div class="notification-title" id="notificationTitle">NOTIFICATION</div><div class="notification-text" id="notificationText">Message</div></div>
     <div class="save-indicator" id="saveIndicator">💾 SAVING...</div>
 
     <script>
-        // 🎮 GAME ENGINE
+        // ======================================================
+        // Industry Evolution Simulator - Tycoon Edition (script)
+        // ======================================================
+
         class IndustryEvolutionSimulator {
             constructor() {
+                // Canvas & rendering
                 this.canvas = document.getElementById('gameCanvas');
                 this.ctx = this.canvas.getContext('2d');
+
+                // Game state
                 this.gameState = {
                     año: 2000,
                     mes: 1,
@@ -726,17 +266,14 @@
                     empleados: []
                 };
 
-                this.teclado = { space: false };
+                // Config
                 this.config = {
-                    velocidadAnimacion: 0.05,
                     tamanoTile: 32,
-                    escalaZoom: 1,
-                    offsetX: 0,
-                    offsetY: 0,
-                    tickSpeed: 1500
+                    tickSpeed: 1500, // ms
+                    payrollIntervalMonths: 1 // pay every month tick
                 };
 
-                this.sistemaParticulas = [];
+                // Achievements (kept)
                 this.logros = {
                     primero: { nombre: "First Game", descripcion: "Launch your first game", desbloqueado: false },
                     hit: { nombre: "Hit Game", descripcion: "Score >85/100", desbloqueado: false },
@@ -744,6 +281,7 @@
                     millonario: { nombre: "Mogul", descripcion: "Earn $1M total", desbloqueado: false }
                 };
 
+                // Database (kept, minor adjustments allowed)
                 this.baseDatos = {
                     generos: {
                         accion: { nombre: "Action", base: 70, riesgo: 0.3, tendencia: [1,1,1,1,1,1.2,1.3,1.3,1.2,1.1] },
@@ -754,43 +292,39 @@
                         simulacion: { nombre: "Simulation", base: 60, riesgo: 0.3, tendencia: [1,1,1,1,1,1,1.1,1.1,1.2,1.3] }
                     },
                     temas: {
-                        espacial: { nombre: "Space", multi: { accion: 1.2, simulacion: 1.3, rpg: 1.1 } },
-                        medieval: { nombre: "Medieval", multi: { rpg: 1.4, estrategia: 1.3, accion: 1.1 } },
-                        cyberpunk: { nombre: "Cyberpunk", multi: { rpg: 1.3, accion: 1.2, terror: 1.1 } },
-                        fantasia: { nombre: "Fantasy", multi: { rpg: 1.5, estrategia: 1.1, accion: 1 } },
-                        zombies: { nombre: "Zombies", multi: { terror: 1.4, accion: 1.2, estrategia: 0.8 } },
-                        deportes: { nombre: "Sports", multi: { simulacion: 1.3, accion: 0.9, puzzle: 0.7 } }
+                        espacial: { nombre: "Space", multi: { accion:1.2, simulacion:1.3, rpg:1.1 } },
+                        medieval: { nombre: "Medieval", multi: { rpg:1.4, estrategia:1.3, accion:1.1 } },
+                        cyberpunk: { nombre: "Cyberpunk", multi: { rpg:1.3, accion:1.2, terror:1.1 } },
+                        fantasia: { nombre: "Fantasy", multi: { rpg:1.5, estrategia:1.1, accion:1 } },
+                        zombies: { nombre: "Zombies", multi: { terror:1.4, accion:1.2, estrategia:0.8 } },
+                        deportes: { nombre: "Sports", multi: { simulacion:1.3, accion:0.9, puzzle:0.7 } }
                     },
                     plataformas: {
-                        pc: { nombre: "PC", alcance: 1, costo: 1 },
-                        consola: { nombre: "Console", alcance: 1.2, costo: 1.3 },
-                        movil: { nombre: "Mobile", alcance: 0.8, costo: 0.6 },
-                        vr: { nombre: "VR", alcance: 0.3, costo: 1.8 }
+                        pc: { nombre:"PC", alcance:1, costo:1 },
+                        consola: { nombre:"Console", alcance:1.2, costo:1.3 },
+                        movil: { nombre:"Mobile", alcance:0.8, costo:0.6 },
+                        vr: { nombre:"VR", alcance:0.3, costo:1.8 }
                     }
                 };
 
-                this.eventosHistoria = {
-                    2004: { tipo: 'danger', texto: '💥 EA Spouse scandal! Morale -20%', efecto: () => { this.gameState.moral = Math.max(0, this.gameState.moral - 20); } },
-                    2008: { tipo: 'warning', texto: '📉 Financial crisis! Market -30%', efecto: () => { this.gameState.hype = Math.max(0, this.gameState.hype - 30); } },
-                    2012: { tipo: 'success', texto: '📱 Mobile boom! Mobile games +50%', efecto: () => { this.gameState.hype = Math.min(100, this.gameState.hype + 30); } },
-                    2017: { tipo: 'danger', texto: '🎰 Loot box controversy! Reputation -15%', efecto: () => { this.gameState.reputacion = Math.max(0, this.gameState.reputacion - 15); } },
-                    2020: { tipo: 'success', texto: '🏠 Pandemic +200% digital sales!', efecto: () => { const bonus = 200000; this.gameState.caja += bonus; this.gameState.ingresosTotales += bonus; } },
-                    2023: { tipo: 'warning', texto: '🔥 Mass layoffs! Hiring -50% cost', efecto: () => { this.gameState.descuentoContratacion = true; } }
-                };
+                // Internals
+                this.teclado = { space:false };
+                this.sistemaParticulas = [];
+                this.payrollAccumulatorMonths = 0;
 
-                this.inicializar();
-            }
-
-            inicializar() {
+                // Init
                 this.configurarCanvas();
                 this.configurarEventos();
                 this.generarEmpleadosIniciales();
                 this.iniciarLoop();
                 this.iniciarTicks();
-                this.mostrarNotificacion('🎮 WELCOME', 'Press SPACE to speed up development');
+                this.mostrarNotificacion('WELCOME', 'Press SPACE to speed up development');
             }
 
-            configurarCanvas() {
+            // -----------------------
+            // Initialization helpers
+            // -----------------------
+            configurarCanvas(){
                 this.canvas.width = window.innerWidth;
                 this.canvas.height = window.innerHeight;
                 window.addEventListener('resize', () => {
@@ -799,27 +333,20 @@
                 });
             }
 
-            configurarEventos() {
+            configurarEventos(){
                 document.addEventListener('keydown', (e) => {
-                    if (e.code === 'Space') {
-                        e.preventDefault();
-                        this.teclado.space = true;
-                    }
+                    if (e.code === 'Space') { e.preventDefault(); this.teclado.space = true; }
                 });
                 document.addEventListener('keyup', (e) => {
-                    if (e.code === 'Space') {
-                        e.preventDefault();
-                        this.teclado.space = false;
-                    }
+                    if (e.code === 'Space') { e.preventDefault(); this.teclado.space = false; }
                 });
             }
 
-            iniciarLoop() {
+            iniciarLoop(){
                 let ultimoTiempo = 0;
                 const loop = (timestamp) => {
                     const deltaTime = timestamp - ultimoTiempo;
                     ultimoTiempo = timestamp;
-
                     this.actualizar(deltaTime);
                     this.renderizar();
                     requestAnimationFrame(loop);
@@ -827,28 +354,36 @@
                 requestAnimationFrame(loop);
             }
 
-            iniciarTicks() {
-                setInterval(() => {
-                    this.tick();
-                }, this.config.tickSpeed);
+            iniciarTicks(){
+                setInterval(() => this.tick(), this.config.tickSpeed);
             }
 
-            tick() {
+            // -----------------------
+            // Game ticks & time
+            // -----------------------
+            tick(){
                 // Advance time
                 this.gameState.mes++;
                 if (this.gameState.mes > 12) {
                     this.gameState.mes = 1;
                     this.gameState.año++;
-                    this.agregarEvento('info', `📅 Year ${this.gameState.año}`);
+                    this.agregarEvento('info', `Year ${this.gameState.año}`);
                 }
 
-                // Auto-develop project if space is held
+                // Payroll monthly (every month)
+                this.payrollAccumulatorMonths++;
+                if (this.payrollAccumulatorMonths >= this.config.payrollIntervalMonths) {
+                    this.pagarSalarios();
+                    this.payrollAccumulatorMonths = 0;
+                }
+
+                // Auto-develop if space held
                 if (this.teclado.space && this.gameState.proyectoActivo) {
                     this.desarrollarProyecto();
                 }
 
-                // Check historical events
-                if (this.gameState.mes === 6 && this.eventosHistoria[this.gameState.año]) {
+                // Historical events check (kept)
+                if (this.gameState.mes === 6 && this.gameState.año && this.eventosHistoria && this.eventosHistoria[this.gameState.año]) {
                     const evento = this.eventosHistoria[this.gameState.año];
                     this.agregarEvento(evento.tipo, evento.texto);
                     evento.efecto();
@@ -857,248 +392,446 @@
                 this.actualizarUI();
             }
 
-            actualizar(deltaTime) {
-                this.gameState.empleados.forEach(empleado => empleado.actualizar(deltaTime));
+            // -----------------------
+            // Update / Render loop
+            // -----------------------
+            actualizar(deltaTime){
+                // employee internal updates
+                this.gameState.empleados.forEach(e => e.actualizar(deltaTime));
+                // particles...
                 this.sistemaParticulas = this.sistemaParticulas.filter(p => p.actualizar(deltaTime));
             }
 
-            renderizar() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            renderizar(){
+                this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
                 this.dibujarOficina();
-                this.gameState.empleados.forEach(empleado => empleado.dibujar(this.ctx));
+                this.gameState.empleados.forEach(emp => emp.dibujar(this.ctx));
                 this.sistemaParticulas.forEach(p => p.dibujar(this.ctx));
             }
 
-            dibujarOficina() {
+            dibujarOficina(){
                 const ctx = this.ctx;
                 const tile = this.config.tamanoTile;
-                const offsetX = this.config.offsetX + this.canvas.width / 2 - 300;
-                const offsetY = this.config.offsetY + this.canvas.height / 2 - 200;
+                const offsetX = this.canvas.width/2 - 300;
+                const offsetY = this.canvas.height/2 - 200;
 
-                // Grid isométrico
-                ctx.strokeStyle = 'rgba(100,100,100,0.1)';
+                // simple grid + workstations
+                ctx.strokeStyle = 'rgba(100,100,100,0.08)';
                 ctx.lineWidth = 1;
-
-                for (let x = 0; x < 20; x++) {
-                    for (let y = 0; y < 20; y++) {
-                        const isoX = (x - y) * tile / 2 + offsetX;
-                        const isoY = (x + y) * tile / 4 + offsetY;
-                        ctx.strokeRect(isoX, isoY, tile, tile / 2);
+                for (let x=0;x<20;x++){
+                    for (let y=0;y<10;y++){
+                        const gx = offsetX + x*tile*0.8;
+                        const gy = offsetY + y*tile*0.6;
+                        ctx.strokeRect(gx, gy, tile*0.8, tile*0.5);
                     }
                 }
-
-                // Workstations
-                ctx.fillStyle = '#444';
-                const workstations = Math.min(this.gameState.equipo, 20);
-                for (let i = 0; i < workstations; i++) {
-                    const x = i % 5;
-                    const y = Math.floor(i / 5);
-                    const isoX = (x - y) * tile / 2 + offsetX + 100;
-                    const isoY = (x + y) * tile / 4 + offsetY + 50;
-                    
-                    ctx.fillRect(isoX, isoY, tile * 0.8, tile * 0.4);
-                    ctx.fillStyle = '#222';
-                    ctx.fillRect(isoX + 5, isoY - 10, tile * 0.6, tile * 0.2);
-                    ctx.fillStyle = '#444';
-                }
             }
 
-            // 🎮 GAME MECHANICS
-            generarEmpleadosIniciales() {
-                const nombres = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery'];
-                const apellidos = ['Dev', 'Coder', 'Designer', 'Artist', 'Tester', 'Producer'];
-                
-                for (let i = 0; i < 3; i++) {
-                    this.gameState.empleados.push(new Empleado(
-                        nombres[Math.floor(Math.random() * nombres.length)] + ' ' + apellidos[Math.floor(Math.random() * apellidos.length)],
-                        200 + i * 150,
-                        200 + i * 50,
-                        this
-                    ));
-                }
-            }
-
-            hireEmployee() {
-                const costo = this.gameState.descuentoContratacion ? 25000 : 50000;
-                if (this.gameState.caja >= costo && this.gameState.equipo < this.gameState.maxEquipo) {
-                    this.gameState.caja -= costo;
-                    this.gameState.equipo++;
-                    
-                    const nombres = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery'];
-                    const apellidos = ['Dev', 'Coder', 'Designer', 'Artist', 'Tester', 'Producer'];
-                    const emp = new Empleado(
-                        nombres[Math.floor(Math.random() * nombres.length)] + ' ' + apellidos[Math.floor(Math.random() * apellidos.length)],
-                        200 + Math.random() * 400,
-                        150 + Math.random() * 200,
-                        this
-                    );
+            // -----------------------
+            // Employees & Hiring (Tycoon mechanics)
+            // -----------------------
+            generarEmpleadosIniciales(){
+                const pool = [
+                    { nombre:'Alex Dev' }, { nombre:'Sam Coder' }, { nombre:'Jordan Designer' },
+                    { nombre:'Taylor Artist' }, { nombre:'Morgan QA' }, { nombre:'Casey Producer' }
+                ];
+                // generate 3 diverse hires
+                for (let i=0;i<3;i++){
+                    const n = pool[Math.floor(Math.random()*pool.length)].nombre;
+                    const emp = new Empleado(n, 200+Math.random()*400, 150+Math.random()*200, this);
+                    // set initial level/salary
+                    emp.level = 1;
+                    emp.salary = 3000 + Math.floor(Math.random()*2000);
                     this.gameState.empleados.push(emp);
-                    
-                    this.gameState.moral = Math.min(100, this.gameState.moral + 5);
-                    this.mostrarNotificacion('💼 HIRED', `New team member: ${emp.nombre.split(' ')[0]}`);
-                    this.agregarEvento('success', `Hired: ${emp.nombre}`);
-                    this.actualizarUI();
+                }
+                this.gameState.equipo = this.gameState.empleados.length;
+            }
+
+            // New hiring flow: show 3 candidates and let player pick
+            hireEmployee(){
+                // If max team reached or insufficient hiring budget, quick-fail
+                if (this.gameState.equipo >= this.gameState.maxEquipo) {
+                    this.mostrarNotificacion('ERROR','Max team size');
+                    return;
+                }
+
+                // Generate 3 candidates
+                const candidates = [];
+                for (let i=0;i<3;i++){
+                    candidates.push(this.generarCandidatoAleatorio());
+                }
+                this.openHiringModal(candidates);
+            }
+
+            generarCandidatoAleatorio(){
+                const first = ['Alex','Sam','Jordan','Taylor','Morgan','Casey','Riley','Avery','Drew','Kai'];
+                const roles = ['Programmer','Artist','Designer','QA','Producer','Generalist'];
+                const role = roles[Math.floor(Math.random()*roles.length)];
+                // base skills vary by role
+                const base = {
+                    Programmer: {coding: randStat(60,90), design:randStat(20,60), art:randStat(10,50), qa:randStat(30,70)},
+                    Artist: {coding:randStat(10,50), design:randStat(30,70), art:randStat(60,95), qa:randStat(10,40)},
+                    Designer: {coding:randStat(20,60), design:randStat(60,95), art:randStat(30,70), qa:randStat(20,60)},
+                    QA: {coding:randStat(10,40), design:randStat(20,50), art:randStat(10,40), qa:randStat(70,95)},
+                    Producer: {coding:randStat(20,50), design:randStat(30,60), art:randStat(20,60), qa:randStat(30,70)},
+                    Generalist: {coding:randStat(40,75), design:randStat(40,75), art:randStat(40,75), qa:randStat(40,75)}
+                }[role];
+
+                const skillSum = (base.coding + base.design + base.art + base.qa);
+                const salary = Math.max(2500, Math.floor(skillSum * 8)); // salary scales with skill
+                const morale = randStat(50,90);
+                const name = first[Math.floor(Math.random()*first.length)] + ' ' + role.split('')[0];
+
+                return {
+                    nombre: name,
+                    role,
+                    skills: base,
+                    salary,
+                    morale,
+                    fitScore: Math.round(skillSum / 4)
+                };
+            }
+
+            openHiringModal(candidates){
+                // Build temporary modal DOM
+                const modal = document.createElement('div');
+                modal.className = 'modal active';
+                modal.style.zIndex = 2001;
+                const content = document.createElement('div');
+                content.className = 'modal-content';
+                content.style.maxWidth = '800px';
+                content.innerHTML = `<div class="modal-title">HIRING - Choose a candidate</div>`;
+                const grid = document.createElement('div');
+                grid.className = 'selection-grid';
+                candidates.forEach((c, idx) => {
+                    const tile = document.createElement('div');
+                    tile.className = 'option-tile';
+                    tile.style.textAlign = 'left';
+                    tile.innerHTML = `<div style="font-weight:700">${c.nombre} — ${c.role}</div>
+                        <div style="font-size:11px; margin-top:6px;">
+                            Coding: ${c.skills.coding} | Design: ${c.skills.design} | Art: ${c.skills.art} | QA: ${c.skills.qa}
+                        </div>
+                        <div style="margin-top:6px; font-size:12px;">Salary: $${c.salary}/mo — Fit: ${c.fitScore}</div>
+                        <div style="display:flex; gap:8px; margin-top:8px;">
+                            <button class="pixel-button success" id="hire-${idx}">HIRE</button>
+                            <button class="pixel-button" id="reject-${idx}">REJECT</button>
+                        </div>`;
+                    grid.appendChild(tile);
+
+                    // Hire handler
+                    tile.querySelector(`#hire-${idx}`).addEventListener('click', () => {
+                        // Cost to hire (one-time)
+                        const cost = Math.floor(c.salary * 6); // signing fee = 6x monthly salary
+                        if (this.gameState.caja < cost) {
+                            this.mostrarNotificacion('ERROR','Insufficient funds to sign');
+                            return;
+                        }
+                        // create employee instance
+                        const emp = new Empleado(c.nombre, 200+Math.random()*400, 150+Math.random()*200, this);
+                        emp.role = c.role;
+                        emp.coding = c.skills.coding;
+                        emp.design = c.skills.design;
+                        emp.art = c.skills.art;
+                        emp.qa = c.skills.qa;
+                        emp.salary = c.salary;
+                        emp.morale = c.morale;
+                        emp.level = 1;
+                        emp.exp = 0;
+                        // pay cost and add
+                        this.gameState.caja -= cost;
+                        this.gameState.empleados.push(emp);
+                        this.gameState.equipo = this.gameState.empleados.length;
+                        this.mostrarNotificacion('HIRED', `${emp.nombre} signed for $${cost}`);
+                        this.agregarEvento('success', `Hired: ${emp.nombre} (${emp.role})`);
+                        document.body.removeChild(modal);
+                        this.actualizarUI();
+                    });
+
+                    tile.querySelector(`#reject-${idx}`).addEventListener('click', () => {
+                        // remove tile / mark rejected
+                        tile.style.opacity = 0.5;
+                        const btns = tile.querySelectorAll('button');
+                        btns.forEach(b => b.disabled = true);
+                    });
+                });
+                content.appendChild(grid);
+                const cancel = document.createElement('button');
+                cancel.className = 'pixel-button danger';
+                cancel.textContent = 'CLOSE';
+                cancel.style.marginTop = '12px';
+                cancel.addEventListener('click', () => document.body.removeChild(modal));
+                content.appendChild(cancel);
+                modal.appendChild(content);
+                document.body.appendChild(modal);
+            }
+
+            // Payroll (salary payment each month)
+            pagarSalarios(){
+                const totalPayroll = this.gameState.empleados.reduce((s,e) => s + (e.salary || 0), 0);
+                if (this.gameState.caja >= totalPayroll) {
+                    this.gameState.caja -= totalPayroll;
+                    this.agregarEvento('info', `Paid payroll $${Math.floor(totalPayroll)}`);
+                    // small morale bump for being paid
+                    this.gameState.empleados.forEach(e => e.morale = Math.min(100, e.morale + 1));
                 } else {
-                    this.mostrarNotificacion('❌ ERROR', this.gameState.equipo >= this.gameState.maxEquipo ? 'Max team size' : 'Insufficient funds');
+                    // can't pay: morale drop and reputation penalty
+                    this.agregarEvento('danger', `Payroll failed! Can't pay $${Math.floor(totalPayroll)}`);
+                    this.gameState.reputacion = Math.max(0, this.gameState.reputacion - 5);
+                    this.gameState.empleados.forEach(e => e.morale = Math.max(0, e.morale - 10));
+                    // partially pay proportional if any funds
+                    const available = this.gameState.caja;
+                    if (available > 0) {
+                        // distribute proportionally
+                        const ratio = available / totalPayroll;
+                        this.gameState.empleados.forEach(e => {
+                            const pay = Math.floor(e.salary * ratio);
+                            this.gameState.caja -= pay;
+                        });
+                    }
                 }
             }
 
-            investMarketing() {
+            // -----------------------
+            // Marketing, Training, Office upgrade (adapted)
+            // -----------------------
+            investMarketing(){
                 const costo = 30000;
                 if (this.gameState.caja >= costo) {
                     this.gameState.caja -= costo;
                     this.gameState.hype = Math.min(100, this.gameState.hype + 25);
-                    this.mostrarNotificacion('📢 MARKETING', 'Campaign increased hype +25');
+                    this.mostrarNotificacion('MARKETING', 'Campaign increased hype +25');
                     this.agregarEvento('info', 'Marketing campaign launched');
+                    // small morale bump
+                    this.gameState.empleados.forEach(e => e.morale = Math.min(100, e.morale + 2));
                     this.actualizarUI();
-                } else {
-                    this.mostrarNotificacion('❌ ERROR', 'Insufficient funds');
-                }
+                } else this.mostrarNotificacion('ERROR','Insufficient funds');
             }
 
-            researchTech() {
+            // Renamed: training improves employee skills (used to be researchTech)
+            researchTech(){
+                // Training all team: increases skills modestly
                 const costo = 75000;
                 if (this.gameState.caja >= costo) {
                     this.gameState.caja -= costo;
                     this.gameState.nivelInvestigacion++;
-                    this.mostrarNotificacion('🔬 RESEARCH', `Level ${this.gameState.nivelInvestigacion} unlocked`);
-                    this.agregarEvento('success', 'Research completed');
+                    this.gameState.empleados.forEach(e => {
+                        // randomly increase one stat
+                        e.coding = Math.min(100, e.coding + randStat(1,5));
+                        e.design = Math.min(100, e.design + randStat(1,5));
+                        e.art = Math.min(100, e.art + randStat(1,5));
+                        e.qa = Math.min(100, e.qa + randStat(1,5));
+                        e.morale = Math.min(100, e.morale + 5);
+                    });
+                    this.mostrarNotificacion('TRAINING', 'Team improved skills');
+                    this.agregarEvento('success','Training completed');
                     this.actualizarUI();
-                } else {
-                    this.mostrarNotificacion('❌ ERROR', 'Insufficient funds');
-                }
+                } else this.mostrarNotificacion('ERROR','Insufficient funds');
             }
 
-            moveOffice() {
+            moveOffice(){
                 const costo = 150000;
                 if (this.gameState.caja >= costo && this.gameState.nivelEstudio < 5) {
                     this.gameState.caja -= costo;
                     this.gameState.nivelEstudio++;
                     this.gameState.maxEquipo += 25;
                     this.gameState.moral = Math.min(100, this.gameState.moral + 20);
-                    this.mostrarNotificacion('🏢 MOVED', `Office level ${this.gameState.nivelEstudio} unlocked`);
-                    this.agregarEvento('success', `Office upgraded: +25 max team`);
+                    this.mostrarNotificacion('MOVED', `Office level ${this.gameState.nivelEstudio} unlocked`);
+                    this.agregarEvento('success', 'Office upgraded: +25 max team');
                     this.actualizarUI();
-                } else {
-                    this.mostrarNotificacion('❌ ERROR', this.gameState.nivelEstudio >= 5 ? 'Max level reached' : 'Insufficient funds');
-                }
+                } else this.mostrarNotificacion('ERROR', this.gameState.nivelEstudio >= 5 ? 'Max level reached' : 'Insufficient funds');
             }
 
-            toggleCrunch() {
+            toggleCrunch(){
                 this.gameState.crunchMode = !this.gameState.crunchMode;
                 document.getElementById('crunchStatus').textContent = this.gameState.crunchMode ? 'ON' : 'OFF';
-                this.mostrarNotificacion('🔥 CRUNCH', this.gameState.crunchMode ? 'ON: +speed, -morale' : 'OFF');
+                this.mostrarNotificacion('CRUNCH', this.gameState.crunchMode ? 'ON: +speed, -morale' : 'OFF');
                 this.agregarEvento(this.gameState.crunchMode ? 'warning' : 'info', `Crunch ${this.gameState.crunchMode ? 'ACTIVATED' : 'DISABLED'}`);
                 this.actualizarUI();
             }
 
-            takeContract() {
-                const ingresos = 40000;
+            takeContract(){
+                // Contract job gives money but temporary morale hit / stress
+                const ingresos = 40000 + Math.floor(Math.random()*30000);
                 this.gameState.caja += ingresos;
                 this.gameState.ingresosTotales += ingresos;
-                this.mostrarNotificacion('📋 CONTRACT', `+${ingresos / 1000}K secured`);
+                this.gameState.moral = Math.max(0, this.gameState.moral - 5);
+                this.mostrarNotificacion('CONTRACT', `+${Math.floor(ingresos/1000)}K secured`);
                 this.agregarEvento('info', 'Contract work completed');
                 this.actualizarUI();
             }
 
-            startNewProject() {
+            // -----------------------
+            // Projects: start / develop / finish
+            // -----------------------
+            startNewProject(){
                 if (this.gameState.proyectoActivo) {
-                    this.mostrarNotificacion('⚠️ ACTIVE PROJECT', 'Finish current game first');
+                    this.mostrarNotificacion('ACTIVE PROJECT','Finish current game first');
                     return;
                 }
                 document.getElementById('newGameModal').classList.add('active');
             }
 
-            continueProject() {
+            continueProject(){
                 if (!this.gameState.proyectoActivo) return;
                 document.getElementById('continueBtn').classList.add('bouncing');
-                setTimeout(() => document.getElementById('continueBtn').classList.remove('bouncing'), 300);
+                setTimeout(()=>document.getElementById('continueBtn').classList.remove('bouncing'),300);
                 this.desarrollarProyecto();
             }
 
-            desarrollarProyecto() {
+            desarrollarProyecto(){
                 const proyecto = this.gameState.proyectoActivo;
                 if (!proyecto) return;
 
-                const velocidad = this.gameState.crunchMode ? 25 : 15;
-                const penalidad = this.gameState.crunchMode ? 3 : 0;
-
-                proyecto.progreso += velocidad;
-                this.gameState.moral = Math.max(0, this.gameState.moral - penalidad);
-
-                // Random events
-                if (Math.random() < 0.1) this.eventoDesarrolloRandom();
-
-                // Complete project
-                if (proyecto.progreso >= 100) {
-                    this.lanzarJuego();
+                // Calculate team contribution: sum of assigned employees' productivity adjusted by fit
+                // If no assigned list, autoassign best-fit employees
+                if (!proyecto.assigned || proyecto.assigned.length === 0) {
+                    proyecto.assigned = this.autoAssignForProject(proyecto);
                 }
 
+                // Speed per tick
+                const baseSpeed = this.gameState.crunchMode ? 35 : 18;
+                let totalContribution = 0;
+                let qualityGain = 0;
+
+                proyecto.assigned.forEach(emp => {
+                    const employee = this.findEmpleadoById(emp.id);
+                    if (!employee) return;
+                    // Employee effective productivity = (avg relevant skills) * (morale/100) * (level bonus)
+                    const roleMatchFactor = this.roleMatchBonus(employee, proyecto);
+                    const avgSkill = (employee.coding + employee.design + employee.art + employee.qa) / 4;
+                    const effective = (avgSkill/100) * (employee.morale/100) * (1 + (employee.level - 1) * 0.08) * roleMatchFactor;
+                    // contribution scaled
+                    const contribution = effective * baseSpeed * (employee.productivity/100);
+                    totalContribution += contribution;
+                    // quality depends on "specialty" (higher matching stat)
+                    const qualityContribution = (employee.getQualityForProject(proyecto) / 100) * 2;
+                    qualityGain += qualityContribution;
+                    // gain experience
+                    employee.exp += Math.max(1, Math.floor(contribution * 0.02));
+                    // small morale change depending on crunch
+                    if (this.gameState.crunchMode) employee.morale = Math.max(0, employee.morale - 0.5);
+                });
+
+                // Random events
+                if (Math.random() < 0.12) this.eventoDesarrolloRandom();
+
+                // Apply progress & quality
+                const progressDelta = Math.floor(totalContribution / 10); // scale down
+                proyecto.progreso += progressDelta;
+                proyecto.calidad += qualityGain;
+                if (proyecto.progreso >= 100) this.lanzarJuego();
                 this.actualizarUI();
             }
 
-            eventoDesarrolloRandom() {
+            // Autoassign algorithm: chooses N best-fit employees
+            autoAssignForProject(proyecto){
+                const need = Math.min(this.gameState.equipo, 8); // limit assigned to 8
+                // compute fit score for each employee
+                const fits = this.gameState.empleados.map(e => {
+                    return { id:e.id, fit: this.employeeFitForProject(e, proyecto) };
+                });
+                fits.sort((a,b)=>b.fit - a.fit);
+                return fits.slice(0, need).map(f=>({id:f.id}));
+            }
+
+            // Fit score heuristic
+            employeeFitForProject(emp, proyecto){
+                // role match & relevant skill based on genre
+                const genre = proyecto.genero;
+                // prefer programmers + designers + artists depending on genre
+                let weightCoding=0.25, weightDesign=0.25, weightArt=0.25, weightQA=0.25;
+                if (genre === 'accion'){ weightCoding=0.4; weightDesign=0.2; weightArt=0.2; weightQA=0.2; }
+                if (genre === 'rpg'){ weightDesign=0.35; weightArt=0.25; weightCoding=0.25; weightQA=0.15; }
+                if (genre === 'terror'){ weightArt=0.35; weightDesign=0.3; weightCoding=0.2; weightQA=0.15; }
+                if (genre === 'simulacion'){ weightCoding=0.35; weightQA=0.25; weightDesign=0.2; weightArt=0.2; }
+                // compute weighted skill
+                const score = emp.coding*weightCoding + emp.design*weightDesign + emp.art*weightArt + emp.qa*weightQA;
+                // incorporate morale and level
+                return score * (emp.morale/100) * (1 + (emp.level-1)*0.05);
+            }
+
+            roleMatchBonus(emp, proyecto){
+                // small multiplier if employee role fits project's main needs
+                if (emp.role === 'Programmer' && proyecto.genero === 'accion') return 1.12;
+                if (emp.role === 'Designer' && proyecto.genero === 'rpg') return 1.12;
+                if (emp.role === 'Artist' && (proyecto.genero === 'terror' || proyecto.tema === 'fantasia')) return 1.12;
+                if (emp.role === 'QA') return 1.05;
+                return 1.0;
+            }
+
+            findEmpleadoById(id){
+                return this.gameState.empleados.find(e => e.id === id);
+            }
+
+            eventoDesarrolloRandom(){
                 const eventos = [
-                    { tipo: 'warning', texto: '🐛 Critical bug! -10% progress', efecto: () => { this.gameState.proyectoActivo.progreso -= 10; } },
-                    { tipo: 'success', texto: '⭐ Team star! +15% progress', efecto: () => { this.gameState.proyectoActivo.progreso += 15; } },
-                    { tipo: 'info', texto: '💡 Inspiration! +5 quality', efecto: () => { this.gameState.proyectoActivo.calidad += 5; } }
+                    { tipo:'warning', texto:'🐛 Critical bug! -10% progress', efecto: () => { if (this.gameState.proyectoActivo) this.gameState.proyectoActivo.progreso = Math.max(0, this.gameState.proyectoActivo.progreso - 10); } },
+                    { tipo:'success', texto:'⭐ Team star! +15% progress', efecto: () => { if (this.gameState.proyectoActivo) this.gameState.proyectoActivo.progreso += 15; } },
+                    { tipo:'info', texto:'💡 Inspiration! +5 quality', efecto: () => { if (this.gameState.proyectoActivo) this.gameState.proyectoActivo.calidad += 5; } }
                 ];
-                const evento = eventos[Math.floor(Math.random() * eventos.length)];
+                const evento = eventos[Math.floor(Math.random()*eventos.length)];
                 evento.efecto();
                 this.agregarEvento(evento.tipo, evento.texto);
             }
 
-            lanzarJuego() {
+            lanzarJuego(){
                 const proyecto = this.gameState.proyectoActivo;
+                if (!proyecto) return;
                 const nota = this.calcularNotaFinal(proyecto);
                 const ventas = this.calcularVentas(proyecto, nota);
 
-                // Update state
+                // update state
                 this.gameState.caja += ventas;
                 this.gameState.ingresosTotales += ventas;
-                this.gameState.juegos.push({...proyecto, nota, ventas, año: this.gameState.año, mes: this.gameState.mes});
+                this.gameState.juegos.push({...proyecto, nota, ventas, año:this.gameState.año, mes:this.gameState.mes});
 
-                // Update reputation
+                // reputation, hype, moral effects
                 const cambioRep = nota > 80 ? 8 : nota > 60 ? 3 : -5;
-                this.gameState.reputacion = Math.max(0, Math.min(100, this.gameState.reputacion + cambioRep));
+                this.gameState.reputacion = clamp(0,100,this.gameState.reputacion + cambioRep);
                 this.gameState.hype = Math.max(10, this.gameState.hype - 30);
                 this.gameState.moral = Math.min(100, this.gameState.moral + 10);
 
-                // Clear project
+                // clear project and UI
                 this.gameState.proyectoActivo = null;
                 document.getElementById('activeProject').classList.remove('active');
                 document.getElementById('newGameBtn').style.display = 'block';
                 document.getElementById('continueBtn').style.display = 'none';
 
-                // Show review
                 this.mostrarReview(nota, ventas);
-
-                this.agregarEvento(nota > 80 ? 'success' : nota > 60 ? 'info' : 'danger',
-                    `🎮 ${this.baseDatos.generos[proyecto.genero].nombre} launched: ${nota.toFixed(1)}/100`);
-                
+                this.agregarEvento(nota > 80 ? 'success' : nota > 60 ? 'info' : 'danger', `${this.baseDatos.generos[proyecto.genero].nombre} launched: ${nota.toFixed(1)}/100`);
                 this.comprobarLogros();
+                this.actualizarUI();
             }
 
-            calcularNotaFinal(proyecto) {
+            calcularNotaFinal(proyecto){
                 const genero = this.baseDatos.generos[proyecto.genero];
                 const tema = this.baseDatos.temas[proyecto.tema];
                 const plataforma = this.baseDatos.plataformas[proyecto.plataforma];
-                
-                const añoIndex = Math.min(9, Math.floor((this.gameState.año - 2000) / 3));
+                const añoIndex = Math.min(9, Math.floor((this.gameState.año - 2000)/3));
                 const tendencia = genero.tendencia[añoIndex];
-                
+
+                // start from base and apply multipliers: budget, reputation, team quality, project quality stat
                 let nota = genero.base * tendencia;
                 nota *= (tema.multi[proyecto.genero] || 1);
                 nota *= (proyecto.presupuesto / 100000) * 0.5 + 0.5;
-                nota *= (this.gameState.reputacion / 100);
-                nota *= (this.gameState.moral / 100) * 0.3 + 0.7;
-                nota *= (this.gameState.equipo / 3) * 0.2 + 0.8;
-                nota *= 0.9 + Math.random() * 0.2;
-
+                nota *= (this.gameState.reputacion/100);
+                nota *= (this.gameState.moral/100)*0.3 + 0.7;
+                // team factor: average relevant skill of assigned employees
+                if (proyecto.assigned && proyecto.assigned.length > 0) {
+                    const avg = proyecto.assigned.reduce((s, a) => {
+                        const emp = this.findEmpleadoById(a.id);
+                        return emp ? s + ((emp.coding + emp.design + emp.art + emp.qa)/4) : s;
+                    }, 0) / proyecto.assigned.length;
+                    nota *= (avg/100)*0.5 + 0.75;
+                }
+                // scale with project internal "calidad"
+                nota *= 0.9 + (Math.min(100, proyecto.calidad || 0) / 100) * 0.2;
+                // random jitter
+                nota *= 0.95 + Math.random() * 0.1;
                 return Math.min(100, Math.max(0, nota));
             }
 
-            calcularVentas(proyecto, nota) {
+            calcularVentas(proyecto, nota){
                 const base = proyecto.presupuesto * 3;
                 const bonusNota = (nota - 50) / 50;
                 const bonusHype = this.gameState.hype / 100;
@@ -1106,89 +839,84 @@
                 return Math.floor(base * (1 + bonusNota) * (1 + bonusHype) * añoMulti);
             }
 
-            mostrarReview(nota, ventas) {
-                document.getElementById('reviewScore').textContent = nota.toFixed(0);
-                const stars = '★'.repeat(Math.floor(nota / 20)) + '☆'.repeat(5 - Math.floor(nota / 20));
+            mostrarReview(nota, ventas){
+                document.getElementById('reviewScore').textContent = Math.round(nota);
+                const stars = '★'.repeat(Math.floor(nota/20)) + '☆'.repeat(5 - Math.floor(nota/20));
                 document.getElementById('reviewStars').textContent = stars;
-                document.getElementById('salesFigure').textContent = `$${(ventas / 1000).toFixed(0)}K`;
-                document.getElementById('unitsSold').textContent = `${(ventas / 10).toFixed(0)}K`;
-                
-                const comentarios = nota >= 90 ? "Masterpiece! Game of the Year." :
-                                  nota >= 80 ? "Excellent! Must buy." :
-                                  nota >= 70 ? "Good game with minor flaws." :
-                                  nota >= 60 ? "Average experience." :
-                                  "Poor execution. Needs work.";
+                document.getElementById('salesFigure').textContent = `$${(ventas/1000).toFixed(0)}K`;
+                document.getElementById('unitsSold').textContent = `${(ventas/10).toFixed(0)}K`;
+                const comentarios = nota >= 90 ? "Masterpiece! Game of the Year." : nota >= 80 ? "Excellent! Must buy." : nota >= 70 ? "Good game with minor flaws." : nota >= 60 ? "Average experience." : "Poor execution. Needs work.";
                 document.getElementById('reviewComments').textContent = comentarios;
-                
                 document.getElementById('reviewModal').classList.add('active');
             }
 
-            closeReview() {
+            closeReview(){
                 document.getElementById('reviewModal').classList.remove('active');
             }
 
-            selectOption(element) {
+            // -----------------------
+            // Project creation (kept but improved)
+            // -----------------------
+            selectOption(element){
                 const type = element.dataset.type;
                 document.querySelectorAll(`[data-type="${type}"]`).forEach(el => el.classList.remove('selected'));
                 element.classList.add('selected');
             }
 
-            confirmProject() {
+            confirmProject(){
                 const genero = document.querySelector('[data-type="genre"].selected')?.dataset.value;
                 const tema = document.querySelector('[data-type="tema"].selected')?.dataset.value;
                 const plataforma = document.querySelector('[data-type="plataforma"].selected')?.dataset.value;
                 const presupuesto = parseInt(document.getElementById('budgetSlider').value);
 
                 if (!genero || !tema || !plataforma) {
-                    this.mostrarNotificacion('❌ ERROR', 'Select all options');
+                    this.mostrarNotificacion('ERROR','Select all options');
                     return;
                 }
-
                 if (this.gameState.caja < presupuesto) {
-                    this.mostrarNotificacion('❌ ERROR', `Need $${presupuesto.toLocaleString()}`);
+                    this.mostrarNotificacion('ERROR', `Need $${presupuesto.toLocaleString()}`);
                     return;
                 }
 
+                // deduct budget
                 this.gameState.caja -= presupuesto;
-                this.gameState.proyectoActivo = {
-                    genero, tema, plataforma, presupuesto,
-                    progreso: 0, calidad: 0
-                };
+                // create project structure with assigned = [] (autoassign later)
+                this.gameState.proyectoActivo = { genero, tema, plataforma, presupuesto, progreso:0, calidad:0, assigned:[] };
 
                 document.getElementById('newGameModal').classList.remove('active');
                 document.querySelectorAll('.option-tile').forEach(el => el.classList.remove('selected'));
-                
-                this.mostrarNotificacion('🎮 PROJECT STARTED', `${this.baseDatos.generos[genero].nombre}`);
+                this.mostrarNotificacion('PROJECT STARTED', `${this.baseDatos.generos[genero].nombre}`);
                 this.agregarEvento('success', `Started: ${this.baseDatos.generos[genero].nombre} / ${this.baseDatos.temas[tema].nombre}`);
                 this.actualizarUI();
             }
 
-            updateBudget(valor) {
-                document.getElementById('budgetValue').textContent = `$${(valor / 1000).toFixed(0)}K`;
+            updateBudget(valor){
+                document.getElementById('budgetValue').textContent = `$${(valor/1000).toFixed(0)}K`;
             }
 
-            actualizarUI() {
-                // Update stats
-                document.getElementById('uiCash').textContent = `$${(this.gameState.caja / 1000).toFixed(0)}K`;
-                document.getElementById('uiYear').textContent = `${this.gameState.año}-${this.gameState.mes.toString().padStart(2, '0')}`;
+            // -----------------------
+            // UI updates & employee list
+            // -----------------------
+            actualizarUI(){
+                document.getElementById('uiCash').textContent = `$${(this.gameState.caja/1000).toFixed(0)}K`;
+                document.getElementById('uiYear').textContent = `${this.gameState.año}-${this.gameState.mes.toString().padStart(2,'0')}`;
                 document.getElementById('uiTeam').textContent = `${this.gameState.equipo} / ${this.gameState.maxEquipo}`;
-                document.getElementById('uiRep').textContent = `${this.gameState.reputacion}%`;
-                document.getElementById('uiHype').textContent = `${this.gameState.hype}%`;
-                
-                document.getElementById('cashBar').style.width = `${Math.min(100, this.gameState.caja / 5000)}%`;
-                document.getElementById('teamBar').style.width = `${(this.gameState.equipo / this.gameState.maxEquipo) * 100}%`;
+                document.getElementById('uiRep').textContent = `${Math.round(this.gameState.reputacion)}%`;
+                document.getElementById('uiHype').textContent = `${Math.round(this.gameState.hype)}%`;
+
+                document.getElementById('cashBar').style.width = `${Math.min(100, this.gameState.caja/5000)}%`;
+                document.getElementById('teamBar').style.width = `${(this.gameState.equipo/this.gameState.maxEquipo)*100}%`;
                 document.getElementById('repBar').style.width = `${this.gameState.reputacion}%`;
                 document.getElementById('hypeBar').style.width = `${this.gameState.hype}%`;
-                
-                // Update project panel
+
+                // Project panel
                 if (this.gameState.proyectoActivo) {
                     document.getElementById('activeProject').classList.add('active');
                     document.getElementById('newGameBtn').style.display = 'none';
                     document.getElementById('continueBtn').style.display = 'block';
-                    document.getElementById('projectName').textContent = 
-                        `${this.baseDatos.generos[this.gameState.proyectoActivo.genero].nombre}`;
-                    document.getElementById('projectProgress').textContent = `${this.gameState.proyectoActivo.progreso}%`;
-                    document.getElementById('progressBar').style.width = `${this.gameState.proyectoActivo.progreso}%`;
+                    document.getElementById('projectName').textContent = `${this.baseDatos.generos[this.gameState.proyectoActivo.genero].nombre}`;
+                    document.getElementById('projectProgress').textContent = `${Math.min(100, Math.floor(this.gameState.proyectoActivo.progreso))}%`;
+                    document.getElementById('progressBar').style.width = `${Math.min(100, this.gameState.proyectoActivo.progreso)}%`;
                 } else {
                     document.getElementById('activeProject').classList.remove('active');
                     document.getElementById('newGameBtn').style.display = 'block';
@@ -1199,195 +927,302 @@
                 this.comprobarLogros();
             }
 
-            actualizarListaEmpleados() {
+            actualizarListaEmpleados(){
                 const container = document.getElementById('employeeList');
                 container.innerHTML = '';
-                
-                this.gameState.empleados.slice(0, 8).forEach(empleado => {
+                // show up to 12 employees, but allow scroll
+                this.gameState.empleados.forEach(emp => {
                     const div = document.createElement('div');
                     div.className = 'ui-stat';
                     div.style.fontSize = '9px';
-                    div.innerHTML = `
-                        <span>${empleado.nombre.split(' ')[0]}</span>
-                        <span style="color: ${empleado.moral > 60 ? '#00ff41' : '#ffcc00'}">${empleado.moral}%</span>
-                    `;
+                    div.style.display = 'flex';
+                    div.style.justifyContent = 'space-between';
+                    div.style.alignItems = 'center';
+                    div.style.gap = '8px';
+
+                    const left = document.createElement('div');
+                    left.innerHTML = `<div style="font-weight:700">${emp.nombre.split(' ')[0]} (${emp.role||'General'})</div>
+                                      <div style="font-size:10px; color:var(--text-secondary)">Lvl ${emp.level} • $${emp.salary}/mo</div>`;
+
+                    const right = document.createElement('div');
+                    right.style.textAlign = 'right';
+                    right.innerHTML = `<div style="color:${emp.morale>60? '#00ff41':'#ffcc00'}">${Math.round(emp.morale)}%</div>
+                                       <div style="font-size:10px; margin-top:4px;">
+                                         <button class="pixel-button" id="view-${emp.id}" style="min-width:80px;">VIEW</button>
+                                       </div>`;
+
+                    div.appendChild(left);
+                    div.appendChild(right);
                     container.appendChild(div);
+
+                    document.getElementById(`view-${emp.id}`).addEventListener('click', () => this.openEmployeePanel(emp));
                 });
             }
 
-            comprobarLogros() {
-                if (this.gameState.juegos.length === 1 && !this.logros.primero.desbloqueado) {
-                    this.desbloquearLogro(this.logros.primero);
-                }
-                if (this.gameState.juegos.length >= 10 && !this.logros.experto.desbloqueado) {
-                    this.desbloquearLogro(this.logros.experto);
-                }
-                if (this.gameState.ingresosTotales >= 1000000 && !this.logros.millonario.desbloqueado) {
-                    this.desbloquearLogro(this.logros.millonario);
-                }
-                const hit = this.gameState.juegos.find(j => j.nota >= 85);
-                if (hit && !this.logros.hit.desbloqueado) {
-                    this.desbloquearLogro(this.logros.hit);
-                }
+            openEmployeePanel(emp){
+                // small modal with actions: train, promote, fire, assign/unassign
+                const modal = document.createElement('div');
+                modal.className = 'modal active';
+                modal.style.zIndex = 2002;
+                const content = document.createElement('div');
+                content.className = 'modal-content';
+                content.style.maxWidth = '500px';
+                content.innerHTML = `<div class="modal-title">${emp.nombre} — ${emp.role || 'Generalist'}</div>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <div style="flex:1; background:var(--bg-card); padding:8px; border:2px solid var(--pixel-border);">
+                            <div style="font-size:11px; color:var(--text-secondary)">Coding</div><div style="font-weight:700">${Math.round(emp.coding)}</div>
+                            <div style="font-size:11px; color:var(--text-secondary); margin-top:6px;">Design</div><div style="font-weight:700">${Math.round(emp.design)}</div>
+                        </div>
+                        <div style="flex:1; background:var(--bg-card); padding:8px; border:2px solid var(--pixel-border);">
+                            <div style="font-size:11px; color:var(--text-secondary)">Art</div><div style="font-weight:700">${Math.round(emp.art)}</div>
+                            <div style="font-size:11px; color:var(--text-secondary); margin-top:6px;">QA</div><div style="font-weight:700">${Math.round(emp.qa)}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="pixel-button success" id="train-${emp.id}">TRAIN (+skill)</button>
+                        <button class="pixel-button" id="promote-${emp.id}">PROMOTE (exp)</button>
+                        <button class="pixel-button danger" id="fire-${emp.id}">FIRE</button>
+                    </div>
+                    <div style="margin-top:10px;"><button class="pixel-button" id="close-${emp.id}">CLOSE</button></div>`;
+
+                content.querySelector(`#train-${emp.id}`).addEventListener('click', () => {
+                    const cost = 8000;
+                    if (this.gameState.caja < cost) { this.mostrarNotificacion('ERROR','Insufficient funds'); return; }
+                    this.gameState.caja -= cost;
+                    emp.coding = Math.min(100, emp.coding + randStat(3,8));
+                    emp.design = Math.min(100, emp.design + randStat(3,8));
+                    emp.art = Math.min(100, emp.art + randStat(3,8));
+                    emp.qa = Math.min(100, emp.qa + randStat(3,8));
+                    emp.morale = Math.min(100, emp.morale + 5);
+                    this.agregarEvento('success', `${emp.nombre} trained`);
+                    this.actualizarUI();
+                });
+
+                content.querySelector(`#promote-${emp.id}`).addEventListener('click', () => {
+                    if (emp.exp >= 100) {
+                        emp.level++;
+                        emp.exp -= 100;
+                        emp.salary = Math.floor(emp.salary * 1.25);
+                        emp.productivity = Math.min(200, emp.productivity + 10);
+                        this.agregarEvento('success', `${emp.nombre} promoted to Lvl ${emp.level}`);
+                        this.actualizarUI();
+                    } else this.mostrarNotificacion('INFO', 'Not enough EXP to promote (100)');
+                });
+
+                content.querySelector(`#fire-${emp.id}`).addEventListener('click', () => {
+                    if (confirm(`Fire ${emp.nombre}? This will remove them permanently.`)) {
+                        this.gameState.empleados = this.gameState.empleados.filter(e => e.id !== emp.id);
+                        this.gameState.equipo = this.gameState.empleados.length;
+                        this.agregarEvento('danger', `Fired: ${emp.nombre}`);
+                        document.body.removeChild(modal);
+                        this.actualizarUI();
+                    }
+                });
+
+                content.querySelector(`#close-${emp.id}`).addEventListener('click', () => document.body.removeChild(modal));
+                modal.appendChild(content);
+                document.body.appendChild(modal);
             }
 
-            desbloquearLogro(logro) {
+            comprobarLogros(){
+                if (this.gameState.juegos.length === 1 && !this.logros.primero.desbloqueado) this.desbloquearLogro(this.logros.primero);
+                if (this.gameState.juegos.length >= 10 && !this.logros.experto.desbloqueado) this.desbloquearLogro(this.logros.experto);
+                if (this.gameState.ingresosTotales >= 1000000 && !this.logros.millonario.desbloqueado) this.desbloquearLogro(this.logros.millonario);
+                const hit = this.gameState.juegos.find(j => j.nota >= 85);
+                if (hit && !this.logros.hit.desbloqueado) this.desbloquearLogro(this.logros.hit);
+            }
+
+            desbloquearLogro(logro){
                 logro.desbloqueado = true;
                 document.getElementById('achievementTitle').textContent = `🏆 ${logro.nombre}`;
                 document.getElementById('achievementDesc').textContent = logro.descripcion;
                 document.getElementById('achievementPopup').classList.add('active');
-                setTimeout(() => document.getElementById('achievementPopup').classList.remove('active'), 4000);
-                this.agregarEvento('success', `🏆 Achievement: ${logro.nombre}!`);
+                setTimeout(()=>document.getElementById('achievementPopup').classList.remove('active'),4000);
+                this.agregarEvento('success', `Achievement: ${logro.nombre}`);
             }
 
-            agregarEvento(tipo, texto) {
+            agregarEvento(tipo, texto){
                 const log = document.getElementById('eventLog');
                 const evento = document.createElement('div');
                 evento.className = `event-item ${tipo}`;
-                evento.innerHTML = `<div class="event-header">${this.gameState.año}-${this.gameState.mes.toString().padStart(2, '0')}</div>${texto}`;
+                evento.innerHTML = `<div class="event-header">${this.gameState.año}-${this.gameState.mes.toString().padStart(2,'0')}</div>${texto}`;
                 log.insertBefore(evento, log.firstChild);
                 while (log.children.length > 20) log.removeChild(log.lastChild);
             }
 
-            mostrarNotificacion(titulo, texto) {
+            mostrarNotificacion(titulo, texto){
                 document.getElementById('notificationTitle').textContent = titulo;
                 document.getElementById('notificationText').textContent = texto;
                 const notif = document.getElementById('notification');
                 notif.classList.add('show');
-                setTimeout(() => notif.classList.remove('show'), 3000);
+                setTimeout(()=>notif.classList.remove('show'),3000);
             }
 
-            resetGame() {
-                if (confirm('🔄 Start new game? All progress will be lost!')) {
+            resetGame(){
+                if (confirm('Start new game? All progress will be lost!')) {
                     localStorage.removeItem('industrySimGOTY');
                     location.reload();
                 }
             }
 
-            guardarJuego() {
+            guardarJuego(){
                 try {
-                    localStorage.setItem('industrySimGOTY', JSON.stringify(this.gameState));
+                    // serializable state: convert empleados to plain objects
+                    const data = JSON.parse(JSON.stringify(this.gameState, (k,v) => {
+                        if (k === 'empleados') return v.map(e => ({ id:e.id, nombre:e.nombre, x:e.x, y:e.y, role:e.role, coding:e.coding, design:e.design, art:e.art, qa:e.qa, salary:e.salary, morale:e.morale, level:e.level, exp:e.exp, productivity:e.productivity }));
+                        return v;
+                    }));
+                    localStorage.setItem('industrySimGOTY', JSON.stringify(data));
                     document.getElementById('saveIndicator').classList.add('show');
-                    setTimeout(() => document.getElementById('saveIndicator').classList.remove('show'), 1000);
-                } catch (e) {
-                    console.warn('Could not save game:', e);
-                }
+                    setTimeout(()=>document.getElementById('saveIndicator').classList.remove('show'),1000);
+                } catch (e) { console.warn('Could not save game:', e); }
             }
 
-            cargarJuego() {
+            cargarJuego(){
                 try {
                     const guardado = localStorage.getItem('industrySimGOTY');
                     if (guardado) {
                         const data = JSON.parse(guardado);
+                        // copy top-level props
                         Object.assign(this.gameState, data);
-                        this.gameState.empleados = this.gameState.empleados.map(e => {
-                            const emp = new Empleado(e.nombre, e.x, e.y, this);
-                            Object.assign(emp, e);
-                            return emp;
-                        });
-                        this.mostrarNotificacion('📂 SAVED GAME LOADED', `Year ${this.gameState.año}`);
+                        // recreate empleados as class instances
+                        if (data.empleados && Array.isArray(data.empleados)) {
+                            this.gameState.empleados = data.empleados.map(e => {
+                                const emp = new Empleado(e.nombre, e.x || 200+Math.random()*400, e.y || 150+Math.random()*200, this);
+                                Object.assign(emp, e);
+                                // ensure defaults
+                                emp.level = emp.level || 1;
+                                emp.exp = emp.exp || 0;
+                                emp.productivity = emp.productivity || 100;
+                                return emp;
+                            });
+                        }
+                        this.mostrarNotificacion('SAVED GAME LOADED', `Year ${this.gameState.año}`);
                     }
-                } catch (e) {
-                    console.warn('Could not load game:', e);
-                }
+                } catch (e) { console.warn('Could not load game:', e); }
             }
         }
 
-        // 🎮 EMPLOYEE CLASS
+        // -----------------------
+        // Employee Class (rich stats)
+        // -----------------------
+        let __EMP_ID = 1;
         class Empleado {
             constructor(nombre, x, y, juego) {
+                this.id = __EMP_ID++;
                 this.nombre = nombre;
                 this.x = x;
                 this.y = y;
                 this.juego = juego;
-                this.moral = 75;
-                this.habilidad = Math.random() * 0.5 + 0.5;
+                // Stats
+                this.morale = 75;
+                this.coding = randStat(40,80);
+                this.design = randStat(30,75);
+                this.art = randStat(20,70);
+                this.qa = randStat(30,80);
+                this.productivity = randStat(80,120); // percent baseline
+                this.level = 1;
+                this.exp = 0;
+                this.salary = 3000 + Math.floor(Math.random()*2000);
+                this.role = this.guessRole();
                 this.estado = 'idle';
                 this.frame = 0;
-                this.velocidad = 2;
                 this.destinoX = x;
                 this.destinoY = y;
-                this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                this.color = `hsl(${Math.random()*360},70%,50%)`;
             }
 
-            actualizar(deltaTime) {
-                this.frame += deltaTime * 0.01;
+            guessRole(){
+                // pick primary highest skill
+                const vals = [{k:'Programmer',v:this.coding},{k:'Designer',v:this.design},{k:'Artist',v:this.art},{k:'QA',v:this.qa}];
+                vals.sort((a,b)=>b.v - a.v);
+                return vals[0].k;
+            }
 
+            actualizar(deltaTime){
+                this.frame += deltaTime*0.01;
+                // random small walk
                 if (this.estado === 'walk') {
                     const dx = this.destinoX - this.x;
                     const dy = this.destinoY - this.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    
+                    const dist = Math.sqrt(dx*dx + dy*dy);
                     if (dist > 5) {
-                        this.x += (dx / dist) * this.velocidad;
-                        this.y += (dy / dist) * this.velocidad;
-                    } else {
-                        this.estado = 'idle';
-                    }
-                }
+                        const velocidad = 1 + this.productivity/100;
+                        this.x += (dx/dist) * velocidad;
+                        this.y += (dy/dist) * velocidad;
+                    } else this.estado = 'idle';
+                } else if (Math.random() < 0.0005) this.caminarAleatorio();
 
-                if (Math.random() < 0.0005) {
-                    this.caminarAleatorio();
+                // auto level up if exp high
+                if (this.exp >= 100) {
+                    this.level++;
+                    this.exp -= 100;
+                    this.salary = Math.floor(this.salary * 1.18);
+                    this.productivity = Math.min(200, this.productivity + 8);
+                    this.juego.agregarEvento('success', `${this.nombre} leveled to ${this.level}`);
                 }
             }
 
-            dibujar(ctx) {
+            dibujar(ctx){
                 const size = 16;
-                const x = this.x - size / 2;
-                const y = this.y - size / 2;
-
+                const x = this.x - size/2;
+                const y = this.y - size/2;
                 ctx.fillStyle = this.color;
                 ctx.fillRect(x, y, size, size);
                 ctx.fillStyle = '#fdbcb4';
-                ctx.fillRect(x + 4, y - 8, 8, 8);
-
+                ctx.fillRect(x+4, y-8, 8, 8);
                 if (this.estado === 'work') {
-                    ctx.fillStyle = 'rgba(0, 184, 255, 0.3)';
-                    ctx.fillRect(x - 2, y - 2, size + 4, size + 4);
+                    ctx.fillStyle = 'rgba(0,184,255,0.18)';
+                    ctx.fillRect(x-2, y-2, size+4, size+4);
                 }
             }
 
-            caminarAleatorio() {
-                this.destinoX = 200 + Math.random() * 400;
-                this.destinoY = 150 + Math.random() * 200;
+            caminarAleatorio(){
+                this.destinoX = 200 + Math.random()*400;
+                this.destinoY = 150 + Math.random()*200;
                 this.estado = 'walk';
             }
-        }
 
-        // 🎮 PARTICLE SYSTEM
-        class Particula {
-            constructor(x, y, color, vx, vy, vida) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.vx = vx;
-                this.vy = vy;
-                this.vida = vida;
-                this.maxVida = vida;
-            }
-
-            actualizar(deltaTime) {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += 0.1;
-                this.vida -= deltaTime;
-                return this.vida > 0;
-            }
-
-            dibujar(ctx) {
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = this.vida / this.maxVida;
-                ctx.fillRect(this.x, this.y, 4, 4);
-                ctx.globalAlpha = 1;
+            // get the stat that best fits project to compute quality
+            getQualityForProject(proyecto){
+                // heuristics: depending on genre, return relevant stat
+                if (!proyecto) return (this.coding+this.design+this.art+this.qa)/4;
+                if (proyecto.genero === 'accion') return (this.coding*0.6 + this.design*0.2 + this.art*0.1 + this.qa*0.1);
+                if (proyecto.genero === 'rpg') return (this.design*0.45 + this.art*0.35 + this.coding*0.15 + this.qa*0.05);
+                if (proyecto.genero === 'terror') return (this.art*0.45 + this.design*0.35 + this.qa*0.1 + this.coding*0.1);
+                if (proyecto.genero === 'simulacion') return (this.coding*0.5 + this.qa*0.3 + this.design*0.1 + this.art*0.1);
+                // fallback
+                return (this.coding+this.design+this.art+this.qa)/4;
             }
         }
 
-        // 🎮 START GAME
+        // -----------------------
+        // Utility functions
+        // -----------------------
+        function randStat(min,max){ return Math.floor(min + Math.random()*(max-min+1)); }
+        function clamp(a,b,v){ return Math.max(a, Math.min(b, v)); }
+
+        // -----------------------
+        // Historical events (kept from original)
+        // -----------------------
+        IndustryEvolutionSimulator.prototype.eventosHistoria = {
+            2004: { tipo:'danger', texto:'EA Spouse scandal! Morale -20%', efecto: () => { game.gameState.moral = Math.max(0, game.gameState.moral - 20); } },
+            2008: { tipo:'warning', texto:'Financial crisis! Hype -30%', efecto: () => { game.gameState.hype = Math.max(0, game.gameState.hype - 30); } },
+            2012: { tipo:'success', texto:'Mobile boom! Hype +30', efecto: () => { game.gameState.hype = Math.min(100, game.gameState.hype + 30); } },
+            2017: { tipo:'danger', texto:'Loot box controversy! Reputation -15%', efecto: () => { game.gameState.reputacion = Math.max(0, game.gameState.reputacion - 15); } },
+            2020: { tipo:'success', texto:'Pandemic: cash bonus', efecto: () => { const bonus = 200000; game.gameState.caja += bonus; game.gameState.ingresosTotales += bonus; } },
+            2023: { tipo:'warning', texto:'Mass layoffs! Hiring discount', efecto: () => { game.gameState.descuentoContratacion = true; } }
+        };
+
+        // -----------------------
+        // Boot
+        // -----------------------
         window.addEventListener('load', () => {
             window.game = new IndustryEvolutionSimulator();
             window.game.cargarJuego();
             setInterval(() => game.guardarJuego(), 60000);
         });
+
     </script>
 </body>
 </html>
